@@ -15,7 +15,7 @@ export default function Home() {
         Fast Delivery eCommerce Experience
       </p>
       <p className="text-base sm:text-lg text-center text-[#13343b]/80">
-        We're launching soon. Stay tuned!
+        We&apos;re launching soon. Stay tuned!
       </p>
     </div>
   );
