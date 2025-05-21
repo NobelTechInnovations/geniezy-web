@@ -1,101 +1,82 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Slider from 'react-slick';
 import { generateTempArray } from '@/utilities/common-helpers';
 import SkeletonProduct from '@/components/elements/skeletons/SkeletonProduct';
 import Product from '@/components/elements/products/Product';
+import { carouselStandard } from '@/utilities/carousel-helpers';
+import useGetProducts from '@/hooks/useGetProducts';
 
-const ElectronicProductGroupWithCarousel = ({ products, type = 'normal' }) => {
-    const carouselFullwidth = {
-        dots: false,
-        infinite: products && products.length > 7 ? true : false,
-        speed: 750,
-        slidesToShow: 7,
-        slidesToScroll: 3,
-        arrows: true,
-        responsive: [
-            {
-                breakpoint: 1750,
-                settings: {
-                    slidesToShow: 6,
-                    slidesToScroll: 3,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-            {
-                breakpoint: 1366,
-                settings: {
-                    slidesToShow: 5,
-                    slidesToScroll: 3,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-            {
-                breakpoint: 1200,
-                settings: {
-                    slidesToShow: 4,
-                    slidesToScroll: 4,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-            {
-                breakpoint: 1024,
-                settings: {
-                    slidesToShow: 4,
-                    slidesToScroll: 2,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-            {
-                breakpoint: 768,
-                settings: {
-                    slidesToShow: 3,
-                    slidesToScroll: 2,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-            {
-                breakpoint: 480,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 2,
-                    dots: true,
-                    arrows: false,
-                },
-            },
-        ],
-    };
+const ElectronicProductGroupWithCarousel = ({
+    collectionSlug,
+    categorySlug,
+    links,
+    title,
+}) => {
+    const {
+        productItems,
+        loading,
+        getProductsByCategory,
+        getProductsByCollection,
+    } = useGetProducts();
 
-    let productItemsView;
-    if (products && products.length > 0) {
-        if (products && products.length > 0) {
-            const slideItems = products.map((item) => (
-                <div className="item" key={item.id}>
-                    <Product product={item} />
-                </div>
+    useEffect(() => {
+        if (categorySlug) {
+            getProductsByCategory(categorySlug);
+        }
+        if (collectionSlug) {
+            getProductsByCollection(collectionSlug);
+        }
+    }, [categorySlug, collectionSlug]);
+
+    // Views
+    let productItemsView, linksView;
+    if (!loading) {
+        if (productItems && productItems.length > 0) {
+            const slideItems = productItems.map((item) => (
+                <Product product={item} key={item.id} />
             ));
-            if (type === 'fullwidth') {
-                productItemsView = (
-                    <Slider {...carouselFullwidth} className="ps-carousel outside">
-                        {slideItems}
-                    </Slider>
-                );
-            }
+            productItemsView = (
+                <Slider
+                    {...carouselStandard}
+                    arrows={false}
+                    className="ps-carousel outside">
+                    {slideItems}
+                </Slider>
+            );
+            linksView = links.map((item) => (
+                <li key={item}>
+                    <Link href="/shop">{item}</Link>
+                </li>
+            ));
+        } else {
+            productItemsView = <p>No product found.</p>;
         }
     } else {
-        productItemsView = <p>No products found</p>;
+        const skeletons = generateTempArray(6).map((item) => (
+            <div className="col-xl-2 col-lg-3 col-sm-3 col-6" key={item}>
+                <SkeletonProduct />
+            </div>
+        ));
+        productItemsView = <div className="row">{skeletons}</div>;
     }
 
     return (
-        <div className="ps-block--products-of-category">
-            <div className="ps-block__content">{productItemsView}</div>
+        <div className="ps-product-list">
+            <div className="container">
+                <div className="ps-section__header">
+                    <h3>{title}</h3>
+                    <ul className="ps-section__links">
+                        {linksView}
+                        <li>
+                            <Link href="/shop">View All</Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="ps-section__content">{productItemsView}</div>
+            </div>
         </div>
     );
 };
