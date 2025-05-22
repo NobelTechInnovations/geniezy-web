@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
-import Lightbox from 'react-image-lightbox';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 import { baseUrl } from '~/repositories/Repository';
 import NextArrow from '~/components/elements/carousel/NextArrow';
 import PrevArrow from '~/components/elements/carousel/PrevArrow';
@@ -13,14 +14,19 @@ const ThumbnailWithBadge = ({ product, vertical = true }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [photoIndex, setPhotoIndex] = useState(0);
     const [productImages, setProductImages] = useState([]);
+    const [lightboxSlides, setLightboxSlides] = useState([]);
 
     useEffect(() => {
         let images = [];
+        let slides = [];
         if (product && product.images.length > 0) {
             product.images.map((item) => {
-                images.push(`${baseUrl}${item.url}`);
+                const imageUrl = `${baseUrl}${item.url}`;
+                images.push(imageUrl);
+                slides.push({ src: imageUrl });
             });
             setProductImages(images);
+            setLightboxSlides(slides);
         }
         setGallery(galleryCarousel.current);
         setVariant(variantCarousel.current);
@@ -71,7 +77,7 @@ const ThumbnailWithBadge = ({ product, vertical = true }) => {
     };
 
     //Views
-    let lightboxView, variantCarouselView, imagesView, galleryImagesView;
+    let variantCarouselView, imagesView, galleryImagesView;
     if (productImages.length > 0) {
         imagesView = productImages.map((item) => (
             <div className="item" key={item}>
@@ -80,7 +86,11 @@ const ThumbnailWithBadge = ({ product, vertical = true }) => {
         ));
         galleryImagesView = productImages.map((item, index) => (
             <div className="item" key={item}>
-                <a href="#" onClick={(e) => e.preventDefault()}>
+                <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    setPhotoIndex(index);
+                    setIsOpen(true);
+                }}>
                     <img src={item} alt={item} />
                 </a>
             </div>
@@ -119,32 +129,6 @@ const ThumbnailWithBadge = ({ product, vertical = true }) => {
             </Slider>
         );
     }
-    if (isOpen) {
-        lightboxView = (
-            <Lightbox
-                mainSrc={productImages[photoIndex]}
-                nextSrc={productImages[(photoIndex + 1) % productImages.length]}
-                prevSrc={
-                    productImages[
-                        (photoIndex + productImages.length - 1) %
-                            productImages.length
-                    ]
-                }
-                onCloseRequest={() => {
-                    setIsOpen(false);
-                }}
-                onMovePrevRequest={() => {
-                    setPhotoIndex(
-                        (photoIndex + productImages.length - 1) %
-                            productImages.length
-                    );
-                }}
-                onMoveNextRequest={() => {
-                    setPhotoIndex((photoIndex + 1) % productImages.length);
-                }}
-            />
-        );
-    }
 
     return (
         <div
@@ -167,6 +151,13 @@ const ThumbnailWithBadge = ({ product, vertical = true }) => {
                 </div>
             </figure>
             {variantCarouselView}
+            <Lightbox
+                open={isOpen}
+                close={() => setIsOpen(false)}
+                slides={lightboxSlides}
+                index={photoIndex}
+                carousel={{ preload: 3 }}
+            />
         </div>
     );
 };

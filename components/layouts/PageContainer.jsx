@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Head from 'next/head';
+import { Metadata } from 'next';
 import HeaderElectronic from '@/components/shared/headers/HeaderElectronic';
 import HeaderMobileElectronic from '@/components/shared/headers/HeaderMobileElectronic';
 import FooterFullwidth from '@/components/shared/footers/FooterFullwidth';
@@ -34,10 +34,6 @@ const PageContainer = ({
 
     return (
         <>
-            <Head>
-                <title>{titleView}</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Head>
             {header}
             <main>{children}</main>
             {footer}

@@ -6,7 +6,7 @@ const ModuleDetailCountdown = () => {
         <div className="ps-product__countdown">
             <figure>
                 <figcaption>
-                    Don't Miss Out! This promotion will expires in
+                    Don&apos;t Miss Out! This promotion will expires in
                 </figcaption>
                 <CountDown
                     timeTillDate="12 31 2020, 6:00 am"

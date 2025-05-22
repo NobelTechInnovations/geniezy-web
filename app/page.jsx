@@ -16,29 +16,29 @@ import Newsletters from '@/components/partials/commons/Newletters';
 export default function Home() {
   return (
     <PageContainer title="Multipurpose Marketplace React Ecommerce Template">
-    <main id="homepage-1">
+      <main id="homepage-1">
         <HomeDefaultBanner />
         <SiteFeatures />
         <HomeDefaultDealOfDay collectionSlug="deal-of-the-day" />
         <HomeAdsColumns />
         <HomeDefaultTopCategories />
         <HomeDefaultProductListing
-            collectionSlug="consumer-electronics"
-            title="Consumer Electronics"
+          collectionSlug="consumer-electronics"
+          title="Consumer Electronics"
         />
         <HomeDefaultProductListing
-            collectionSlug="clothings"
-            title="Clothings"
+          collectionSlug="clothings"
+          title="Clothings"
         />
         <HomeDefaultProductListing
-            collectionSlug="garden-and-kitchen"
-            title="Garden & Kitchen"
+          collectionSlug="garden-and-kitchen"
+          title="Garden & Kitchen"
         />
         <HomeAds />
         <DownloadApp />
         <NewArrivals collectionSlug="new-arrivals-products" />
         <Newsletters />
-    </main>
-</PageContainer>
+      </main>
+    </PageContainer>
   );
 } 
