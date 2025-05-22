@@ -6,20 +6,20 @@ import Link from 'next/link';
 const categoryData = [
   {
     id: 1,
-    name: 'Top Deals',
-    image: 'https://drfuri-demo-images.s3.us-west-1.amazonaws.com/martfury/christmas/home-christmas-img-box-1.png',
+    name: 'Food',
+    image: 'https://indiater.com/wp-content/uploads/2021/08/free-best-creative-restaurant-banner-for-fast-food-delivery-promotion-banner-1024x1024.jpg',
     link: '/category/top-deals'
   },
   {
     id: 2,
-    name: 'Clearance',
-    image: 'https://drfuri-demo-images.s3.us-west-1.amazonaws.com/martfury/christmas/home-christmas-img-box-2.png',
+    name: 'Groceries',
+    image: 'https://i.pinimg.com/736x/ba/8a/f2/ba8af2f13e6d530b704ca5914771ac53.jpg',
     link: '/category/clearance'
   },
   {
     id: 3,
-    name: 'Christmas Store',
-    image: 'https://drfuri-demo-images.s3.us-west-1.amazonaws.com/martfury/christmas/home-christmas-img-box-3.png',
+    name: 'Diwali Specials',
+    image: 'https://miro.medium.com/v2/resize:fit:1400/1*t4AKl52XSGsLaO37JGXsPg.jpeg',
     link: '/category/christmas-store'
   },
   {

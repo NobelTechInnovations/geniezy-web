@@ -2,7 +2,7 @@ import Image from "next/image";
 import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
 import FestiveCategory from './components/home/FestiveCategory';
-import MainSingleProductCard from './components/home/MainSingleProductCard';
+import MainSingleProductCard from './components/common/products/mainSingleProductCard';
 
 export default function Home() {
   return (
