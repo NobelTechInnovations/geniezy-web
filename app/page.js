@@ -1,6 +1,7 @@
 import Image from "next/image";
 import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
+import FestiveCategory from './components/home/FestiveCategory';
 
 export default function Home() {
   return (
@@ -9,6 +10,9 @@ export default function Home() {
       <div className="flex flex-col gap-4 mt-2">
         <HeroSection />
       </div>
+      
+      {/* Festive Categories Section */}
+      <FestiveCategory />
       
       {/* Categories Section */}
       <CategorySection />
