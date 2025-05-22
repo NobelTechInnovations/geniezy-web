@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FiSearch, FiHeart, FiShoppingBag, FiUser } from 'react-icons/fi';
 import TopBar from './Topbar';
+import LocationDropdown from '../common/LocationDropdown';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -59,7 +60,12 @@ const Header = () => {
                 <FiSearch className="w-5 h-5" />
               </button>
             </div>
+
           </div>
+
+          <div className="ml-auto">
+            <LocationDropdown />
+            </div>
 
           <div className="flex items-center space-x-6 ml-6">
             <Link href="/wishlist" className="relative">

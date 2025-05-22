@@ -2,6 +2,7 @@ import Image from "next/image";
 import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
 import FestiveCategory from './components/home/FestiveCategory';
+import MainSingleProductCard from './components/home/MainSingleProductCard';
 
 export default function Home() {
   return (
@@ -16,6 +17,9 @@ export default function Home() {
       
       {/* Categories Section */}
       <CategorySection />
+
+      {/* Main Product Card Section */}
+      <MainSingleProductCard />
     </main>
   );
 }
