@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FiSearch, FiHeart, FiShoppingBag, FiUser } from 'react-icons/fi';
+import TopBar from './Topbar';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,27 +24,7 @@ const Header = () => {
   return (
     <header className="w-full bg-white">
       {/* Top Bar - Hidden on scroll */}
-      <div className={`w-full bg-[#0c2540] text-white py-2 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
-        <div className="container mx-auto flex justify-between items-center px-4">
-          <p className="text-sm">Welcome to GenieZy Online Shopping Store !</p>
-          <div className="flex items-center space-x-6 text-sm">
-            <div className="flex items-center cursor-pointer">
-              <span>English</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            <div className="flex items-center cursor-pointer">
-              <span>INR</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            <Link href="/track" className="hover:text-gray-300">Track Your Order</Link>
-            <Link href="/locations" className="hover:text-gray-300">Store Location</Link>
-          </div>
-        </div>
-      </div>
+    <TopBar isScrolled={isScrolled}  />
 
       {/* Middle Bar - Always visible, sticky on scroll */}
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
