@@ -5,9 +5,12 @@ import { useState, useEffect } from 'react';
 import { FiSearch, FiHeart, FiShoppingBag, FiUser } from 'react-icons/fi';
 import TopBar from './Topbar';
 import LocationDropdown from '../common/LocationDropdown';
+import { useCategories } from '../../hooks/useCategories';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { categories, loading } = useCategories();
+  const [searchCategory, setSearchCategory] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,7 +28,7 @@ const Header = () => {
   return (
     <header className="w-full bg-white">
       {/* Top Bar - Hidden on scroll */}
-    <TopBar isScrolled={isScrolled}  />
+      <TopBar isScrolled={isScrolled} />
 
       {/* Middle Bar - Always visible, sticky on scroll */}
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
@@ -37,10 +40,17 @@ const Header = () => {
           <div className="flex-1 max-w-1xl mx-8">
             <div className="flex items-center">
               <div className="relative inline-block w-24">
-                <select className="appearance-none w-full px-3 h-10 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-l-md focus:outline-none">
-                  <option>All</option>
-                  <option>Electronics</option>
-                  <option>Fashion</option>
+                <select 
+                  className="appearance-none w-full px-3 h-10 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-l-md focus:outline-none"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                >
+                  <option value="">All</option>
+                  {!loading && categories.map((category) => (
+                    <option key={category._id} value={category.slug}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -57,12 +67,11 @@ const Header = () => {
                 <FiSearch className="w-5 h-5" />
               </button>
             </div>
-
           </div>
 
           <div className="ml-auto">
             <LocationDropdown />
-            </div>
+          </div>
 
           <div className="flex items-center space-x-6 ml-6">
             <Link href="/wishlist" className="relative">
@@ -92,26 +101,15 @@ const Header = () => {
       <div className={`w-full bg-white border-t border-gray-200 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
         <div className="container mx-auto">
           <nav className="flex overflow-x-auto px-4 py-2 scrollbar-none text-black">
-            <Link href="/hot-deals" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-
-              HOT DEALS
-            </Link>
-            <Link href="/home-electronics" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-
-              HOME ELECTRONICS
-            </Link>
-            <Link href="/computers" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-
-              COMPUTERS & TECHNOLOGY
-            </Link>
-            <Link href="/camera" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-
-              CAMERA & VIDEOS
-            </Link>
-            <Link href="/office" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500">
-
-              OFFICE ELECTRONICS
-            </Link>
+            {!loading && categories.map((category) => (
+              <Link
+                key={category._id}
+                href={`/category/${category.slug}`}
+                className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8"
+              >
+                {category.name}
+              </Link>
+            ))}
           </nav>
         </div>
       </div>
