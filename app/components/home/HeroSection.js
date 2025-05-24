@@ -80,14 +80,14 @@ const HeroSection = () => {
                   />
                   <div className="absolute inset-0 flex items-center">
                     <div className="max-w-lg ml-10">
-                      <div className="text-sm font-medium text-dark mb-2">{image.content.brand}</div>
-                      <h2 className="text-4xl font-bold text-dark mb-2 drop-shadow-md">
+                      <div className="text-sm font-medium text-gray-700 mb-2">{image.content.brand}</div>
+                      <h2 className="text-4xl font-bold text-gray-700 mb-2 drop-shadow-md">
                         {image.content.title}
                       </h2>
-                      <p className="text-xl text-dark mb-2 drop-shadow-md">
+                      <p className="text-xl  mb-2 drop-shadow-md text-gray-700">
                         {image.content.subtitle}
                       </p>
-                      <div className="mb-3 text-sm text-dark">
+                      <div className="mb-3 text-sm text-gray-700">
                         {image.content.countdown}
                       </div>
                       <Link href="/products/smart-tv" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md font-semibold transition-colors inline-block">
