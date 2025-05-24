@@ -101,6 +101,9 @@ const Header = () => {
       <div className={`w-full bg-white border-t border-gray-200 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
         <div className="container mx-auto">
           <nav className="flex overflow-x-auto px-4 py-2 scrollbar-none text-black">
+          <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
+              <span className="text-sm font-medium">Aladin Specials</span>
+            </Link>
             {!loading && categories.map((category) => (
               <Link
                 key={category._id}
@@ -110,6 +113,12 @@ const Header = () => {
                 {category.name}
               </Link>
             ))}
+            <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
+              <span className="text-sm font-medium">Buy Again</span>
+            </Link>
+            <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
+              <span className="text-sm font-medium">BECOME A SELLER</span>
+            </Link>
           </nav>
         </div>
       </div>
