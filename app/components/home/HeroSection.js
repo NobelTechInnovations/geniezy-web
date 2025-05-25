@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatIndianPrice } from '@/app/shared/utils/priceFormat';
 
 const sliderImages = [
   {
@@ -28,7 +29,7 @@ const bannerImages = [
     content: {
       brand: 'Fluence',
       title: 'Minimal Speaker',
-      price: '$159.99',
+      price: '159.99',
       priceLabel: 'Price Just'
     },
     link: '/products/speakers'
@@ -141,7 +142,7 @@ const HeroSection = () => {
                     {banner.content.price && (
                       <>
                         <div className="text-xs text-gray-700 mt-1">{banner.content.priceLabel}</div>
-                        <div className="text-lg font-bold text-green-600">{banner.content.price}</div>
+                        <div className="text-lg font-bold text-green-600">{formatIndianPrice(banner.content.price)}</div>
                       </>
                     )}
                     {banner.content.discount && (
