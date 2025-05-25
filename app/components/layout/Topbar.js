@@ -19,7 +19,10 @@ const Topbar = ({ isScrolled }) => {
           </svg>
         </div>
         <Link href="/track" className="hover:text-gray-300">Track Your Order</Link>
-        <Link href="/locations" className="hover:text-gray-300">Store Location</Link>
+        <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
+          <span className="text-sm font-medium">Become a Seller</span>
+        </Link>
+
       </div>
     </div>
   </div>

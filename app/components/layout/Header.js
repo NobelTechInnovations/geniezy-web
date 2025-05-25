@@ -116,9 +116,7 @@ const Header = () => {
             <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
               <span className="text-sm font-medium">Buy Again</span>
             </Link>
-            <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-              <span className="text-sm font-medium">BECOME A SELLER</span>
-            </Link>
+            
           </nav>
         </div>
       </div>
