@@ -11,6 +11,7 @@ export const useCategories = (version = 'v1') => {
       try {
         setLoading(true);
         const response = await categoryApi.getParentCategories(version);
+        console.log(response);
         if (response.success) {
           setCategories(response.data);
         } else {

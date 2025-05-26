@@ -94,7 +94,7 @@ export const categoryApi = {
         params: {
           tree: false,
           'main-category': mainCategoryId,
-          limit: 3
+          limit: 4
         }
       });
       return response.data;
