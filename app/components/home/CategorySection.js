@@ -62,13 +62,13 @@ const CategorySection = () => {
                 
                 <div className="w-2/3 pl-4">
                   <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                    {category.name}
+                    <Link href={`/gc/${category.slug}?gc_id=${category.id}`}>{category.name}</Link>
                   </h3>
                   <ul className="space-y-1.5">
                     {(subcategoriesMap[category.id] || []).map((subcat, index) => (
                       <li key={index}>
                         <Link 
-                          href={`/category/${category.id}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                          href={`/gc/${category.slug}?gc_id=${category.id}`}
                           className="text-gray-600 hover:text-red-500 text-sm"
                         >
                           {subcat}

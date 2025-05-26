@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.817.0",
+    "@aws-sdk/s3-request-presigner": "^3.817.0",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.9.0",
     "lucide-react": "^0.511.0",

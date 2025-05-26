@@ -101,6 +101,22 @@ export const categoryApi = {
     } catch (error) {
       throw error;
     }
+  },
+
+  /**
+   * Get products for a given category id
+   * @param {string} categoryId - The id of the category
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with category products data
+   */
+  getCategoryProducts: async (categoryId, version = 'v1') => {
+    try {
+      const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/items`);
+      const response = await api.get(endpoint);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
