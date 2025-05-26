@@ -2,81 +2,37 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
-
-const categories = [
-  {
-    id: 1,
-    name: 'Tv Televisions',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2022/12/39a-300x300.jpg',
-    subcategories: [
-      'Smart TV',
-      '4K Ultra HD TVs',
-      'LED TVs',
-      'OLED TVs',
-      'Accessories'
-    ]
-  },
-  {
-    id: 2,
-    name: 'Air Conditioners',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2022/12/air-conditioners-168x168.jpg',
-    subcategories: [
-      'Type Hanging On Wall',
-      'Type Erect',
-      'Type Hanging On Ceiling',
-      'Accessories'
-    ]
-  },
-  {
-    id: 3,
-    name: 'Washing Machine',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2013/06/20a-168x168.jpg',
-    subcategories: [
-      'Type Horizontal',
-      'Type Vertical',
-      'Type Drying Clothes'
-    ]
-  },
-  {
-    id: 4,
-    name: 'Audios & Theaters',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2013/06/21a-168x168.jpg',
-    subcategories: [
-      'Speakers',
-      'Home Theater System',
-      'Wireless Audio',
-      'Headphone',
-      'Accessories'
-    ]
-  },
-  {
-    id: 5,
-    name: 'Office Electronics',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2022/12/office-electronics-268x268.jpg',
-    subcategories: [
-      'Printers',
-      'Store & Business',
-      'Scanners',
-      'Projectors',
-      'Phones'
-    ]
-  },
-  {
-    id: 6,
-    name: 'Car Electronics',
-    image: 'https://wpmartfury.com/marketplace6/wp-content/uploads/sites/7/2022/12/44a-168x168.jpg',
-    subcategories: [
-      'Audio & Video',
-      'Radar Detector',
-      'Car Security Products',
-      'Vehicle GPS Tracking',
-      'Portable CB Radios'
-    ]
-  }
-];
+import { useState, useEffect } from 'react';
+import { MAIN_CATEGORIES } from '@/app/shared/constants/categories';
+import { categoryApi } from '@/app/redux/services/apiService';
 
 const CategorySection = () => {
+  const [subcategoriesMap, setSubcategoriesMap] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSubcategories = async () => {
+      setLoading(true);
+      const newMap = {};
+      for (const category of MAIN_CATEGORIES) {
+        try {
+          // Fetch child categories for each main category by id
+          const response = await categoryApi.getChildCategories(category.id, 'v1');
+          if (response.success && response.data) {
+            newMap[category.id] = response.data.map((child) => child.name);
+          } else {
+            newMap[category.id] = [];
+          }
+        } catch (e) {
+          newMap[category.id] = [];
+        }
+      }
+      setSubcategoriesMap(newMap);
+      setLoading(false);
+    };
+    fetchSubcategories();
+  }, []);
+
   return (
     <section className="py-12 px-4 bg-white">
       <div className="container mx-auto">
@@ -85,7 +41,7 @@ const CategorySection = () => {
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category) => (
+          {MAIN_CATEGORIES.map((category) => (
             <div 
               key={category.id} 
               className="border border-gray-200 rounded-md overflow-hidden transition-transform hover:shadow-md p-4"
@@ -109,7 +65,7 @@ const CategorySection = () => {
                     {category.name}
                   </h3>
                   <ul className="space-y-1.5">
-                    {category.subcategories.map((subcat, index) => (
+                    {(subcategoriesMap[category.id] || []).map((subcat, index) => (
                       <li key={index}>
                         <Link 
                           href={`/category/${category.id}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}

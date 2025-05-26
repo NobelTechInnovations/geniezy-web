@@ -79,6 +79,28 @@ export const categoryApi = {
     } catch (error) {
       throw error;
     }
+  },
+
+  /**
+   * Get child categories for a given main category id
+   * @param {string} mainCategoryId - The id of the main category
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with child category data
+   */
+  getChildCategories: async (mainCategoryId, version = 'v1') => {
+    try {
+      const endpoint = getVersionedEndpoint(version, 'catalog', 'listing');
+      const response = await api.get(endpoint, {
+        params: {
+          tree: false,
+          'main-category': mainCategoryId,
+          limit: 3
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
