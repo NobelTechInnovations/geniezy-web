@@ -1,16 +1,55 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 
+const LOCATION_KEY = 'user_location';
+const LOCATION_EXPIRY_DAYS = 30;
+
+const saveLocationToLocalStorage = (location) => {
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + LOCATION_EXPIRY_DAYS);
+
+  const data = {
+    location,
+    expiresAt: expiry.toISOString()
+  };
+
+  localStorage.setItem(LOCATION_KEY, JSON.stringify(data));
+};
+
+const getLocationFromLocalStorage = () => {
+  const data = localStorage.getItem(LOCATION_KEY);
+  if (!data) return null;
+
+  try {
+    const parsed = JSON.parse(data);
+    if (new Date(parsed.expiresAt) > new Date()) {
+      return parsed.location;
+    } else {
+      localStorage.removeItem(LOCATION_KEY); // Clean expired data
+    }
+  } catch {
+    localStorage.removeItem(LOCATION_KEY); // Malformed
+  }
+
+  return null;
+};
+
 const LocationDropdown = () => {
   const [open, setOpen] = useState(false);
   const [location, setLocation] = useState({
-    city: 'Delhi',
-    pincode: '110016'
+    city: 'Unknown',
+    pincode: 'Unknown'  
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load Google Maps JavaScript API
+    // Load saved location if available
+    const storedLocation = getLocationFromLocalStorage();
+    if (storedLocation) {
+      setLocation(storedLocation);
+    }
+
+    // Load Google Maps script
     const loadGoogleMapsScript = () => {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
@@ -19,7 +58,7 @@ const LocationDropdown = () => {
       document.head.appendChild(script);
     };
 
-    if (!window.google) {
+    if (!window.google?.maps) {
       loadGoogleMapsScript();
     }
   }, []);
@@ -31,15 +70,14 @@ const LocationDropdown = () => {
     }
 
     setLoading(true);
-    
+
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
 
       const { latitude, longitude } = position.coords;
-      
-      // Use Google's Geocoding service
+
       const geocoder = new window.google.maps.Geocoder();
       const response = await new Promise((resolve, reject) => {
         geocoder.geocode(
@@ -54,12 +92,11 @@ const LocationDropdown = () => {
         );
       });
 
-      // Parse the address components
       const addressComponents = response[0].address_components;
       let city = '';
       let pincode = '';
 
-      addressComponents.forEach(component => {
+      addressComponents.forEach((component) => {
         if (component.types.includes('locality')) {
           city = component.long_name;
         }
@@ -68,10 +105,14 @@ const LocationDropdown = () => {
         }
       });
 
-      setLocation({
+      const newLocation = {
         city: city || 'Unknown',
         pincode: pincode || 'Unknown'
-      });
+      };
+
+      setLocation(newLocation);
+      saveLocationToLocalStorage(newLocation); // Save for 30 days
+
     } catch (error) {
       console.error('Error getting location:', error);
       alert('Failed to get your location. Please try again.');
@@ -82,7 +123,6 @@ const LocationDropdown = () => {
 
   return (
     <div className="relative text-sm">
-      {/* Clickable header */}
       <div
         className="flex items-center cursor-pointer"
         onClick={() => setOpen(!open)}
@@ -92,7 +132,6 @@ const LocationDropdown = () => {
         <ChevronDown className="w-4 h-4 text-gray-500" />
       </div>
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50 p-4">
           <p className="text-gray-700 text-sm mb-2">
