@@ -32,7 +32,7 @@ const Header = () => {
 
       {/* Middle Bar - Always visible, sticky on scroll */}
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
-        <div className="container mx-auto flex items-center px-4 justify-between items-center ">
+        <div className="container-fluid mx-auto flex items-center px-4 justify-between items-center ">
           <Link href="/" className="mr-6">
             <img src="/3.png" alt="Logo" width={100} height={100} />
           </Link>
@@ -99,15 +99,15 @@ const Header = () => {
 
       {/* Navigation Bar - Hidden on scroll */}
       <div className={`w-full bg-white border-t border-gray-200 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
-        <div className="container mx-auto">
+        <div className="container-fluid mx-auto">
           <nav className="flex overflow-x-auto px-4 py-2 scrollbar-none text-black">
           <Link href="/" className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8">
-              <span className="text-sm font-medium">Aladin Specials</span>
+              <span className="text-sm font-medium">Genie Specials</span>
             </Link>
             {!loading && categories.map((category) => (
               <Link
                 key={category._id}
-                href={`/category/${category.slug}`}
+                href={`/gc/${category.slug}?gc_id=${category._id}`}
                 className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8"
               >
                 {category.name}

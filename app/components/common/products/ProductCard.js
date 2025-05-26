@@ -3,16 +3,18 @@
 import Link from 'next/link';
 import { formatIndianPrice } from '@/app/shared/utils/priceFormat';
 import S3Image from '@/app/shared/utils/S3Image';
-
+import { slugify } from '@/app/shared/utils/titleFormat';
 const ProductCard = ({ product }) => {
   const {
     _id,
+    product_id,
     slug,
+    sku,
     images = [],
     type = "simple",
     title,
     price,
-    stock = 0
+    stock = 0,
   } = product;
 
   const image = images[0]?.thumbnail_image || "https://via.placeholder.com/300";
@@ -32,7 +34,7 @@ const ProductCard = ({ product }) => {
   }
 
   return (
-    <Link href={`/product/${slug}`}>
+    <Link href={`/gspin/${product_id}/${slugify(title)}?pid=${_id}&p_sku=${sku}&type=${type}`}>
       <div className="bg-white border border-gray-100 rounded-lg p-2 flex flex-col items-center hover:shadow-md transition-shadow">
         <S3Image 
           src={image} 
