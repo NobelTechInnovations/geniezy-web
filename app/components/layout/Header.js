@@ -107,7 +107,9 @@ const Header = () => {
             {!loading && categories.map((category) => (
               <Link
                 key={category._id}
-                href={`/gc/${category.slug}?gc_id=${category._id}`}
+                href={category.slug === 'food' || category.slug === 'grocery-fresh' 
+                  ? `/delivery-now/${category.slug}?gc_id=${category._id}`
+                  : `/gc/${category.slug}?gc_id=${category._id}`}
                 className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8"
               >
                 {category.name}
