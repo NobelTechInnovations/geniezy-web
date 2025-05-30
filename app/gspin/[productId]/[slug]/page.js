@@ -9,6 +9,7 @@ import ProductCartSection from '@/app/components/product-detail/ProductCartSecti
 import { productApi } from '@/app/redux/services/apiService';
 import { getLocationFromLocalStorage } from '@/app/components/common/LocationDropdown';
 import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
+import RecommendedProducts from '@/app/components/product-detail/RecommendedProducts';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -287,8 +288,15 @@ const ProductPage = ({ params }) => {
           <h2 className="text-2xl font-bold mb-4">Product Description</h2>
           {/* Product Description with HTML content */}
           <div className="text-gray-700 text-base mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: productData.description }}></div>
-
         </div>
+      </div>
+
+      {/* Recommended Products Section */}
+      <div className="container mx-auto px-4">
+        <RecommendedProducts 
+          categoryId={productData.category?._id} 
+          itemId={productData.id} 
+        />
       </div>
     </main>
   );

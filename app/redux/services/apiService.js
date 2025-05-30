@@ -189,6 +189,35 @@ export const productApi = {
       console.error('Error in productApi.getProductImages:', error);
       throw error;
     }
+  },
+
+  /**
+   * Get product recommendations for a given category and item
+   * @param {string} categoryId - The category ID
+   * @param {string} itemId - The item ID
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with recommended products data
+   */
+  getProductRecommendations: async (categoryId, itemId, version = 'v1') => {
+    try {
+      if (!categoryId) {
+        throw new Error('Category ID is required');
+      }
+
+      if (!itemId) {
+        throw new Error('Item ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/item/${itemId}/suggestions`);
+      console.log('Calling product recommendations API:', endpoint);
+      
+      const response = await api.get(endpoint);
+      console.log('Product recommendations API response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in productApi.getProductRecommendations:', error);
+      throw error;
+    }
   }
 };
 
