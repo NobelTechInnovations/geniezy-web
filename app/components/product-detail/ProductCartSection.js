@@ -1,21 +1,26 @@
 import { FiHeart, FiShare2, FiShoppingCart} from 'react-icons/fi';
+import {formatIndianPrice} from '../../shared/utils/priceFormat';
 
 const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange, estimatedDelivery }) => {
+    console.log('Estimated Delivery prop in ProductCartSection:', estimatedDelivery);
 
     return (
         <>
-        <div className="lg:col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col gap-6 min-w-[260px] max-w-md mx-auto lg:mx-0">
-            <div className="flex flex-col gap-2">
-              <label className=" items-center gap-1 text-sm font-medium">
-                <input type="radio" name="exchange" value="no" checked={exchange === 'no'} onChange={() => setExchange('no')} />
-                Offer <span className="text-gray-900 font-semibold ml-1">₹ {productData.price}</span> 
+        <div className="lg:col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col gap-2 min-w-[260px] max-w-md mx-auto lg:mx-0">
+            <div className="flex flex-col gap-1">
+              <div>
+                 <span className="text-gray-900 text-lg font-semibold ml-1">{formatIndianPrice(productData.price)}</span> 
+              </div>
                 {productData.originalPrice && (
-                  <span className="text-gray-500 line-through ml-1">₹ {productData.originalPrice}</span>
-                )}
-              </label>
+              <div className='flex gap-1'>
+                <span className="text-gray-500 text-xs">M.R.P</span>
+                  <span className="text-gray-500 text-xs line-through ml-1">{formatIndianPrice(productData.originalPrice)}</span>
+              </div>
+                )}              
+
             </div>
             {/* Delivery, stock, seller, payment, gift */}
-            <div className="mb-1">
+            <div className="mb-1 gap-2 flex-col flex">
               <div className="text-xs text-blue-700 font-semibold">Estimated Delivery: <span className="font-normal">{estimatedDelivery}</span></div>
               <div className="text-green-600 font-semibold text-sm mb-1">In stock</div>
               <div className="text-xs text-gray-700">Ship by <span className="font-semibold">geniezy assuerd</span></div>

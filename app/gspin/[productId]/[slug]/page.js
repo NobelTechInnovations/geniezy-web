@@ -7,31 +7,8 @@ import ProductGallerySection from '@/app/components/product-detail/ProductGaller
 import ProductInfoSection from '@/app/components/product-detail/ProductInfoSection';
 import ProductCartSection from '@/app/components/product-detail/ProductCartSection';
 import { productApi } from '@/app/redux/services/apiService';
-// Import the function to get user location from local storage
 import { getLocationFromLocalStorage } from '@/app/components/common/LocationDropdown';
-
-// Simple distance calculation function (Haversine formula approximation)
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Radius of the Earth in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c; // Distance in kilometers
-  return distance;
-}
-
-// Basic delivery time estimation based on distance (more specific)
-function estimateDeliveryTime(distance) {
-    if (distance < 10) return '30 minutes - 1 hour';
-    if (distance < 50) return 'Same Day Delivery';
-    if (distance < 200) return '1-2 days';
-    if (distance < 500) return '2-3 days';
-    return '3-5 days';
-}
+import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -42,7 +19,6 @@ const ProductPage = ({ params }) => {
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  const [estimatedDelivery, setEstimatedDelivery] = useState(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Unwrap params using React.use()
@@ -55,7 +31,27 @@ const ProductPage = ({ params }) => {
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
 
-  // Effect to fetch product data and images when product parameters change
+  // Get user location from local storage
+  const userLocation = getLocationFromLocalStorage();
+
+  // Use the distance matrix hook
+  const { duration, loading: distanceLoading, error: distanceError } = useDistanceMatrix(
+    userLocation,
+    productData?.seller?.location ? {
+      latitude: productData.seller.location[1],
+      longitude: productData.seller.location[0]
+    } : null
+  );
+
+  // Reset data loaded flag when product params change
+  useEffect(() => {
+    setIsDataLoaded(false);
+    setProductData(null); // Clear previous data
+    setProductImages([]); // Clear previous images
+    setSelectedImage(0); // Reset selected image
+  }, [gspin, pid, type, p_sku]); // Reset when product identifiers change
+
+  // Effect to fetch product data and images
   useEffect(() => {
     const fetchDataAndImages = async () => {
       if (!gspin || !pid) {
@@ -71,9 +67,6 @@ const ProductPage = ({ params }) => {
 
       setLoading(true);
       setError(null);
-      setProductData(null); // Clear previous data
-      setProductImages([]); // Clear previous images
-      setEstimatedDelivery(null); // Clear previous delivery estimate
 
       try {
         // Fetch product data
@@ -123,6 +116,7 @@ const ProductPage = ({ params }) => {
         const transformedData = {
           id: data._id,
           title: data.title,
+          category: data.category_id || '',
           brand: data.meta?.brand_details?.name || 'Generic',
           storeLink: "#",
           // Handle price, original price, and discount based on product type
@@ -162,7 +156,7 @@ const ProductPage = ({ params }) => {
           seller: {
               businessName: data.seller?.business?.business_name || 'N/A',
               location: data.seller?.business?.location?.coordinates || null,
-              businessAddress: data.seller?.business?.pincode +' '+data.seller?.business?.business_address || 'N/A'
+              businessAddress: data.seller?.business?.pincode +' '+ data.seller?.business?.business_address || 'N/A'
           }
         };
 
@@ -179,7 +173,6 @@ const ProductPage = ({ params }) => {
         setError(error.message || 'Failed to load product data');
         setProductData(null); // Clear data on error
         setProductImages([]); // Clear images on error
-        setEstimatedDelivery('Delivery time N/A'); // Set delivery to N/A on error
         setIsDataLoaded(false); // Reset flag on error
       } finally {
         setLoading(false);
@@ -189,24 +182,6 @@ const ProductPage = ({ params }) => {
     fetchDataAndImages();
 
   }, [gspin, pid, type, p_sku]); // Dependencies: re-run when product params change
-
-  // Effect to calculate estimated delivery time when productData or userLocation changes
-  useEffect(() => {
-      const userLocation = getLocationFromLocalStorage(); // Get latest location from local storage
-      // Check if productData, userLocation, and seller location are available
-      if (productData && userLocation?.latitude !== undefined && userLocation?.longitude !== undefined && productData.seller?.location) {
-            // Access latitude and longitude directly from userLocation object
-            const userLat = userLocation.latitude;
-            const userLon = userLocation.longitude;
-            const sellerLon = productData.seller.location[0];
-            const sellerLat = productData.seller.location[1];
-            const distance = calculateDistance(userLat, userLon, sellerLat, sellerLon);
-            setEstimatedDelivery(estimateDeliveryTime(distance));
-        } else {
-            // If location data is incomplete, set delivery to N/A
-            setEstimatedDelivery('Delivery time N/A');
-        }
-  }, [productData]); // Dependencies: re-run when productData changes. userLocation is read inside.
 
   if (loading) {
     return (
@@ -250,7 +225,7 @@ const ProductPage = ({ params }) => {
         <div className="flex items-center gap-2 text-sm">
           <Link href="/" className="text-gray-600 hover:text-blue-600">Home</Link>
           <span className="text-gray-400">/</span>
-          <Link href="/gc/mobiles" className="text-gray-600 hover:text-blue-600">Mobiles & Accessories</Link>
+          <Link href="/gc/mobiles" className="text-gray-600 hover:text-blue-600">{category.name}</Link>
           <span className="text-gray-400">/</span>
           <span className="text-blue-700 font-semibold">{productData.title}</span>
         </div>
@@ -280,7 +255,7 @@ const ProductPage = ({ params }) => {
             exchange={exchange}
             setQuantity={setQuantity}
             setExchange={setExchange}
-            estimatedDelivery={estimatedDelivery}
+            estimatedDelivery={duration?.text || 'Delivery time N/A'}
           />
         </div>
       </div>
@@ -306,22 +281,6 @@ const ProductPage = ({ params }) => {
           <h2 className="text-2xl font-bold mb-4">Product Description</h2>
           {/* Product Description with HTML content */}
           <div className="text-gray-700 text-base mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: productData.description }}></div>
-
-          <h2 className="text-2xl font-bold mb-4">Key Features</h2>
-          <ul className="list-disc pl-6 text-gray-700 text-base space-y-1 mb-8">
-            {productData.features.map((feature, idx) => (
-              <li key={idx}>{feature}</li>
-            ))}
-          </ul>
-
-          {/* Service Centre Replacement section styled as a material card */}
-          <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-              <div className="flex items-center text-sm text-gray-700">
-                  {/* Assuming you have an icon component or use a library */} 
-                  {/* <FiRefreshCw className="text-lg mr-2" /> */} 
-                  <span className="font-semibold mr-1">7 days:</span> Service Centre Replacement
-              </div>
-          </div>
 
         </div>
       </div>
