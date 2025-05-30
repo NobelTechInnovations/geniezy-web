@@ -20,6 +20,7 @@ const ProductPage = ({ params }) => {
   const [productData, setProductData] = useState(null);
   const [productImages, setProductImages] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Unwrap params using React.use()
   const unwrappedParams = use(params);
@@ -31,8 +32,13 @@ const ProductPage = ({ params }) => {
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
 
-  // Get user location from local storage
-  const userLocation = getLocationFromLocalStorage();
+  // Set mounted state
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Get user location from local storage only on client side
+  const userLocation = isMounted ? getLocationFromLocalStorage() : null;
 
   // Use the distance matrix hook
   const { duration, loading: distanceLoading, error: distanceError } = useDistanceMatrix(
@@ -225,7 +231,7 @@ const ProductPage = ({ params }) => {
         <div className="flex items-center gap-2 text-sm">
           <Link href="/" className="text-gray-600 hover:text-blue-600">Home</Link>
           <span className="text-gray-400">/</span>
-          <Link href="/gc/mobiles" className="text-gray-600 hover:text-blue-600">{category.name}</Link>
+          <Link href={`/gc/${productData.category.slug}?gc_id=${productData.category._id}`} className="text-gray-600 hover:text-blue-600">{productData.category.name}</Link>
           <span className="text-gray-400">/</span>
           <span className="text-blue-700 font-semibold">{productData.title}</span>
         </div>
@@ -255,7 +261,7 @@ const ProductPage = ({ params }) => {
             exchange={exchange}
             setQuantity={setQuantity}
             setExchange={setExchange}
-            estimatedDelivery={duration?.text || 'Delivery time N/A'}
+            estimatedDelivery={isMounted ? (duration?.text || 'Delivery time N/A') : 'Loading...'}
           />
         </div>
       </div>

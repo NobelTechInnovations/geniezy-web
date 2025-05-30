@@ -5,6 +5,8 @@ const LOCATION_KEY = 'user_location';
 const LOCATION_EXPIRY_DAYS = 30;
 
 const saveLocationToLocalStorage = (location) => {
+  if (typeof window === 'undefined') return; // Check if we're in browser
+
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + LOCATION_EXPIRY_DAYS);
 
@@ -17,6 +19,8 @@ const saveLocationToLocalStorage = (location) => {
 };
 
 const getLocationFromLocalStorage = () => {
+  if (typeof window === 'undefined') return null; // Check if we're in browser
+
   const data = localStorage.getItem(LOCATION_KEY);
   if (!data) return null;
 
@@ -43,8 +47,10 @@ const LocationDropdown = () => {
     pincode: 'Unknown'  
   });
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     // Load saved location if available
     const storedLocation = getLocationFromLocalStorage();
     if (storedLocation) {
@@ -124,6 +130,11 @@ const LocationDropdown = () => {
       setLoading(false);
     }
   };
+
+  // Don't render anything during SSR
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="relative text-sm">

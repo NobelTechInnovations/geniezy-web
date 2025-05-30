@@ -11,8 +11,16 @@ const useDistanceMatrix = (origin, destination) => {
   const [duration, setDuration] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Don't run calculations during SSR
+    if (!isMounted) return;
+
     const calculateDistance = async () => {
       // Reset states when coordinates change
       setDistance(null);
@@ -58,22 +66,21 @@ const useDistanceMatrix = (origin, destination) => {
         const element = response.rows[0].elements[0];
 
         if (element.status === 'OK') {
-            setDistance({
-              text: element.distance.text,
-              value: element.distance.value // in meters
-            });
+          setDistance({
+            text: element.distance.text,
+            value: element.distance.value // in meters
+          });
           
-            // Add 10 minutes (600 seconds) buffer
-            const bufferedDurationValue = element.duration.value + 600;
+          // Add 10 minutes (600 seconds) buffer
+          const bufferedDurationValue = element.duration.value + 600;
           
-            setDuration({
-              text: `${Math.ceil(bufferedDurationValue / 60)} mins`, // optional: can format better
-              value: bufferedDurationValue
-            });
-          } else {
-            throw new Error(`Route not found: ${element.status}`);
-          }
-          
+          setDuration({
+            text: `${Math.ceil(bufferedDurationValue / 60)} mins`,
+            value: bufferedDurationValue
+          });
+        } else {
+          throw new Error(`Route not found: ${element.status}`);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -82,7 +89,7 @@ const useDistanceMatrix = (origin, destination) => {
     };
 
     calculateDistance();
-  }, [origin?.latitude, origin?.longitude, destination?.latitude, destination?.longitude]);
+  }, [isMounted, origin?.latitude, origin?.longitude, destination?.latitude, destination?.longitude]);
 
   return {
     distance,
