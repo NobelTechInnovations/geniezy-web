@@ -17,6 +17,8 @@ const ProductPage = ({ params }) => {
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
   const [productImages, setProductImages] = useState([]);
+  // const [estimatedDelivery, setEstimatedDelivery] = useState(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Unwrap params using React.use()
   const unwrappedParams = use(params);
@@ -28,61 +30,68 @@ const ProductPage = ({ params }) => {
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
 
-  // Fetch product images
+  // Reset data loaded flag when product params change
   useEffect(() => {
-    const fetchProductImages = async () => {
-      try {
-        const response = await productApi.getProductImages(gspin, {
-          pid,
-          type,
-          p_sku
-        });
-        if (response.success) {
-          setProductImages(response.data);
-          // Set initial selected image to primary image if available
-          const primaryImageIndex = response.data.findIndex(img => img.is_primary);
-          if (primaryImageIndex !== -1) {
-            setSelectedImage(primaryImageIndex);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching product images:', error);
-      }
-    };
+    setIsDataLoaded(false);
+    setProductData(null); // Clear previous data
+    setProductImages([]); // Clear previous images
+    setSelectedImage(0); // Reset selected image
+  }, [gspin, pid, type, p_sku]); // Reset when product identifiers change
 
-    if (gspin && pid) {
-      fetchProductImages();
-    }
-  }, [gspin, pid, type, p_sku]);
-
+  // Effect to fetch product data and images
   useEffect(() => {
-    const fetchProductData = async () => {
-      if (!gspin || !pid) {
-        setError('Missing required parameters');
-        setLoading(false);
+    const fetchDataAndImages = async () => {
+      // Only fetch if data is not already loaded for this product
+      if (isDataLoaded || !gspin || !pid) {
+        if (!gspin || !pid) setLoading(false); // Ensure loading is false if params are missing
         return;
       }
 
+      setLoading(true);
+      setError(null);
+      
       try {
-        setLoading(true);
-        setError(null);
+        // Fetch product data
         console.log('Fetching product data with params:', { gspin, pid, type, p_sku });
-
-        const response = await productApi.getProductInfo(gspin, {
+        const dataResponse = await productApi.getProductInfo(gspin, {
           pid,
           type,
           p_sku
         }, 'v1');
+        console.log('Product data API Response:', dataResponse);
 
-        console.log('API Response:', response);
-
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to fetch product data');
+        if (!dataResponse.success) {
+          throw new Error(dataResponse.message || 'Failed to fetch product data');
         }
 
-        const data = response.data;
+        const data = dataResponse.data;
         if (!data) {
           throw new Error('No product data received');
+        }
+
+        // Fetch product images
+        console.log('Fetching product images with params:', { gspin, pid, type, p_sku });
+        const imagesResponse = await productApi.getProductImages(gspin, {
+          pid,
+          type,
+          p_sku
+        });
+        console.log('Product images API Response:', imagesResponse);
+
+        let images = [];
+        let initialSelectedImageIndex = 0;
+
+        if (imagesResponse.success && imagesResponse.data) {
+            images = imagesResponse.data.map(img => img.url) || [];
+             // Find and set initial selected image to primary image if available
+            const primaryImageIndex = imagesResponse.data.findIndex(img => img.is_primary);
+            if (primaryImageIndex !== -1 && images[primaryImageIndex]) { // Also check if image exists at that index
+                initialSelectedImageIndex = primaryImageIndex;
+            } else if (images.length > 0) {
+                initialSelectedImageIndex = 0;
+            } else {
+                initialSelectedImageIndex = 0;
+            }
         }
 
         // Transform API response to match UI requirements
@@ -92,16 +101,16 @@ const ProductPage = ({ params }) => {
           brand: data.meta?.brand_details?.name || 'Generic',
           storeLink: "#",
           // Handle price, original price, and discount based on product type
-          price: data.type === 'simple' ? 
-            (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) :
+          price: data.type === 'simple' ?
+            (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) : // Check for $numberDecimal or direct value
             (data.selected_combination?.price?.$numberDecimal || data.selected_combination?.price),
-          originalPrice: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) ? 
-            (data.price?.mrp?.$numberDecimal || data.price?.mrp) : 
-            (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) ? 
-              (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) : 
+          originalPrice: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) ?
+            (data.price?.mrp?.$numberDecimal || data.price?.mrp) :
+            (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) ?
+              (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) :
               null),
-          discount: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) && (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) ? 
-            Math.round((((data.price.mrp?.$numberDecimal || data.price.mrp) - (data.price.selling_price?.$numberDecimal || data.price.selling_price)) / (data.price.mrp?.$numberDecimal || data.price.mrp)) * 100) + '%' : 
+          discount: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) && (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) ?
+            Math.round((((data.price.mrp?.$numberDecimal || data.price.mrp) - (data.price.selling_price?.$numberDecimal || data.price.selling_price)) / (data.price.mrp?.$numberDecimal || data.price.mrp)) * 100) + '%' :
             (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) && (data.selected_combination?.price?.selling_price?.$numberDecimal || data.selected_combination?.price?.selling_price) ?
               Math.round((((data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp) - (data.selected_combination.price.selling_price?.$numberDecimal || data.selected_combination.price.selling_price)) / (data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp)) * 100) + '%' :
               null),
@@ -109,7 +118,7 @@ const ProductPage = ({ params }) => {
           ratingCount: 83,
           boughtCount: "1K+ bought in past month",
           inStock: data.meta?.stock > 0,
-          images: productImages.map(img => img.url) || [],
+          images: images,
           description: data.description?.description || '',
           features: data.meta?.attributes?.map(attr => `${attr.name}: ${attr.value}`) || [],
           specifications: Object.fromEntries(
@@ -124,21 +133,35 @@ const ProductPage = ({ params }) => {
             { name: "Total Protection Plan for 1 Year", price: "2,349.00" },
             { name: "Extended warranty for 1 Year", price: "1,549.00" },
             { name: "Screen Damage Protection for 1 year", price: "1,999.00" }
-          ]
+          ],
+          seller: {
+              businessName: data.seller?.business?.business_name || 'N/A',
+              location: data.seller?.business?.location?.coordinates || null
+          }
         };
 
-        console.log('Transformed data:', transformedData);
+        // Update states once data is processed
         setProductData(transformedData);
+        setProductImages(images);
+        setSelectedImage(initialSelectedImageIndex); // Set selected image here after images are set
+
+        // Set the flag to true after successful data load
+        setIsDataLoaded(true);
+
       } catch (error) {
-        console.error('Error fetching product data:', error);
+        console.error('Error fetching data:', error);
         setError(error.message || 'Failed to load product data');
+        setProductData(null); // Clear data on error
+        setProductImages([]); // Clear images on error
+        setIsDataLoaded(false); // Reset flag on error
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductData();
-  }, [gspin, pid, type, p_sku, productImages]);
+    fetchDataAndImages();
+
+  }, [gspin, pid, type, p_sku, isDataLoaded]); // Add isDataLoaded to dependencies
 
   if (loading) {
     return (
@@ -192,26 +215,27 @@ const ProductPage = ({ params }) => {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Column 1: Gallery */}
-          <ProductGallerySection  
-            thumbsToShow={thumbsToShow} 
-            extraThumbs={extraThumbs} 
+          <ProductGallerySection
+            thumbsToShow={thumbsToShow}
+            extraThumbs={extraThumbs}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
             productData={productData}
           />
 
           {/* Column 2: Product Info */}
-          <ProductInfoSection 
+          <ProductInfoSection
             productData={productData}
           />
 
           {/* Column 3: Buy Box */}
-          <ProductCartSection  
+          <ProductCartSection
             productData={productData}
             quantity={quantity}
             exchange={exchange}
             setQuantity={setQuantity}
             setExchange={setExchange}
+            // estimatedDelivery={estimatedDelivery} // Removed prop
           />
         </div>
       </div>
@@ -220,22 +244,40 @@ const ProductPage = ({ params }) => {
       <div className="container mx-auto px-4 pb-2">
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Specifications</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            {Object.entries(productData.specifications).map(([key, value]) => (
-              <div key={key} className="flex text-gray-700 text-base">
-                <span className="font-semibold w-32">{key}:</span>
-                <span>{value}</span>
-              </div>
-            ))}
+          {/* Specifications in a minimal table format */}
+          <div className="mb-8 overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Object.entries(productData.specifications).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-700 whitespace-nowrap w-1/3 lg:w-1/4">{key}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+
           <h2 className="text-2xl font-bold mb-4">Product Description</h2>
-          <p className="text-gray-700 text-base mb-8">{productData.description}</p>
+          {/* Product Description with HTML content */}
+          <div className="text-gray-700 text-base mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: productData.description }}></div>
+
           <h2 className="text-2xl font-bold mb-4">Key Features</h2>
-          <ul className="list-disc pl-6 text-gray-700 text-base space-y-1">
+          <ul className="list-disc pl-6 text-gray-700 text-base space-y-1 mb-8">
             {productData.features.map((feature, idx) => (
               <li key={idx}>{feature}</li>
             ))}
           </ul>
+
+          {/* Service Centre Replacement section styled as a material card */}
+          <div className="bg-white rounded-lg shadow-md p-4 mb-8">
+              <div className="flex items-center text-sm text-gray-700">
+                  {/* Assuming you have an icon component or use a library */} 
+                  {/* <FiRefreshCw className="text-lg mr-2" /> */} 
+                  <span className="font-semibold mr-1">7 days:</span> Service Centre Replacement
+              </div>
+          </div>
+
         </div>
       </div>
     </main>
