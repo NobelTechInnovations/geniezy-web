@@ -1,6 +1,6 @@
 import { FiHeart, FiShare2, FiShoppingCart} from 'react-icons/fi';
 
-const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange}) => {
+const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange, estimatedDelivery }) => {
 
     return (
         <>
@@ -16,10 +16,13 @@ const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setE
             </div>
             {/* Delivery, stock, seller, payment, gift */}
             <div className="mb-1">
-              <div className="text-xs text-blue-700 font-semibold cursor-pointer hover:underline">FREE Same Day Delivery</div>
+              <div className="text-xs text-blue-700 font-semibold">Estimated Delivery: <span className="font-normal">{estimatedDelivery}</span></div>
               <div className="text-green-600 font-semibold text-sm mb-1">In stock</div>
               <div className="text-xs text-gray-700">Ship by <span className="font-semibold">geniezy assuerd</span></div>
-              <div className="text-xs text-gray-700">Sold by <span className="font-semibold">Renfe</span></div>
+              <div className="text-xs text-gray-700">Sold by <span className="font-semibold">{productData.seller?.businessName || productData.seller?.name || 'N/A'}</span></div>
+              {productData.seller?.businessAddress && (
+                 <div className="text-xs text-gray-700">Address: <span className="font-semibold">{productData.seller.businessAddress}</span></div>
+              )}
               <div className="text-xs text-blue-700 cursor-pointer hover:underline">Secure transaction</div>
               <div className="text-xs text-blue-700 cursor-pointer hover:underline">Gift options Available at checkout</div>
             </div>

@@ -34,6 +34,8 @@ const getLocationFromLocalStorage = () => {
   return null;
 };
 
+export { getLocationFromLocalStorage };
+
 const LocationDropdown = () => {
   const [open, setOpen] = useState(false);
   const [location, setLocation] = useState({
@@ -107,11 +109,13 @@ const LocationDropdown = () => {
 
       const newLocation = {
         city: city || 'Unknown',
-        pincode: pincode || 'Unknown'
+        pincode: pincode || 'Unknown',
+        latitude: latitude,
+        longitude: longitude
       };
 
       setLocation(newLocation);
-      saveLocationToLocalStorage(newLocation); // Save for 30 days
+      saveLocationToLocalStorage(newLocation); // Save with new fields
 
     } catch (error) {
       console.error('Error getting location:', error);

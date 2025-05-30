@@ -7,6 +7,31 @@ import ProductGallerySection from '@/app/components/product-detail/ProductGaller
 import ProductInfoSection from '@/app/components/product-detail/ProductInfoSection';
 import ProductCartSection from '@/app/components/product-detail/ProductCartSection';
 import { productApi } from '@/app/redux/services/apiService';
+// Import the function to get user location from local storage
+import { getLocationFromLocalStorage } from '@/app/components/common/LocationDropdown';
+
+// Simple distance calculation function (Haversine formula approximation)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in kilometers
+  return distance;
+}
+
+// Basic delivery time estimation based on distance (more specific)
+function estimateDeliveryTime(distance) {
+    if (distance < 10) return '30 minutes - 1 hour';
+    if (distance < 50) return 'Same Day Delivery';
+    if (distance < 200) return '1-2 days';
+    if (distance < 500) return '2-3 days';
+    return '3-5 days';
+}
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -17,7 +42,7 @@ const ProductPage = ({ params }) => {
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  // const [estimatedDelivery, setEstimatedDelivery] = useState(null);
+  const [estimatedDelivery, setEstimatedDelivery] = useState(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Unwrap params using React.use()
@@ -30,26 +55,26 @@ const ProductPage = ({ params }) => {
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
 
-  // Reset data loaded flag when product params change
-  useEffect(() => {
-    setIsDataLoaded(false);
-    setProductData(null); // Clear previous data
-    setProductImages([]); // Clear previous images
-    setSelectedImage(0); // Reset selected image
-  }, [gspin, pid, type, p_sku]); // Reset when product identifiers change
-
-  // Effect to fetch product data and images
+  // Effect to fetch product data and images when product parameters change
   useEffect(() => {
     const fetchDataAndImages = async () => {
-      // Only fetch if data is not already loaded for this product
-      if (isDataLoaded || !gspin || !pid) {
-        if (!gspin || !pid) setLoading(false); // Ensure loading is false if params are missing
+      if (!gspin || !pid) {
+        setError('Missing required parameters');
+        setLoading(false);
         return;
+      }
+
+      // Only fetch if data is not already loaded for this product
+      if (isDataLoaded) {
+        return; // Data already loaded, no need to refetch unless product params change
       }
 
       setLoading(true);
       setError(null);
-      
+      setProductData(null); // Clear previous data
+      setProductImages([]); // Clear previous images
+      setEstimatedDelivery(null); // Clear previous delivery estimate
+
       try {
         // Fetch product data
         console.log('Fetching product data with params:', { gspin, pid, type, p_sku });
@@ -136,7 +161,8 @@ const ProductPage = ({ params }) => {
           ],
           seller: {
               businessName: data.seller?.business?.business_name || 'N/A',
-              location: data.seller?.business?.location?.coordinates || null
+              location: data.seller?.business?.location?.coordinates || null,
+              businessAddress: data.seller?.business?.pincode +' '+data.seller?.business?.business_address || 'N/A'
           }
         };
 
@@ -153,6 +179,7 @@ const ProductPage = ({ params }) => {
         setError(error.message || 'Failed to load product data');
         setProductData(null); // Clear data on error
         setProductImages([]); // Clear images on error
+        setEstimatedDelivery('Delivery time N/A'); // Set delivery to N/A on error
         setIsDataLoaded(false); // Reset flag on error
       } finally {
         setLoading(false);
@@ -161,7 +188,25 @@ const ProductPage = ({ params }) => {
 
     fetchDataAndImages();
 
-  }, [gspin, pid, type, p_sku, isDataLoaded]); // Add isDataLoaded to dependencies
+  }, [gspin, pid, type, p_sku]); // Dependencies: re-run when product params change
+
+  // Effect to calculate estimated delivery time when productData or userLocation changes
+  useEffect(() => {
+      const userLocation = getLocationFromLocalStorage(); // Get latest location from local storage
+      // Check if productData, userLocation, and seller location are available
+      if (productData && userLocation?.latitude !== undefined && userLocation?.longitude !== undefined && productData.seller?.location) {
+            // Access latitude and longitude directly from userLocation object
+            const userLat = userLocation.latitude;
+            const userLon = userLocation.longitude;
+            const sellerLon = productData.seller.location[0];
+            const sellerLat = productData.seller.location[1];
+            const distance = calculateDistance(userLat, userLon, sellerLat, sellerLon);
+            setEstimatedDelivery(estimateDeliveryTime(distance));
+        } else {
+            // If location data is incomplete, set delivery to N/A
+            setEstimatedDelivery('Delivery time N/A');
+        }
+  }, [productData]); // Dependencies: re-run when productData changes. userLocation is read inside.
 
   if (loading) {
     return (
@@ -235,7 +280,7 @@ const ProductPage = ({ params }) => {
             exchange={exchange}
             setQuantity={setQuantity}
             setExchange={setExchange}
-            // estimatedDelivery={estimatedDelivery} // Removed prop
+            estimatedDelivery={estimatedDelivery}
           />
         </div>
       </div>
