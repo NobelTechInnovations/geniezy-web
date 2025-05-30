@@ -1,6 +1,9 @@
 import React from 'react';
 import S3Image from '@/app/shared/utils/S3Image';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import Link from 'next/link';
+import { slugify } from '@/app/shared/utils/titleFormat';
+import { formatIndianPrice } from '@/app/shared/utils/priceFormat';
 
 const ProductSkeleton = () => (
   <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col items-start">
@@ -15,22 +18,43 @@ const ProductSkeleton = () => (
   </div>
 );
 
-const ProductCard = ({ product }) => (
-  <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col items-start min-w-[200px]">
-    <div className="w-full h-28 flex items-center justify-center mb-2 overflow-hidden">
-      <S3Image src={product.image} alt={product.name} className="h-24 object-contain" />
-    </div>
-    <div className="flex items-center text-xs bg-grey-700 text-gray-500 mb-1">
-      <span className="mr-1">🕒</span> 9 MINS
-    </div>
-    <div className="font-medium text-sm mb-1">{product.name}</div>
-    <div className="text-xs text-gray-500 mb-1">{product.details}</div>
-    <div className="flex items-center justify-between w-full mt-2">
-      <span className="font-semibold">₹{product.price}</span>
-      <button className="border border-green-600 text-green-600 px-4 py-1 rounded-md text-sm font-medium hover:bg-green-50">ADD</button>
-    </div>
-  </div>
-);
+
+const ProductCard = ({ product }) => {
+  const showDiscount = product.type === 'simple' && 
+    product.price?.mrp && 
+    product.price?.selling_price && 
+    product.price.mrp > product.price.selling_price;
+
+  const displayPrice = product.price?.selling_price || product.price?.mrp || product.price;
+
+  return (
+    <Link href={`/gspin/${product.gspin}/${slugify(product.name)}?pid=${product._id}&p_sku=${product.sku || product.unified_sku || ''}&type=${product.type}`}>
+      <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col items-start w-[200px] min-w-[200px] max-w-[200px]">
+        <div className="w-full h-28 flex items-center justify-center mb-2 overflow-hidden">
+          <S3Image src={product.image} alt={product.name} className="h-24 object-contain" />
+        </div>
+        <div className="flex items-center text-xs bg-grey-700 text-gray-500 mb-1">
+          <span className="mr-1">🕒</span> 9 MINS
+        </div>
+        <div className="font-medium text-sm mb-1 line-clamp-2 w-full">{product.name}</div>
+        <div className="text-xs text-gray-500 mb-1 line-clamp-2 w-full">{product.details}</div>
+        <div className="flex items-center justify-between w-full mt-2">
+          <div className="flex flex-col">
+            {showDiscount ? (
+              <>
+                <span className="font-semibold">{formatIndianPrice(product.price.selling_price)}</span>
+                <span className="text-xs text-gray-500 line-through">{formatIndianPrice(product.price.mrp)}</span>
+              </>
+            ) : (
+              <span className="font-semibold">{formatIndianPrice(displayPrice)}</span>
+            )}
+          </div>
+          <button className="border border-green-600 text-green-600 px-4 py-1 rounded-md text-sm font-medium hover:bg-green-50">ADD</button>
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 const CategoryProductRow = ({ category, products, loading }) => {
   const [scrollPosition, setScrollPosition] = React.useState(0);
@@ -87,6 +111,7 @@ export default function HorizontalProductList({ products, loading }) {
   // Group products by category
   const groupedProducts = React.useMemo(() => {
     if (!products) return {};
+
     return products.reduce((acc, product) => {
       const categorySlug = product.category_id?.slug || 'uncategorized';
       if (!acc[categorySlug]) {

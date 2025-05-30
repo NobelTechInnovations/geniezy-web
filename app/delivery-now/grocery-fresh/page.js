@@ -46,7 +46,9 @@ export default function GroceryDeliveryPage() {
         products={products.map(product => ({
           _id: product._id,
           name: product.title,
-          details: product.type,
+          type: product.type,
+          sku:product.sku || product.unified_sku,
+          gspin:product.product_id,
           price: product.price?.selling_price?.$numberDecimal || 0,
           image: product.images?.[0]?.thumbnail_image || 'https://via.placeholder.com/150',
           category_id: product.category_id

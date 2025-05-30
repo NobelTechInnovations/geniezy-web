@@ -67,6 +67,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
               <span className="text-gray-600 text-sm">({productData.ratingCount})</span>
             </div>
             <div className="text-xs text-gray-700 mb-2">{productData.boughtCount}</div>
+            
             <div className="flex flex-col gap-1 mb-2">
               <div className="flex items-center gap-2">
                 {productData.discount && (
