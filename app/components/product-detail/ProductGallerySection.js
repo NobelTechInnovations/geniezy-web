@@ -14,7 +14,7 @@ const ProductGallerySection = ({ thumbsToShow, extraThumbs, selectedImage, setSe
             <div className="flex flex-col gap-2 items-center lg:items-start min-w-[52px]">              
               {thumbsToShow.map((image, index) => (
                 <button
-                  key={index}
+                  key={image}
                   onClick={() => setSelectedImage(index)}
                   className={`border rounded-md overflow-hidden w-12 h-12 flex items-center justify-center bg-white transition-all ${selectedImage === index ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-200'}`}
                 >
