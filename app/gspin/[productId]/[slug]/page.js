@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ProductGallerySection from '@/app/components/product-detail/ProductGallerySection';
 import ProductInfoSection from '@/app/components/product-detail/ProductInfoSection';
 import ProductCartSection from '@/app/components/product-detail/ProductCartSection';
@@ -23,12 +23,15 @@ const ProductPage = ({ params }) => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   // Unwrap params using React.use()
   const unwrappedParams = use(params);
   const { productId, slug } = unwrappedParams;
   const gspin = productId;
 
-  const searchParams = useSearchParams();
+  // Get search params
   const pid = searchParams.get('pid');
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
@@ -50,145 +53,153 @@ const ProductPage = ({ params }) => {
     } : null
   );
 
-  // Reset data loaded flag when product params change
-  useEffect(() => {
-    setIsDataLoaded(false);
-    setProductData(null); // Clear previous data
-    setProductImages([]); // Clear previous images
-    setSelectedImage(0); // Reset selected image
-  }, [gspin, pid, type, p_sku]); // Reset when product identifiers change
+  // Function to fetch product data and images
+  const fetchProductDetailsAndImages = async (currentGspin, currentPid, currentType, currentPSku) => {
+    if (!currentGspin || !currentPid) {
+      setError('Missing required parameters');
+      setLoading(false);
+      return;
+    }
 
-  // Effect to fetch product data and images
-  useEffect(() => {
-    const fetchDataAndImages = async () => {
-      if (!gspin || !pid) {
-        setError('Missing required parameters');
-        setLoading(false);
-        return;
+    // Only fetch if data is not already loaded for this product
+    // This check might need adjustment if we want to force re-fetch on variation change
+    // if (isDataLoaded) {
+    //   return; 
+    // }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch product data
+      console.log('Fetching product data with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
+      const dataResponse = await productApi.getProductInfo(currentGspin, {
+        pid: currentPid,
+        type: currentType,
+        p_sku: currentPSku
+      }, 'v1');
+      console.log('Product data API Response:', dataResponse);
+
+      if (!dataResponse.success) {
+        throw new Error(dataResponse.message || 'Failed to fetch product data');
       }
 
-      // Only fetch if data is not already loaded for this product
-      if (isDataLoaded) {
-        return; // Data already loaded, no need to refetch unless product params change
+      const data = dataResponse.data;
+      if (!data) {
+        throw new Error('No product data received');
       }
 
-      setLoading(true);
-      setError(null);
+      // Fetch product images
+      console.log('Fetching product images with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
+      const imagesResponse = await productApi.getProductImages(currentGspin, {
+        pid: currentPid,
+        type: currentType,
+        p_sku: currentPSku
+      });
+      console.log('Product images API Response:', imagesResponse);
 
-      try {
-        // Fetch product data
-        console.log('Fetching product data with params:', { gspin, pid, type, p_sku });
-        const dataResponse = await productApi.getProductInfo(gspin, {
-          pid,
-          type,
-          p_sku
-        }, 'v1');
-        console.log('Product data API Response:', dataResponse);
+      let images = [];
+      let initialSelectedImageIndex = 0;
 
-        if (!dataResponse.success) {
-          throw new Error(dataResponse.message || 'Failed to fetch product data');
-        }
-
-        const data = dataResponse.data;
-        if (!data) {
-          throw new Error('No product data received');
-        }
-
-        // Fetch product images
-        console.log('Fetching product images with params:', { gspin, pid, type, p_sku });
-        const imagesResponse = await productApi.getProductImages(gspin, {
-          pid,
-          type,
-          p_sku
-        });
-        console.log('Product images API Response:', imagesResponse);
-
-        let images = [];
-        let initialSelectedImageIndex = 0;
-
-        if (imagesResponse.success && imagesResponse.data) {
-            images = imagesResponse.data.map(img => img.url) || [];
-             // Find and set initial selected image to primary image if available
-            const primaryImageIndex = imagesResponse.data.findIndex(img => img.is_primary);
-            if (primaryImageIndex !== -1 && images[primaryImageIndex]) { // Also check if image exists at that index
-                initialSelectedImageIndex = primaryImageIndex;
-            } else if (images.length > 0) {
-                initialSelectedImageIndex = 0;
-            } else {
-                initialSelectedImageIndex = 0;
-            }
-        }
-
-        // Transform API response to match UI requirements
-        const transformedData = {
-          id: data._id,
-          title: data.title,
-          category: data.category_id || '',
-          brand: data.meta?.brand_details?.name || 'Generic',
-          storeLink: "#",
-          // Handle price, original price, and discount based on product type
-          price: data.type === 'simple' ?
-            (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) : // Check for $numberDecimal or direct value
-            (data.selected_combination?.price?.$numberDecimal || data.selected_combination?.price),
-          originalPrice: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) ?
-            (data.price?.mrp?.$numberDecimal || data.price?.mrp) :
-            (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) ?
-              (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) :
-              null),
-          discount: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) && (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) ?
-            Math.round((((data.price.mrp?.$numberDecimal || data.price.mrp) - (data.price.selling_price?.$numberDecimal || data.price.selling_price)) / (data.price.mrp?.$numberDecimal || data.price.mrp)) * 100) + '%' :
-            (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) && (data.selected_combination?.price?.selling_price?.$numberDecimal || data.selected_combination?.price?.selling_price) ?
-              Math.round((((data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp) - (data.selected_combination.price.selling_price?.$numberDecimal || data.selected_combination.price.selling_price)) / (data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp)) * 100) + '%' :
-              null),
-          rating: 4.5, // These would come from a ratings API
-          ratingCount: 83,
-          boughtCount: "1K+ bought in past month",
-          inStock: data.meta?.stock > 0,
-          images: images,
-          description: data.description?.description || '',
-          features: data.meta?.attributes?.map(attr => `${attr.name}: ${attr.value}`) || [],
-          specifications: Object.fromEntries(
-            data.meta?.attributes?.map(attr => [attr.name, attr.value]) || []
-          ),
-          offers: [
-            { title: "Cashback", desc: "Upto ₹1,049.00 cashback as Amazon Pay Balance when you use select cards.", link: "#" },
-            { title: "No Cost EMI", desc: "Upto ₹1,575.94 EMI interest savings on select cards.", link: "#" },
-            { title: "Bank Offer", desc: "Upto ₹2,000.00 discount on select Credit Cards, HDFC, etc.", link: "#" }
-          ],
-          protectionPlans: [
-            { name: "Total Protection Plan for 1 Year", price: "2,349.00" },
-            { name: "Extended warranty for 1 Year", price: "1,549.00" },
-            { name: "Screen Damage Protection for 1 year", price: "1,999.00" }
-          ],
-          seller: {
-              businessName: data.seller?.business?.business_name || 'N/A',
-              location: data.seller?.business?.location?.coordinates || null,
-              businessAddress: data.seller?.business?.pincode +' '+ data.seller?.business?.business_address || 'N/A'
+      if (imagesResponse.success && imagesResponse.data) {
+          images = imagesResponse.data.map(img => img.url) || [];
+           // Find and set initial selected image to primary image if available
+          const primaryImageIndex = imagesResponse.data.findIndex(img => img.is_primary);
+          if (primaryImageIndex !== -1 && images[primaryImageIndex]) { // Also check if image exists at that index
+              initialSelectedImageIndex = primaryImageIndex;
+          } else if (images.length > 0) {
+              initialSelectedImageIndex = 0;
+          } else {
+              initialSelectedImageIndex = 0;
           }
-        };
-
-        // Update states once data is processed
-        setProductData(transformedData);
-        setProductImages(images);
-        setSelectedImage(initialSelectedImageIndex); // Set selected image here after images are set
-
-        // Set the flag to true after successful data load
-        setIsDataLoaded(true);
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(error.message || 'Failed to load product data');
-        setProductData(null); // Clear data on error
-        setProductImages([]); // Clear images on error
-        setIsDataLoaded(false); // Reset flag on error
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchDataAndImages();
+      // Transform API response to match UI requirements
+      const transformedData = {
+        id: data._id,
+        title: data.title,
+        category: data.category_id || '',
+        brand: data.meta?.brand_details?.name || 'Generic',
+        storeLink: "#",
+        type: data.type,
+        // Handle price, original price, and discount based on product type
+        price: data.type === 'simple' ?
+          (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) : // Check for $numberDecimal or direct value
+          (data.selected_combination?.price?.$numberDecimal || data.selected_combination?.price),
+        originalPrice: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) ?
+          (data.price?.mrp?.$numberDecimal || data.price?.mrp) :
+          (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) ?
+            (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) :
+            null),
+        discount: data.type === 'simple' && (data.price?.mrp?.$numberDecimal || data.price?.mrp) && (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) ?
+          Math.round((((data.price.mrp?.$numberDecimal || data.price.mrp) - (data.price.selling_price?.$numberDecimal || data.price.selling_price)) / (data.price.mrp?.$numberDecimal || data.price.mrp)) * 100) + '%' :
+          (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) && (data.selected_combination?.price?.selling_price?.$numberDecimal || data.selected_combination?.price?.selling_price) ?
+            Math.round((((data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp) - (data.selected_combination.price.selling_price?.$numberDecimal || data.selected_combination.price.selling_price)) / (data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp)) * 100) + '%' :
+            null),
+        rating: 4.5, // These would come from a ratings API
+        ratingCount: 83,
+        boughtCount: "1K+ bought in past month",
+        inStock: data.meta?.stock > 0, // Use meta.stock for simple products, selected_combination.stock for variable
+        images: images,
+        description: data.description?.description || '',
+        features: data.meta?.attributes?.map(attr => `${attr.name}: ${attr.value}`) || [],
+        specifications: Object.fromEntries(
+          data.meta?.attributes?.map(attr => [attr.name, attr.value]) || []
+        ),
+        variations: data.variations || [],
+        selected_combination: data.selected_combination || null,
+        offers: [
+          { title: "Cashback", desc: "Upto ₹1,049.00 cashback as Amazon Pay Balance when you use select cards.", link: "#" },
+          { title: "No Cost EMI", desc: "Upto ₹1,575.94 EMI interest savings on select cards.", link: "#" },
+          { title: "Bank Offer", desc: "Upto ₹2,000.00 discount on select Credit Cards, HDFC, etc.", link: "#" }
+        ],
+        protectionPlans: [
+          { name: "Total Protection Plan for 1 Year", price: "2,349.00" },
+          { name: "Extended warranty for 1 Year", price: "1,549.00" },
+          { name: "Screen Damage Protection for 1 year", price: "1,999.00" }
+        ],
+        seller: {
+            businessName: data.seller?.business?.business_name || 'N/A',
+            location: data.seller?.business?.location?.coordinates || null,
+            businessAddress: data.seller?.business?.pincode +' '+ data.seller?.business?.business_address || 'N/A'
+        }
+      };
 
+      // Update states once data is processed
+      setProductData(transformedData);
+      setProductImages(images);
+      setSelectedImage(initialSelectedImageIndex); // Set selected image here after images are set
+
+      // Set the flag to true after successful data load
+      setIsDataLoaded(true);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(error.message || 'Failed to load product data');
+      setProductData(null); // Clear data on error
+      setProductImages([]); // Clear images on error
+      setIsDataLoaded(false); // Reset flag on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Effect to fetch product data and images when params change
+  useEffect(() => {
+    fetchProductDetailsAndImages(gspin, pid, type, p_sku);
   }, [gspin, pid, type, p_sku]); // Dependencies: re-run when product params change
+
+  // Handle variation selection and update URL and re-fetch data
+  const handleVariationSelectInPage = (variation) => {
+    const currentSearchParams = new URLSearchParams(searchParams);
+    currentSearchParams.set('p_sku', variation.sku);
+    // Preserve other existing search params
+    const newUrl = `${window.location.pathname}?${currentSearchParams.toString()}`;
+    router.replace(newUrl);
+
+    // Explicitly re-fetch data for the selected variation
+    fetchProductDetailsAndImages(gspin, pid, type, variation.sku); // Pass the new sku
+  };
 
   if (loading) {
     return (
@@ -253,6 +264,7 @@ const ProductPage = ({ params }) => {
           {/* Column 2: Product Info */}
           <ProductInfoSection
             productData={productData}
+            onVariationSelect={handleVariationSelectInPage}
           />
 
           {/* Column 3: Buy Box */}
