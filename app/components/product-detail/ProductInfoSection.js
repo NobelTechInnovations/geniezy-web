@@ -97,7 +97,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
               </div>
               <div className="flex items-center gap-1">
                 <FiShield className="text-purple-600" />
-                <span>7 Days Replacement</span>
+                <span>Same Days Replacement</span>
               </div>
               <div className="flex items-center gap-1">
                 <FiShoppingCart className="text-orange-600" />
