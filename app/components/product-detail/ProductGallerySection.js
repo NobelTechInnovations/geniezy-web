@@ -1,4 +1,11 @@
+import S3Image from "@/app/shared/utils/S3Image";
+
 const ProductGallerySection = ({ thumbsToShow, extraThumbs, selectedImage, setSelectedImage, productData }) => {
+    // Ensure we have valid images array
+    const images = productData?.images || [];
+    
+    // Get the current selected image URL
+    const selectedImageUrl = images[selectedImage] || '';
 
     return (
         <>
@@ -11,7 +18,7 @@ const ProductGallerySection = ({ thumbsToShow, extraThumbs, selectedImage, setSe
                   onClick={() => setSelectedImage(index)}
                   className={`border rounded-md overflow-hidden w-12 h-12 flex items-center justify-center bg-white transition-all ${selectedImage === index ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-200'}`}
                 >
-                  <img
+                  <S3Image
                     src={image}
                     alt={`Thumb ${index + 1}`}
                     className="object-contain w-full h-full"
@@ -24,11 +31,15 @@ const ProductGallerySection = ({ thumbsToShow, extraThumbs, selectedImage, setSe
             </div>
             {/* Main Image */}
             <div className="relative w-full flex-1 aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center min-w-[250px] max-w-[550px]">
-              <img
-                src={productData.images[selectedImage]}
-                alt={productData.title}
-                className="w-full h-full object-contain"
-              />
+              {selectedImageUrl ? (
+                <S3Image
+                  src={selectedImageUrl}
+                  alt={productData.title}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="text-gray-400">No image available</div>
+              )}
             </div>
           </div>
         </>

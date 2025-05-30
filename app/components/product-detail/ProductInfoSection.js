@@ -17,9 +17,13 @@ const ProductInfoSection = ({productData}) => {
             </div>
             <div className="text-xs text-gray-700 mb-2">{productData.boughtCount}</div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-red-600 font-bold text-xl">-{productData.discount}</span>
+              {productData.discount && (
+                <span className="text-red-600 font-bold text-xl">-{productData.discount}</span>
+              )}
               <span className="text-2xl font-bold text-gray-900">₹{productData.price}</span>
-              <span className="text-base text-gray-500 line-through">₹{productData.originalPrice}</span>
+              {productData.originalPrice && (
+                <span className="text-base text-gray-500 line-through">₹{productData.originalPrice}</span>
+              )}
             </div>
             <div className="flex items-center gap-2 mb-2">
               <span className="bg-gray-100 text-xs px-2 py-1 rounded font-semibold text-gray-700">g. Assuerd</span>

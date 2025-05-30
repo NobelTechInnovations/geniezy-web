@@ -120,4 +120,76 @@ export const categoryApi = {
   }
 };
 
+export const productApi = {
+  /**
+   * Get product details by gspin
+   * @param {string} gspin - The product gspin
+   * @param {Object} params - Query parameters
+   * @param {string} params.pid - Product ID
+   * @param {string} params.type - Product type (simple/variable)
+   * @param {string} params.p_sku - Product SKU
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with product data
+   */
+  getProductInfo: async (gspin, queryParams = {}, version = 'v1') => {
+    try {
+      if (!gspin) {
+        throw new Error('GSPIN is required');
+      }
+
+      const { pid, type, p_sku } = queryParams;
+      if (!pid) {
+        throw new Error('Product ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint(version, 'catalog', `listing/${gspin}/info`);
+      console.log('Calling product info API:', endpoint);
+      
+      const response = await api.get(endpoint, {
+        params: {
+          pid,
+          type,
+          p_sku
+        }
+      });
+
+      console.log('Product info API response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in productApi.getProductInfo:', error);
+      throw error;
+    }
+  },
+
+  getProductImages: async (gspin, queryParams = {}) => {
+    try {
+      if (!gspin) {
+        throw new Error('GSPIN is required');
+      }
+
+      const { pid, type, p_sku } = queryParams;
+      if (!pid) {
+        throw new Error('Product ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint('v1', 'catalog', `listing/${gspin}/images`);
+      console.log('Calling product images API:', endpoint);
+      
+      const response = await api.get(endpoint, {
+        params: {
+          pid,
+          type,
+          p_sku
+        }
+      });
+
+      console.log('Product images API response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in productApi.getProductImages:', error);
+      throw error;
+    }
+  }
+};
+
 export default api;

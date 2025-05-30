@@ -8,7 +8,10 @@ const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setE
             <div className="flex flex-col gap-2">
               <label className=" items-center gap-1 text-sm font-medium">
                 <input type="radio" name="exchange" value="no" checked={exchange === 'no'} onChange={() => setExchange('no')} />
-                Offer <span className="text-gray-900 font-semibold ml-1">₹ {productData.price}.00</span> <span className="text-gray-500 line-through ml-1">₹ {productData.originalPrice}.00</span>
+                Offer <span className="text-gray-900 font-semibold ml-1">₹ {productData.price}</span> 
+                {productData.originalPrice && (
+                  <span className="text-gray-500 line-through ml-1">₹ {productData.originalPrice}</span>
+                )}
               </label>
             </div>
             {/* Delivery, stock, seller, payment, gift */}
