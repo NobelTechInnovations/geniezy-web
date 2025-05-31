@@ -3,7 +3,7 @@ import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
 import FestiveCategory from './components/home/FestiveCategory';
 import MainSingleProductCard from './components/common/products/mainSingleProductCard';
-
+import RecentViewProducts from './components/home/RecentViewProducts';
 
 export default function Home() {
   return (
@@ -21,7 +21,11 @@ export default function Home() {
       <CategorySection />
 
       {/* Main Product Card Section */}
-      <MainSingleProductCard />
+      {/* <MainSingleProductCard /> */}
+
+    {/* create a new section for recent view products */}
+    <RecentViewProducts />
+
     </main>
   );
 }

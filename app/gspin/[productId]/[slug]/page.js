@@ -182,6 +182,8 @@ const ProductPage = ({ params }) => {
         categoryId: btoa(data.category_id?._id),
         categoryName: data.category_id?.name,
         brand: data.meta?.brand_details?.name || 'Generic',
+        sku: data.selected_combination?.sku || data.unified_sku,
+        product_type: data.type === 'simple' ? 'simple' : 'variable_combination',
       });
 
       // Set the flag to true after successful data load
