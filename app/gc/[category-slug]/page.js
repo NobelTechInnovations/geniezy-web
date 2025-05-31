@@ -35,7 +35,7 @@ export default function CategoryPage() {
           if (response.data.category) {
             addToHistory({
               type: 'category',
-              categoryId: response.data.category._id,
+              categoryId: btoa(response.data.category._id),
               categoryName: response.data.category.name,
               categorySlug: response.data.category.slug,
               parentCategory: response.data.root_category_with_children?.name || null,

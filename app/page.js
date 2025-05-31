@@ -3,13 +3,12 @@ import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
 import FestiveCategory from './components/home/FestiveCategory';
 import MainSingleProductCard from './components/common/products/mainSingleProductCard';
-import Search from './components/Search';
+
 
 export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-white">
       
-      <Search />
       {/* Hero Section with slider and ads */}
       <div className="flex flex-col gap-4 mt-2">
         <HeroSection />

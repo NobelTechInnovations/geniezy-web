@@ -176,13 +176,10 @@ const ProductPage = ({ params }) => {
       // Add product to browsing history
       addToHistory({
         type: 'product',
-        productId: data._id,
+        gspin: data.product_id,
         productName: data.title,
         productImage: images[initialSelectedImageIndex] || '',
-        price: data.type === 'simple' ?
-          (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) :
-          (data.selected_combination?.price?.$numberDecimal || data.selected_combination?.price),
-        categoryId: data.category_id?._id,
+        categoryId: btoa(data.category_id?._id),
         categoryName: data.category_id?.name,
         brand: data.meta?.brand_details?.name || 'Generic',
       });

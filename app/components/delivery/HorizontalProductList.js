@@ -31,7 +31,7 @@ const ProductCard = ({ product }) => {
     <Link href={`/gspin/${product.gspin}/${slugify(product.name)}?pid=${product._id}&p_sku=${product.sku || product.unified_sku || ''}&type=${product.type}`}>
       <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col items-start w-[200px] min-w-[200px] max-w-[200px]">
         <div className="w-full h-28 flex items-center justify-center mb-2 overflow-hidden">
-          <S3Image src={product.image} alt={product.name} className="h-24 object-contain" />
+          <S3Image src={product.image} alt={product.name} className="h-24 object-contain " />
         </div>
         <div className="flex items-center text-xs bg-grey-700 text-gray-500 mb-1">
           <span className="mr-1">🕒</span> 9 MINS
