@@ -8,6 +8,7 @@ import ProductCardSkeleton from "../../components/common/products/ProductCardSke
 import CategoryAdBanner from "../../components/common/products/CategoryAdBanner";
 import ProductFilter from "../../components/common/ProductFilter";
 import { categoryApi } from "../../redux/services/apiService";
+import { useBrowsingHistory } from "../../hooks/useBrowsingHistory";
 
 export default function CategoryPage() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState(null);
   const [rootCategory, setRootCategory] = useState(null);
   const [category_tree, setCategoryTree] = useState([]);
+  const { addToHistory } = useBrowsingHistory();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +30,17 @@ export default function CategoryPage() {
           setCategory(response.data.category);
           setRootCategory(response.data.root_category_with_children);
           setCategoryTree(response.data.category_tree || []);
+
+          // Add category to browsing history
+          if (response.data.category) {
+            addToHistory({
+              type: 'category',
+              categoryId: response.data.category._id,
+              categoryName: response.data.category.name,
+              categorySlug: response.data.category.slug,
+              parentCategory: response.data.root_category_with_children?.name || null,
+            });
+          }
         }
       } catch (error) {
         console.error("Error fetching category products:", error);
@@ -39,7 +52,7 @@ export default function CategoryPage() {
     if (categoryId) {
       fetchData();
     }
-  }, [categoryId]);
+  }, [categoryId, addToHistory]);
 
   return (
     <main className="flex flex-col min-h-screen bg-white">

@@ -10,6 +10,7 @@ import { productApi } from '@/app/redux/services/apiService';
 import { getLocationFromLocalStorage } from '@/app/components/common/LocationDropdown';
 import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
 import RecommendedProducts from '@/app/components/product-detail/RecommendedProducts';
+import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -35,6 +36,8 @@ const ProductPage = ({ params }) => {
   const pid = searchParams.get('pid');
   const p_sku = searchParams.get('p_sku');
   const type = searchParams.get('type');
+
+  const { addToHistory } = useBrowsingHistory();
 
   // Set mounted state
   useEffect(() => {
@@ -169,6 +172,20 @@ const ProductPage = ({ params }) => {
       setProductData(transformedData);
       setProductImages(images);
       setSelectedImage(initialSelectedImageIndex); // Set selected image here after images are set
+
+      // Add product to browsing history
+      addToHistory({
+        type: 'product',
+        productId: data._id,
+        productName: data.title,
+        productImage: images[initialSelectedImageIndex] || '',
+        price: data.type === 'simple' ?
+          (data.price?.selling_price?.$numberDecimal || data.price?.selling_price) :
+          (data.selected_combination?.price?.$numberDecimal || data.selected_combination?.price),
+        categoryId: data.category_id?._id,
+        categoryName: data.category_id?.name,
+        brand: data.meta?.brand_details?.name || 'Generic',
+      });
 
       // Set the flag to true after successful data load
       setIsDataLoaded(true);
