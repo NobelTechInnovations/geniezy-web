@@ -12,6 +12,7 @@ import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
 import RecommendedProducts from '@/app/components/product-detail/RecommendedProducts';
 import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
 import RecentViewProducts from '@/app/components/home/RecentViewProducts';
+import SideDrawer from '@/app/components/common/SideDrawer';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -24,6 +25,8 @@ const ProductPage = ({ params }) => {
   const [productImages, setProductImages] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -218,6 +221,17 @@ const ProductPage = ({ params }) => {
     fetchProductDetailsAndImages(gspin, pid, type, variation.sku); // Pass the new sku
   };
 
+  const handleAddToCart = () => {
+    // For demo purposes, we'll just add the current product to cart
+    const newItem = {
+      id: productData.id,
+      name: productData.title,
+      image: productData.images[selectedImage],
+    };
+    setCartItems(prev => [...prev, newItem]);
+    setIsCartOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -292,6 +306,7 @@ const ProductPage = ({ params }) => {
             setQuantity={setQuantity}
             setExchange={setExchange}
             estimatedDelivery={isMounted ? (duration?.text || 'Delivery time N/A') : 'Loading...'}
+            onAddToCart={handleAddToCart}
           />
         </div>
       </div>
@@ -330,6 +345,11 @@ const ProductPage = ({ params }) => {
 
       <RecentViewProducts />
 
+      <SideDrawer 
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+      />
     </main>
   );
 };

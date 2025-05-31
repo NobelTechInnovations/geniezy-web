@@ -1,7 +1,7 @@
 import { FiHeart, FiShare2, FiShoppingCart} from 'react-icons/fi';
 import {formatIndianPrice} from '../../shared/utils/priceFormat';
 
-const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange, estimatedDelivery }) => {
+const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange, estimatedDelivery, onAddToCart }) => {
     console.log('Estimated Delivery prop in ProductCartSection:', estimatedDelivery);
 
     return (
@@ -44,7 +44,10 @@ const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setE
                   <option key={num} value={num}>{num}</option>
                 ))}
               </select>
-              <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 py-1 rounded-sm  flex items-center justify-center gap-2 text-sm mt-2">
+              <button 
+                onClick={onAddToCart}
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 py-1 rounded-sm  flex items-center justify-center gap-2 text-sm mt-2"
+              >
                 <FiShoppingCart className="text-md" />
                 Add to Cart
               </button>
