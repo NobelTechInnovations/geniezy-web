@@ -2,21 +2,22 @@
 
 import S3Image from '@/app/shared/utils/S3Image';
 import Link from 'next/link';
+import { slugify } from '@/app/shared/utils/titleFormat';
 
 const MainSingleProductCard = ({ product }) => {
   if (!product) return null;
-
+  console.log(product,'===product===');
   return (
     <Link 
-      href={`/products/${product.gspin}`}
+      href={`/gspin/${product.gspin}/${slugify(product.name)}?pid=${btoa(product.productId)}&p_sku=${product.sku}&type=${product.product_type}`}
       className="block group"
     >
-      <div className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-        <div className="aspect-[4/3] mb-3 rounded-md overflow-hidden product-image">
+      <div className="bg-white rounded-lg p-2 border border-gray-200 hover:shadow-md transition-shadow">
+        <div className="aspect-[4/3] mb-3 rounded-md overflow-hidden ">
           <S3Image
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain product-image"
           />
         </div>
         <div>

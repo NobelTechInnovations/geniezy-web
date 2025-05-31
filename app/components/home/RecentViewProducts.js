@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import MainSingleProductCard from '../common/products/mainSingleProductCard';
 
 const RecentViewProducts = () => {
   const [recentProducts, setRecentProducts] = useState([]);
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const fetchRecentProducts = async () => {
@@ -29,7 +30,7 @@ const RecentViewProducts = () => {
             const products = getAllRequest.result
               .filter(item => item.type === 'product')
               .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-              .slice(0, 8); // Get only the 8 most recent products
+              .slice(0, 12); // Max 12 products
             
             setRecentProducts(products);
           };
@@ -48,27 +49,64 @@ const RecentViewProducts = () => {
 
     fetchRecentProducts();
   }, []);
-  console.log(recentProducts,'===recentProducts===');
+
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = direction === 'left' ? -container.offsetWidth / 2 : container.offsetWidth / 2;
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   if (recentProducts.length === 0) {
     return null; // Don't render anything if there are no recent products
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6">Recently Viewed Products</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Recently Viewed Products</h2>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => scroll('left')}
+            className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+            aria-label="Scroll left"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <button 
+            onClick={() => scroll('right')}
+            className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+            aria-label="Scroll right"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div 
+        ref={scrollContainerRef}
+        className="flex overflow-x-auto gap-4 scrollbar-hide -mx-4 px-4 pb-2"
+        style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}
+      >
         {recentProducts.map((product) => (
-          <MainSingleProductCard
-            key={product.gspin}
-            product={{
-              gspin: product.gspin,
-              name: product.productName,
-              image: product.productImage,
-              brand: product.brand,
-              categoryId: product.categoryId,
-              categoryName: product.categoryName
-            }}
-          />
+          <div key={product.gspin} className="flex-shrink-0 w-48 max-w-[200px] min-w-[180px]">
+            <MainSingleProductCard
+              product={{
+                gspin: product.gspin,
+                name: product.productName,
+                image: product.productImage,
+                brand: product.brand,
+                categoryId: product.categoryId,
+                sku: product.sku,
+                product_type: product.product_type,
+                categoryName: product.categoryName
+              }}
+            />
+          </div>
         ))}
       </div>
     </div>

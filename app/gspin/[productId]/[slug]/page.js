@@ -11,6 +11,7 @@ import { getLocationFromLocalStorage } from '@/app/components/common/LocationDro
 import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
 import RecommendedProducts from '@/app/components/product-detail/RecommendedProducts';
 import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
+import RecentViewProducts from '@/app/components/home/RecentViewProducts';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -326,6 +327,9 @@ const ProductPage = ({ params }) => {
           itemId={productData.id} 
         />
       </div>
+
+      <RecentViewProducts />
+
     </main>
   );
 };

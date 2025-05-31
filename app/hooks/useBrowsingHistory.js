@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { addBrowsingHistory, getBrowsingHistory, clearBrowsingHistory } from '../services/browsingHistory/indexedDB';
+import { addBrowsingHistory, getBrowsingHistory, clearBrowsingHistory, updateBrowsingHistory } from '../services/browsingHistory/indexedDB';
 import { getAnonymousId } from '../services/browsingHistory/anonymousId';
 
 export const useBrowsingHistory = () => {
@@ -29,8 +29,28 @@ export const useBrowsingHistory = () => {
         anonId,
         timestamp: new Date().toISOString(),
       };
-      await addBrowsingHistory(historyItem);
-      setHistory(prev => [historyItem, ...prev]);
+
+      // Check if product with same gspin exists
+      const existingHistory = await getBrowsingHistory(100);
+      const existingProduct = existingHistory.find(
+        (entry) => entry.gspin === item.gspin && entry.type === 'product'
+      );
+
+      if (existingProduct) {
+        // Update viewCount and timestamp
+        const updatedProduct = {
+          ...existingProduct,
+          viewCount: (existingProduct.viewCount || 1) + 1,
+          timestamp: new Date().toISOString(),
+        };
+        await updateBrowsingHistory(updatedProduct);
+        setHistory((prev) => [updatedProduct, ...prev.filter((p) => p.gspin !== item.gspin)]);
+      } else {
+        // Insert new with viewCount: 1
+        const newProduct = { ...historyItem, viewCount: 1 };
+        await addBrowsingHistory(newProduct);
+        setHistory((prev) => [newProduct, ...prev]);
+      }
     } catch (error) {
       console.error('Error adding to browsing history:', error);
     }
