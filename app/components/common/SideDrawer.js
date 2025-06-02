@@ -8,19 +8,19 @@ const SideDrawer = ({ isOpen, onClose, cartItems }) => {
       {/* Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0  bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={onClose}
         />
       )}
       
       {/* Drawer */}
       <div 
-        className={`fixed top-0 right-0 h-full w-[100px] border-l bg-white transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-0 right-0 h-full w-[120px] border-l bg-white transform transition-transform duration-300 ease-in-out z-50 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Drawer Header */}
-        <div className="p-4 border-b">
+        <div className="p-2 border-b">
           <div className="flex-1 ">
             <div className='flex justify-between items-center'>
             <h2 className="text-xs font-semibold">Subtotal</h2>
@@ -31,12 +31,12 @@ const SideDrawer = ({ isOpen, onClose, cartItems }) => {
               <span className='text-xs'>✕</span>
             </button>
             </div>
-            <Link href="/cart" className="text-xs border border-gray-500 rounded-lg">Go to cart</Link>
+            <Link href="/cart" className="text-xs border border-gray-500 rounded-lg px-2">Go to cart</Link>
           </div>
         </div>
 
         {/* Cart Items */}
-        <div className="p-4 overflow-y-auto">
+        <div className="p-2 overflow-y-auto">
           {cartItems?.map((item, index) => (
             <div key={index} className="mb-4">
               <div className="flex items-center gap-2">
@@ -46,11 +46,6 @@ const SideDrawer = ({ isOpen, onClose, cartItems }) => {
                     alt={item.name}
                     className="w-full h-full object-cover rounded"
                   />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {item.name}
-                  </p>
                 </div>
               </div>
             </div>

@@ -35,7 +35,7 @@ const Header = () => {
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
         <div className="container-fluid mx-auto flex items-center px-4 justify-between items-center ">
           <Link href="/" className="mr-6">
-            <img src="/3.png" alt="Logo" width={100} height={100} />
+            <img src="/4.png" alt="Logo" width={100} height={100} />
           </Link>
 
           <div className="flex-1 max-w-1xl mx-8">
