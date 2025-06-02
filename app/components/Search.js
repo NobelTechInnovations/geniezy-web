@@ -12,7 +12,7 @@ import { FiSearch } from 'react-icons/fi';
 import Link from 'next/link';
 import { slugify } from '@/app/shared/utils/titleFormat';
 
-const searchClient = algoliasearch('RKH1HMLBYM', '84f8dd435608c296c835f6b5cda3977f');
+const searchClient = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALGOLIA_API_KEY);
 
 function CustomSearchBox({ onFocus, setInputValue }) {
   const { query, refine } = useSearchBox();
