@@ -8,6 +8,7 @@ import api from '../redux/services/apiService';
 import { loginStart, loginSuccess, loginFailure } from '../redux/features/authSlice';
 import { saveAuthToDB } from '../services/authDB';
 import { getAnonymousId, clearAnonymousId } from '../services/browsingHistory/anonymousId';
+import { openDB } from '../services/indexedDB';
 
 const TOKEN_KEY = 'geniezy_token';
 const USER_KEY = 'geniezy_user';
@@ -20,6 +21,18 @@ async function saveAuth(token, user) {
   localStorage.setItem(EXPIRY_KEY, Date.now() + 30 * 24 * 60 * 60 * 1000);
   // Set minimal cookie for SSR/middleware
   document.cookie = 'isLoggedIn=true; path=/; max-age=2592000';
+}
+
+async function saveAnonIdMap(anonId, userId) {
+  if (!anonId || !userId) return;
+  const db = await openDB();
+  const tx = db.transaction('auth', 'readwrite');
+  const store = tx.objectStore('auth');
+  store.put({ key: 'anonIdMap', value: { anonId, userId } });
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e);
+  });
 }
 
 const LoginPage = () => {
@@ -78,6 +91,7 @@ const LoginPage = () => {
           setShowProfileForm(true);
         } else {
           await saveAuth(token, customer);
+          await saveAnonIdMap(anonId, customer.phone);
           dispatch(loginSuccess(customer));
           clearAnonymousId();
           router.push('/');
@@ -105,7 +119,9 @@ const LoginPage = () => {
       if (response.data.success) {
         const updatedUser = { ...response.data.data.customer, ...profile };
         await saveAuth(token, updatedUser);
+        await saveAnonIdMap(getAnonymousId(), updatedUser.phone);
         dispatch(loginSuccess(updatedUser));
+        clearAnonymousId();
         router.push('/');
       } else {
         setError(response.data.message || 'Failed to update profile');
