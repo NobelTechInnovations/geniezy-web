@@ -6,13 +6,13 @@ import Footer from "./components/layout/Footer";
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
-  const isLogin = pathname.startsWith("/login");
+  const hasCustomLayout = pathname.startsWith("/login") || pathname.startsWith("/checkout");
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isLogin && <Header />}
+      {!hasCustomLayout && <Header />}
       <main className="flex-grow">{children}</main>
-      {!isLogin && <Footer />}
+      {!hasCustomLayout && <Footer />}
     </div>
   );
 }
