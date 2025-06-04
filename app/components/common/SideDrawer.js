@@ -8,8 +8,7 @@ const SideDrawer = ({ isOpen, onClose, cartItems }) => {
       {/* Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={onClose}
+          className="fixed inset-0 bg-black/20 z-40"
         />
       )}
       
@@ -38,12 +37,12 @@ const SideDrawer = ({ isOpen, onClose, cartItems }) => {
         {/* Cart Items */}
         <div className="p-2 overflow-y-auto">
           {cartItems?.map((item, index) => (
-            <div key={index} className="mb-4">
+            <div key={item.id || item._id || index} className="mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-16 h-16 flex-shrink-0">
                   <S3Image 
-                    src={item.image} 
-                    alt={item.name}
+                    src={item.productDetails?.images?.[0] || item.productData?.image}
+                    alt={item.productDetails?.name || item.productData?.title || 'Cart Item'}
                     className="w-full h-full object-cover rounded"
                   />
                 </div>

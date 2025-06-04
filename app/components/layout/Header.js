@@ -10,6 +10,9 @@ import Search from '../Search';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/app/redux/features/authSlice';
 import { clearAuthDB } from '../../services/authDB';
+import { cartService } from '@/app/services/cart/cartService';
+import SideDrawer from '../common/SideDrawer';
+import { usePathname } from 'next/navigation';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,6 +22,10 @@ const Header = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null); // Ref for the menu container
+  const [cartItems, setCartItems] = useState([]);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,6 +54,52 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuRef]);
+
+  // Effect to fetch cart items on mount and listen for updates
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const response = await cartService.getCartItems();
+        if (response.success && response.data?.items) {
+          setCartItems(response.data.items);
+        } else if (response.success && Array.isArray(response.data)) { // Handle IndexedDB structure
+           setCartItems(response.data);
+        } else {
+          console.error('Failed to fetch cart items:', response.message);
+        }
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+      }
+    };
+
+    // Initial fetch
+    fetchCartItems();
+
+    // Listen for cart updates
+    const handleCartUpdate = () => {
+      fetchCartItems(); // Re-fetch cart when update event is dispatched
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('cartUpdate', handleCartUpdate);
+    }
+
+    // Cleanup listener
+    return () => {
+       if (typeof window !== 'undefined') {
+        window.removeEventListener('cartUpdate', handleCartUpdate);
+       }
+    };
+  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+
+  // Effect to control cart drawer visibility based on route and cart items
+  useEffect(() => {
+    if (pathname === '/gp/cart' && cartItems.length > 0) {
+      setIsCartDrawerOpen(true);
+    } else {
+      setIsCartDrawerOpen(false);
+    }
+  }, [pathname, cartItems.length]); // Re-run when route or cart item count changes
 
   const handleLogout = async () => {
     try {
@@ -80,6 +133,16 @@ const Header = () => {
     setShowMenu(!showMenu);
   };
 
+  // Handle cart icon click
+  const handleCartClick = () => {
+    setIsCartDrawerOpen(true);
+  };
+
+  // Handle closing the cart drawer
+  const handleCloseCartDrawer = () => {
+    setIsCartDrawerOpen(false);
+  };
+
   return (
     <header className="w-full bg-white">
       {/* Top Bar - Hidden on scroll */}
@@ -111,12 +174,15 @@ const Header = () => {
                 0
               </span>
             </Link>
-            <Link href="/cart" className="relative">
+            {/* Cart Icon */}
+            <div className="relative cursor-pointer" onClick={handleCartClick}>
               <FiShoppingBag className="w-6 h-6 text-black" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                0
-              </span>
-            </Link>
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                  {cartItems.length}
+                </span>
+              )}
+            </div>
             <div className="flex items-center">
               <FiUser className="w-6 h-6 mr-2 text-black" />
               {isAuthenticated ? (
@@ -176,6 +242,10 @@ const Header = () => {
           </nav>
         </div>
       </div>
+
+      {/* Cart Side Drawer */}
+      <SideDrawer isOpen={isCartDrawerOpen} onClose={handleCloseCartDrawer} cartItems={cartItems} />
+
     </header>
   );
 };

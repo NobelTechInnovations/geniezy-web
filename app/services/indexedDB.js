@@ -1,5 +1,17 @@
+import { encryptData, decryptData } from './cryptoUtils';
+
 const DB_NAME = 'geniezyDB';
 const DB_VERSION = 2; // Increment version to trigger upgrade
+
+// Helper function to parse price which might be an object with $numberDecimal
+const parsePrice = (price) => {
+  if (typeof price === 'object' && price !== null && price.$numberDecimal !== undefined) {
+    return parseFloat(price.$numberDecimal);
+  } else if (typeof price === 'string') {
+     return parseFloat(price);
+  }
+  return price;
+};
 
 export function openDB() {
   return new Promise((resolve, reject) => {
@@ -42,24 +54,32 @@ export const addToCart = async (item) => {
         const existingItem = getRequest.result;
         
         if (existingItem) {
-          // Update quantity if item exists
-          existingItem.quantity += item.quantity;
-          existingItem.timestamp = new Date().toISOString();
+          // Decrypt existing item
+          const decryptedExistingItem = decryptData(existingItem.encryptedData);
+
+          // Update quantity and timestamp
+          decryptedExistingItem.quantity += item.quantity;
+          decryptedExistingItem.timestamp = new Date().toISOString();
+
+          // Encrypt updated item
+          const encryptedUpdatedItem = encryptData(decryptedExistingItem);
           
-          const updateRequest = store.put(existingItem);
-          updateRequest.onsuccess = () => resolve(existingItem);
+          const updateRequest = store.put({ id: existingItem.id, encryptedData: encryptedUpdatedItem });
+          updateRequest.onsuccess = () => resolve(decryptedExistingItem);
           updateRequest.onerror = (event) => {
             console.error('Error updating cart item:', event.target.error);
             reject(event.target.error);
           };
         } else {
-          // Add new item if it doesn't exist
-          const addRequest = store.add({
+          // Encrypt new item
+          const encryptedNewItem = encryptData({
             ...item,
             timestamp: new Date().toISOString(),
           });
           
-          addRequest.onsuccess = () => resolve(addRequest.result);
+          const addRequest = store.add({ encryptedData: encryptedNewItem });
+          
+          addRequest.onsuccess = () => resolve(item); // Resolve with original item data
           addRequest.onerror = (event) => {
             console.error('Error adding to cart:', event.target.error);
             reject(event.target.error);
@@ -86,7 +106,23 @@ export const getCartItems = async () => {
       const store = transaction.objectStore('cart');
       const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const decryptedItems = request.result.map(item => {
+          // Decrypt each item
+          const decryptedData = decryptData(item.encryptedData);
+          
+          // Parse price after decryption
+          if (decryptedData?.productData?.price !== undefined) {
+              decryptedData.productData.price = parsePrice(decryptedData.productData.price);
+          }
+          if (decryptedData?.price !== undefined) {
+               decryptedData.price = parsePrice(decryptedData.price);
+          }
+
+          return { id: item.id, ...decryptedData }; // Include the IndexedDB key
+        });
+        resolve(decryptedItems);
+      };
       request.onerror = (event) => {
         console.error('Error getting cart items:', event.target.error);
         reject(event.target.error);
@@ -108,13 +144,19 @@ export const updateCartItemQuantity = async (id, quantity) => {
       const getRequest = store.get(id);
       
       getRequest.onsuccess = () => {
-        const item = getRequest.result;
-        if (item) {
+        const itemRecord = getRequest.result;
+        if (itemRecord) {
+          // Decrypt item
+          const item = decryptData(itemRecord.encryptedData);
+
           item.quantity = quantity;
           item.timestamp = new Date().toISOString();
           
-          const updateRequest = store.put(item);
-          updateRequest.onsuccess = () => resolve(item);
+          // Encrypt updated item
+          const updatedEncryptedData = encryptData(item);
+
+          const updateRequest = store.put({ id: itemRecord.id, encryptedData: updatedEncryptedData });
+          updateRequest.onsuccess = () => resolve(item); // Resolve with decrypted data
           updateRequest.onerror = (event) => {
             console.error('Error updating cart item quantity:', event.target.error);
             reject(event.target.error);
@@ -141,6 +183,7 @@ export const removeFromCart = async (id) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['cart'], 'readwrite');
       const store = transaction.objectStore('cart');
+      // IndexedDB uses the keyPath (id) for deletion
       const request = store.delete(id);
 
       request.onsuccess = () => resolve();

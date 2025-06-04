@@ -237,30 +237,19 @@ const ProductPage = ({ params }) => {
       const response = await cartService.addToCart(cartData);
       
       if (response.success) {
-        setCartMessage({
-          show: true,
-          type: 'success',
-          message: response.message || 'Added to cart successfully'
-        });
+        // Redirect to thank you page with item details
+        const itemName = productData.title;
+        const itemImage = productData.images?.[0];
+        router.push(`/gp/cart?itemName=${encodeURIComponent(itemName)}&itemImage=${encodeURIComponent(itemImage)}`);
       } else {
-        setCartMessage({
-          show: true,
-          type: 'error',
-          message: response.message || 'Failed to add to cart'
-        });
+        // Handle error, maybe redirect to cart page with an error flag
+        console.error('Failed to add to cart:', response.message);
+        router.push('/gp/cart?error=add_failed');
       }
 
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setCartMessage({ show: false, type: '', message: '' });
-      }, 3000);
     } catch (error) {
       console.error('Error adding to cart:', error);
-      setCartMessage({
-        show: true,
-        type: 'error',
-        message: 'An error occurred while adding to cart'
-      });
+       router.push('/gp/cart?error=add_failed'); // Redirect even on error, maybe with a query param
     }
   };
 
@@ -299,21 +288,8 @@ const ProductPage = ({ params }) => {
   const thumbsToShow = productData.images.slice(0, maxThumbs);
   const extraThumbs = productData.images.length - maxThumbs;
 
-  const renderCartMessage = () => {
-    if (!cartMessage.show) return null;
-    
-    return (
-      <div className={`fixed top-4 right-4 p-4 rounded-md shadow-md z-50 ${
-        cartMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-      }`}>
-        {cartMessage.message}
-      </div>
-    );
-  };
-
   return (
     <main className="flex flex-col min-h-screen bg-white">
-      {renderCartMessage()}
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm">

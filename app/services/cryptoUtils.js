@@ -26,4 +26,29 @@ export const decryptUser = (ciphertext) => {
     console.error('Decryption failed:', e);
     return null;
   }
+};
+
+// Generic data encryption/decryption
+export const encryptData = (data) => {
+  if (data === null || data === undefined) return null;
+  try {
+    const jsonString = JSON.stringify(data);
+    const ciphertext = CryptoJS.AES.encrypt(jsonString, SECRET_KEY).toString();
+    return ciphertext;
+  } catch (e) {
+    console.error('Data encryption failed:', e);
+    return null;
+  }
+};
+
+export const decryptData = (ciphertext) => {
+  if (!ciphertext) return null;
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY);
+    const decryptedJsonString = bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(decryptedJsonString);
+  } catch (e) {
+    console.error('Data decryption failed:', e);
+    return null;
+  }
 }; 
