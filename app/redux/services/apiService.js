@@ -143,7 +143,6 @@ export const productApi = {
       }
 
       const endpoint = getVersionedEndpoint(version, 'catalog', `listing/${gspin}/info`);
-      console.log('Calling product info API:', endpoint);
       
       const response = await api.get(endpoint, {
         params: {
@@ -153,10 +152,8 @@ export const productApi = {
         }
       });
 
-      console.log('Product info API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error in productApi.getProductInfo:', error);
       throw error;
     }
   },
@@ -173,7 +170,6 @@ export const productApi = {
       }
 
       const endpoint = getVersionedEndpoint('v1', 'catalog', `listing/${gspin}/images`);
-      console.log('Calling product images API:', endpoint);
       
       const response = await api.get(endpoint, {
         params: {
@@ -183,10 +179,8 @@ export const productApi = {
         }
       });
 
-      console.log('Product images API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error in productApi.getProductImages:', error);
       throw error;
     }
   },
@@ -209,13 +203,10 @@ export const productApi = {
       }
 
       const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/item/${itemId}/suggestions`);
-      console.log('Calling product recommendations API:', endpoint);
       
       const response = await api.get(endpoint);
-      console.log('Product recommendations API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error in productApi.getProductRecommendations:', error);
       throw error;
     }
   }

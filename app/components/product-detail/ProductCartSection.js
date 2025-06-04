@@ -2,7 +2,7 @@ import { FiHeart, FiShare2, FiShoppingCart} from 'react-icons/fi';
 import {formatIndianPrice} from '../../shared/utils/priceFormat';
 
 const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setExchange, estimatedDelivery, onAddToCart }) => {
-    console.log('Estimated Delivery prop in ProductCartSection:', estimatedDelivery);
+
 
     return (
         <>

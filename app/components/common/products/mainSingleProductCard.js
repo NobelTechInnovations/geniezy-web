@@ -6,7 +6,6 @@ import { slugify } from '@/app/shared/utils/titleFormat';
 
 const MainSingleProductCard = ({ product }) => {
   if (!product) return null;
-  console.log(product,'===product===');
   return (
     <Link 
       href={`/gspin/${product.gspin}/${slugify(product.name)}?pid=${btoa(product.productId)}&p_sku=${product.sku}&type=${product.product_type}`}

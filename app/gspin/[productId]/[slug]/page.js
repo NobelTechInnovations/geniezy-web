@@ -79,13 +79,13 @@ const ProductPage = ({ params }) => {
 
     try {
       // Fetch product data
-      console.log('Fetching product data with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
+      // console.log('Fetching product data with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
       const dataResponse = await productApi.getProductInfo(currentGspin, {
         pid: currentPid,
         type: currentType,
         p_sku: currentPSku
       }, 'v1');
-      console.log('Product data API Response:', dataResponse);
+      // console.log('Product data API Response:', dataResponse);
 
       if (!dataResponse.success) {
         throw new Error(dataResponse.message || 'Failed to fetch product data');
@@ -97,13 +97,13 @@ const ProductPage = ({ params }) => {
       }
 
       // Fetch product images
-      console.log('Fetching product images with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
+      // console.log('Fetching product images with params:', { gspin: currentGspin, pid: currentPid, type: currentType, p_sku: currentPSku });
       const imagesResponse = await productApi.getProductImages(currentGspin, {
         pid: currentPid,
         type: currentType,
         p_sku: currentPSku
       });
-      console.log('Product images API Response:', imagesResponse);
+      // console.log('Product images API Response:', imagesResponse);
 
       let images = [];
       let initialSelectedImageIndex = 0;
@@ -194,7 +194,7 @@ const ProductPage = ({ params }) => {
       setIsDataLoaded(true);
 
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // console.error('Error fetching data:', error);
       setError(error.message || 'Failed to load product data');
       setProductData(null); // Clear data on error
       setProductImages([]); // Clear images on error
