@@ -1,5 +1,5 @@
 import api from '@/app/redux/services/apiService';
-import { addToCart, getCartItems, updateCartItemQuantity, removeFromCart as removeLocalCartItem } from '../indexedDB';
+import { addToCart, getCartItems, updateCartItemQuantity, removeFromCart as removeLocalCartItem, clearCart } from '../indexedDB';
 
 // Simple event to notify components of cart updates
 const CART_UPDATE_EVENT = 'cartUpdate';
@@ -15,20 +15,26 @@ export const cartService = {
     const { gspin, pid, p_sku, type, quantity } = productData;
     
     // Check if user is logged in by looking for token
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
     
     if (token) {
       // User is logged in, use API
       try {
-        const endpoint = api.getVersionedEndpoint('v1', 'shop', 'cart/items');
-        const response = await api.post(endpoint, {
-          productId: gspin, // Assuming gspin maps to productId in the API payload
+        const response = await api.post('/v1/shop/cart/items', {
+          productId: gspin,
           quantity: quantity,
           sku: p_sku,
-          type: type === 'simple' ? 'simple' : 'variable_combination'
+          type: type === 'simple' ? 'simple' : 'variable_combination',
+          ...(type === 'variable' && productData.selected_combination && {
+            selected_combination: productData.selected_combination
+          })
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         if (response.data?.success) {
-          dispatchCartUpdateEvent(); // Dispatch event on success
+          dispatchCartUpdateEvent();
         }
         return response.data;
       } catch (error) {
@@ -49,31 +55,28 @@ export const cartService = {
           quantity,
           productData: {
             title: productData.title,
-            price: productData.price, // Default to top-level price
-            image: productData.images?.[0], // Default to top-level image
+            price: productData.price,
+            image: productData.images?.[0],
             brand: productData.brand
           }
         };
 
         // For variable products, add additional details and update price/image from selected_combination
         if (productData.type === 'variable' && productData.selected_combination) {
-          cartItem.productData.additional = productData.selected_combination.variant || {}; // Use variant for additional details
-
-           // Update price and image from the selected combination
-           cartItem.productData.price = productData.selected_combination.price?.$numberDecimal || productData.selected_combination.price;
-           if (productData.selected_combination.images?.[0]?.url) {
-              cartItem.productData.image = productData.selected_combination.images[0].url;
-           }
+          cartItem.productData.additional = productData.selected_combination.variant || {};
+          cartItem.productData.price = productData.selected_combination.price?.$numberDecimal || productData.selected_combination.price;
+          if (productData.selected_combination.images?.[0]?.url) {
+            cartItem.productData.image = productData.selected_combination.images[0].url;
+          }
         } else if (productData.type === 'simple') {
-           // Ensure simple product price and image are from top level if not already set
-            cartItem.productData.price = productData.price?.$numberDecimal || productData.price;;
-            if (productData.images?.[0]) {
-               cartItem.productData.image = productData.images[0];
-            }
+          cartItem.productData.price = productData.price?.$numberDecimal || productData.price;
+          if (productData.images?.[0]) {
+            cartItem.productData.image = productData.images[0];
+          }
         }
 
         const result = await addToCart(cartItem);
-        dispatchCartUpdateEvent(); // Dispatch event on success
+        dispatchCartUpdateEvent();
         return { 
           success: true, 
           message: 'Added to cart successfully',
@@ -90,16 +93,18 @@ export const cartService = {
   },
 
   updateQuantity: async (id, quantity) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
     
     if (token) {
       // User is logged in, use API
       try {
-         // Use the api service to construct the endpoint
-        const endpoint = api.getVersionedEndpoint('v1', 'shop', `cart/items/${id}`);
-        const response = await api.put(endpoint, { quantity });
+        const response = await api.put(`/v1/shop/cart/items/${id}`, { quantity }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (response.data?.success) {
-          dispatchCartUpdateEvent(); // Dispatch event on success
+          dispatchCartUpdateEvent();
         }
         return response.data;
       } catch (error) {
@@ -113,7 +118,7 @@ export const cartService = {
       // User is not logged in, use IndexedDB
       try {
         const result = await updateCartItemQuantity(id, quantity);
-        dispatchCartUpdateEvent(); // Dispatch event on success
+        dispatchCartUpdateEvent();
         return {
           success: true,
           message: 'Quantity updated successfully',
@@ -130,16 +135,18 @@ export const cartService = {
   },
 
   removeItem: async (id) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
 
     if (token) {
       // User is logged in, use API
       try {
-        // Use the api service to construct the endpoint
-        const endpoint = api.getVersionedEndpoint('v1', 'shop', `cart/items/${id}`);
-        const response = await api.delete(endpoint);
+        const response = await api.delete(`/v1/shop/cart/items/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (response.data?.success) {
-          dispatchCartUpdateEvent(); // Dispatch event on success
+          dispatchCartUpdateEvent();
         }
         return response.data;
       } catch (error) {
@@ -153,7 +160,7 @@ export const cartService = {
       // User is not logged in, use IndexedDB
       try {
         await removeLocalCartItem(id);
-        dispatchCartUpdateEvent(); // Dispatch event on success
+        dispatchCartUpdateEvent();
         return {
           success: true,
           message: 'Item removed from local cart',
@@ -169,14 +176,16 @@ export const cartService = {
   },
 
   getCartItems: async () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
     
     if (token) {
       // User is logged in, fetch from API
       try {
-        // Use the api service to construct the endpoint
-        const endpoint = api.getVersionedEndpoint('v1', 'shop', 'cart/items');
-        const response = await api.get(endpoint);
+        const response = await api.get('/v1/shop/cart', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         return response.data;
       } catch (error) {
         console.error('Error fetching cart from API:', error);
@@ -200,6 +209,56 @@ export const cartService = {
           message: 'Failed to fetch local cart items'
         };
       }
+    }
+  },
+
+  // New method to sync local cart with API after login
+  syncCartAfterLogin: async (token) => {
+    try {
+      // Get local cart items
+      const localCartItems = await getCartItems();
+      
+      if (localCartItems && localCartItems.length > 0) {
+        // Prepare items for API
+        const cartPayload = localCartItems.map(item => ({
+          productId: item.gspin,
+          quantity: item.quantity,
+          sku: item.p_sku,
+          type: item.type === 'simple' ? 'simple' : 'variable_combination',
+          ...(item.type === 'variable' && item.productData?.additional && {
+            selected_combination: {
+              variant: item.productData.additional
+            }
+          })
+        }));
+
+        // Send cart to API
+        const response = await api.post('/v1/shop/cart/items', cartPayload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.data?.success) {
+          // Clear local cart after successful sync
+          await clearCart();
+          dispatchCartUpdateEvent();
+          return {
+            success: true,
+            message: 'Cart synced successfully'
+          };
+        }
+      }
+      return {
+        success: true,
+        message: 'No items to sync'
+      };
+    } catch (error) {
+      console.error('Error syncing cart after login:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to sync cart'
+      };
     }
   }
 }; 

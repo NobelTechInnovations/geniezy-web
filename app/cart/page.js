@@ -214,32 +214,38 @@ export default function CartPage() {
           <h1 className="text-2xl md:text-2xl font-bold mb-6 text-gray-900">Shopping Cart</h1>
           <div className="flex flex-col gap-4">
             {cartItems.map((item, idx) => (
-              <div key={item.id || item._id} className={`flex flex-col md:flex-row gap-4 md:gap-8 p-2 bg-white  border-t border-gray-200 ${idx !== cartItems.length - 1 ? '' : ''}`}>
+              <div key={item.sku || item.id || item._id} className={`flex flex-col md:flex-row gap-4 md:gap-8 p-2 bg-white  border-t border-gray-200 ${idx !== cartItems.length - 1 ? '' : ''}`}>
                 <div className="w-full md:w-16 h-16 flex-shrink-0 rounded-sm border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden ">
                   {/* Use productDetails for API response, productData for IndexedDB */}
-                  <S3Image src={item.productData?.image} alt={item.productDetails?.name || item.productData?.title} className="w-full h-full object-contain product-image" />
+                  <S3Image src={item.productDetails?.images?.[0] || item.productData?.image} alt={item.productDetails?.name || item.productData?.title} className="w-full h-full object-contain product-image" />
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                   <div>
                     {/* Use productDetails.name for API response, productData.title for IndexedDB */}
                     <div className="font-semibold text-gray-900 text-base md:text-md mb-1 line-clamp-2">{item.productDetails?.name || item.productData?.title}</div>
                     {/* Display additional details if available (from API or IndexedDB) */}
-                    {(item.additional || item.productData?.additional) && (
+                    {/* Check if item.additional exists and is an array before mapping */}
+                    {Array.isArray(item.additional) && item.additional.length > 0 && (
                         <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-1">
-                            {/* Use item.additional for API, item.productData.additional for IndexedDB */}
-                            {Object.entries(item.additional || item.productData?.additional || {}).map(([key, value]) => (
-                                <span key={key}>
-                                    <span className="font-medium">{key}:</span>{' '}
-                                    <span className="font-semibold text-gray-700">
-                                        {/* Extract value field if it's an attribute object, otherwise use the value as is */}
-                                        {typeof value === 'object' && value !== null && 'value' in value ? value.value : value}
+                            {/* Iterate through the array of additional properties */}
+                            {item.additional.map((attributeObj, index) => {
+                                // Get the key (attribute name) and value from the single-property object
+                                const key = Object.keys(attributeObj)[0];
+                                const value = attributeObj[key];
+                                return (
+                                    <span key={`${key}-${index}`}>
+                                        <span className="font-medium">{key}:</span>{' '}
+                                        <span className="font-semibold text-gray-700">
+                                            {/* Display the extracted value */}
+                                            {value}
+                                        </span>
                                     </span>
-                                </span>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                     {/* TODO: Add delivery info if available in API/IndexedDB response */}
-                    <div className="text-xs text-gray-700 mb-1">Delivery by {item.deliveryDate} | <span className="font-semibold">{item.delivery}</span></div>
+                    {/* <div className="text-xs text-gray-700 mb-1">Delivery by {item.deliveryDate} | <span className="font-semibold">{item.delivery}</span></div> */}
                     <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold">g. assuerd</span></div>
                   </div>
                   <div className='flex items-center mt-2'>

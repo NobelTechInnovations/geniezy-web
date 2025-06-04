@@ -13,6 +13,7 @@ import { clearAuthDB } from '../../services/authDB';
 import { cartService } from '@/app/services/cart/cartService';
 import SideDrawer from '../common/SideDrawer';
 import { usePathname } from 'next/navigation';
+import { clearCart } from '../../services/indexedDB';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -62,13 +63,18 @@ const Header = () => {
         const response = await cartService.getCartItems();
         if (response.success && response.data?.items) {
           setCartItems(response.data.items);
+        } else if (response.success && response.data?.cart) {
+          // Handle new API response structure
+          setCartItems(response.data.items || []);
         } else if (response.success && Array.isArray(response.data)) { // Handle IndexedDB structure
-           setCartItems(response.data);
+          setCartItems(response.data);
         } else {
           console.error('Failed to fetch cart items:', response.message);
+          setCartItems([]);
         }
       } catch (error) {
         console.error('Error fetching cart items:', error);
+        setCartItems([]);
       }
     };
 
@@ -86,9 +92,9 @@ const Header = () => {
 
     // Cleanup listener
     return () => {
-       if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined') {
         window.removeEventListener('cartUpdate', handleCartUpdate);
-       }
+      }
     };
   }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
 
@@ -116,6 +122,7 @@ const Header = () => {
   
       // Clear IndexedDB (wait for it to complete)
       await clearAuthDB();
+      await clearCart(); // Clear cart from IndexedDB
   
       // Dispatch logout action
       dispatch(logout());

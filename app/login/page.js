@@ -8,7 +8,8 @@ import api from '../redux/services/apiService';
 import { loginStart, loginSuccess, loginFailure } from '../redux/features/authSlice';
 import { saveAuthToDB } from '../services/authDB';
 import { getAnonymousId, clearAnonymousId } from '../services/browsingHistory/anonymousId';
-import { openDB } from '../services/indexedDB';
+import { openDB, getCartItems, clearCart } from '../services/indexedDB';
+import { cartService } from '../services/cart/cartService';
 
 const TOKEN_KEY = 'geniezy_token';
 const USER_KEY = 'geniezy_user';
@@ -92,6 +93,43 @@ const LoginPage = () => {
         } else {
           await saveAuth(token, customer);
           await saveAnonIdMap(anonId, customer.phone);
+          
+          // Sync cart after successful login
+          try {
+            const localCartItems = await getCartItems();
+            if (localCartItems && localCartItems.length > 0) {
+              // Send all cart items to API
+              const cartPayload = localCartItems.map(item => ({
+                gspin: item.gspin,
+                pid: item.pid,
+                p_sku: item.p_sku,
+                type: item.type,
+                quantity: item.quantity,
+                ...(item.type === 'variable' && item.productData?.additional && {
+                  selected_combination: item.productData.additional
+                })
+              }));
+
+              // Send cart to API with Bearer token
+              const syncResponse = await api.post('/v1/shop/cart/items', cartPayload, {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              });
+              
+              // Only clear local cart if sync was successful
+              if (syncResponse.data.success) {
+                await clearCart();
+                console.log('Local cart cleared after successful sync');
+              } else {
+                console.error('Cart sync failed:', syncResponse.data.message);
+              }
+            }
+          } catch (cartError) {
+            console.error('Error syncing cart:', cartError);
+            // Continue with login even if cart sync fails
+          }
+
           dispatch(loginSuccess(customer));
           clearAnonymousId();
           router.push('/');
