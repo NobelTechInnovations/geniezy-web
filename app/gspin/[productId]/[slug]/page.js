@@ -13,6 +13,7 @@ import RecommendedProducts from '@/app/components/product-detail/RecommendedProd
 import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
 import RecentViewProducts from '@/app/components/home/RecentViewProducts';
 import SideDrawer from '@/app/components/common/SideDrawer';
+import { cartService } from '@/app/services/cart/cartService';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -27,6 +28,7 @@ const ProductPage = ({ params }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [cartMessage, setCartMessage] = useState({ show: false, type: '', message: '' });
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -221,15 +223,45 @@ const ProductPage = ({ params }) => {
     fetchProductDetailsAndImages(gspin, pid, type, variation.sku); // Pass the new sku
   };
 
-  const handleAddToCart = () => {
-    // For demo purposes, we'll just add the current product to cart
-    const newItem = {
-      id: productData.id,
-      name: productData.title,
-      image: productData.images[selectedImage],
-    };
-    setCartItems(prev => [...prev, newItem]);
-    setIsCartOpen(true);
+  const handleAddToCart = async () => {
+    try {
+      const cartData = {
+        gspin,
+        pid,
+        p_sku,
+        type,
+        quantity,
+        ...productData
+      };
+      
+      const response = await cartService.addToCart(cartData);
+      
+      if (response.success) {
+        setCartMessage({
+          show: true,
+          type: 'success',
+          message: response.message || 'Added to cart successfully'
+        });
+      } else {
+        setCartMessage({
+          show: true,
+          type: 'error',
+          message: response.message || 'Failed to add to cart'
+        });
+      }
+
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setCartMessage({ show: false, type: '', message: '' });
+      }, 3000);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setCartMessage({
+        show: true,
+        type: 'error',
+        message: 'An error occurred while adding to cart'
+      });
+    }
   };
 
   if (loading) {
@@ -267,8 +299,21 @@ const ProductPage = ({ params }) => {
   const thumbsToShow = productData.images.slice(0, maxThumbs);
   const extraThumbs = productData.images.length - maxThumbs;
 
+  const renderCartMessage = () => {
+    if (!cartMessage.show) return null;
+    
+    return (
+      <div className={`fixed top-4 right-4 p-4 rounded-md shadow-md z-50 ${
+        cartMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+      }`}>
+        {cartMessage.message}
+      </div>
+    );
+  };
+
   return (
     <main className="flex flex-col min-h-screen bg-white">
+      {renderCartMessage()}
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm">
