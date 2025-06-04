@@ -294,7 +294,9 @@ export default function CartPage() {
               <span>Total Amount</span>
               <span>{formatIndianPrice(cartSummary.finalAmount.toFixed(2))}</span>
             </div>
+            <Link href={'checkout'}>
             <button className="w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded-sm font-semibold text-base shadow transition mt-2">Place Order</button>
+            </Link>
           </div>
         </aside>
       </div>
