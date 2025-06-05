@@ -5,16 +5,15 @@ import { FiShoppingBag } from 'react-icons/fi';
 export default function CheckoutLayout({ children }) {
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* Custom Header (white strip with logo and heading) */}
+
       <header className="bg-white py-2.5 border-b border-gray-200">
         <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between">
-          {/* Replace with your actual Logo component or image */}
+
           <div className="mr-5 font-bold">
             <img src='/4.png' width={120}/>
           </div>
           <h2 className="text-xl font-semibold">Secure checkout</h2>
-           
-           {/* Placeholder for Cart Icon/Link if needed in header */}
+     
            <Link href={'/cart'}>
            <div className='flex items-center gap-2'>
              <FiShoppingBag />
@@ -25,7 +24,6 @@ export default function CheckoutLayout({ children }) {
         </div>
       </header>
 
-      {/* Main Content Area (Wrapped in White Card) */}
       <div className="max-w-screen-xl mx-auto mt-5 p-2">
          <main className="flex gap-5 items-start">
               {children} 
