@@ -4,6 +4,8 @@ import { formatIndianPrice } from "../shared/utils/priceFormat";
 import { useContext, useState } from "react";
 import S3Image from "../shared/utils/S3Image";
 import { CheckoutContext } from "./layout";
+import { useRouter } from 'next/navigation';
+import api from "@/app/redux/services/apiService";
 
 export default function CheckoutPage() {
     const { checkoutData, addressData, setAddressData } = useContext(CheckoutContext);
@@ -15,6 +17,7 @@ export default function CheckoutPage() {
     const [showNewUPIInput, setShowNewUPIInput] = useState(false);
     const [newUPIId, setNewUPIId] = useState('');
     const [newCard, setNewCard] = useState({ number: '', expiry: '', cvv: '' });
+    const router = useRouter();
 
     const handleAddressSelect = (address) => {
         setSelectedAddress(address);
@@ -54,6 +57,11 @@ export default function CheckoutPage() {
         if (selectedPaymentMethod?.type !== type) return false;
         if (id && selectedPaymentMethod?.id !== id) return false;
         return true;
+    };
+
+    const handlePlaceOrder = async () => {
+        // For testing, skip API and redirect immediately
+        router.push('/order-success');
     };
 
     return (
@@ -122,7 +130,7 @@ export default function CheckoutPage() {
                                         id={`card_${card._id}`}
                                         name="paymentMethod"
                                         checked={isSelected('card', card._id)}
-                                        onChange={() => setSelectedPaymentMethod({ type: 'card', id: card._id })}
+                                        onChange={() => {}}
                                         className="align-middle mr-2"
                                     />
                                     <label htmlFor={`card_${card._id}`} className="text-sm font-semibold align-middle flex-1">
@@ -137,7 +145,7 @@ export default function CheckoutPage() {
                                     id="newCard"
                                     name="paymentMethod"
                                     checked={isSelected('newCard')}
-                                    onChange={() => setSelectedPaymentMethod({ type: 'newCard' })}
+                                    onChange={() => {}}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="newCard" className="text-sm align-middle">Add a new card</label>
@@ -178,7 +186,7 @@ export default function CheckoutPage() {
                                     id="netBanking"
                                     name="paymentMethod"
                                     checked={isSelected('netBanking')}
-                                    onChange={() => setSelectedPaymentMethod({ type: 'netBanking' })}
+                                    onChange={() => {}}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="netBanking" className="text-sm align-middle flex-1">Net Banking</label>
@@ -210,7 +218,7 @@ export default function CheckoutPage() {
                                         id={`upi_${upi._id}`}
                                         name="paymentMethod"
                                         checked={isSelected('upi', upi._id)}
-                                        onChange={() => setSelectedPaymentMethod({ type: 'upi', id: upi._id })}
+                                        onChange={() => {}}
                                         className="align-middle mr-2"
                                     />
                                     <label htmlFor={`upi_${upi._id}`} className="text-xs align-middle">{upi.details?.upiId}</label>
@@ -223,7 +231,7 @@ export default function CheckoutPage() {
                                     id="addNewUpi"
                                     name="paymentMethod"
                                     checked={isSelected('upi', 'new')}
-                                    onChange={() => setSelectedPaymentMethod({ type: 'upi', id: 'new' })}
+                                    onChange={() => {}}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="addNewUpi" className="text-xs align-middle">Add new UPI ID</label>
@@ -255,7 +263,7 @@ export default function CheckoutPage() {
                         </div>
                         {/* Cash on Delivery */}
                         <div className="mb-3 flex items-center">
-                            <input type="radio" id="cod" name="paymentMethod" checked={isSelected('cod')} onChange={() => setSelectedPaymentMethod({ type: 'cod' })} className="align-middle mr-2" />
+                            <input type="radio" id="cod" name="paymentMethod" checked={isSelected('cod')} onChange={() => {}} className="align-middle mr-2" />
                             <label htmlFor="cod" className="text-sm align-middle flex-1">Cash on Delivery/Pay on Delivery <span className="text-xs text-gray-500">Cash, UPI and Cards accepted. <span className="text-blue-600 cursor-pointer">Know more.</span></span></label>
                         </div>
                     </div>
@@ -313,7 +321,9 @@ export default function CheckoutPage() {
 
                 {/* Place your order button section at the bottom */}
                 <div className="mt-2 mb-6 p-4 bg-white border border-gray-200 flex items-center justify-between">
-                    <button className="w-1/3 flex-grow mr-4 py-1 bg-red-600 border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 text-white">
+                    <button className="w-1/3 flex-grow mr-4 py-1 bg-red-600 border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 text-white"
+                        onClick={handlePlaceOrder}
+                        disabled={!selectedPaymentMethod || selectedPaymentMethod.type !== 'cod'}>
                         Place your order
                     </button>
                     <div className="w-2/3 text-xs text-gray-700">
