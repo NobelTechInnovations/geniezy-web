@@ -37,6 +37,17 @@ export default function CheckoutLayout({ children }) {
         ]);
 
         if (checkoutResponse.data.success && addressResponse.data.success) {
+          const checkoutData = checkoutResponse.data.data;
+          if (
+            !checkoutData.cart ||
+            checkoutData.cart.totalItems === 0 ||
+            checkoutData.cart.subtotal === 0
+          ) {
+            // Redirect to cart page
+            router.push('/cart'); // assuming you're using Next.js's useRouter
+            return;
+          }
+
           setCheckoutData(checkoutResponse.data.data);
           setAddressData(addressResponse.data.data);
         } else {

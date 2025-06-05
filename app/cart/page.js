@@ -247,9 +247,13 @@ export default function CartPage() {
     <main className="flex container mx-auto flex-col bg-white">
       <div className="flex flex-1 w-full px-2 md:px-6 gap-8 mt-6">
         {/* Cart Items Section */}
+        <div className="flex flex-col gap-4 w-full">
         <section className="flex-1 flex flex-col border border-gray-200 rounded-sm shadow-xs p-2 mb-2">
-          <h1 className="text-2xl md:text-2xl font-bold mb-6 text-gray-900">Shopping Cart</h1>
+          <h1 className="text-2xl md:text-2xl font-bold mb-2 text-gray-900">Shopping Cart</h1>
           <div className="flex flex-col gap-4">
+            {cartItems.length === 0 && (
+              <div className=" text-gray-500 py-4">Check your Saved for later items below or continue shopping.</div>
+            )}
             {cartItems.map((item, idx) => (
               <div key={item.sku || item.id || item._id} className={`flex flex-col md:flex-row gap-4 md:gap-8 p-2 bg-white  border-t border-gray-200 ${idx !== cartItems.length - 1 ? '' : ''}`}>
                 <div className="w-full md:w-16 h-16 flex-shrink-0 rounded-sm border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden ">
@@ -297,8 +301,10 @@ export default function CartPage() {
             ))}
           </div>
           {/* Saved for Later Section */}
+        </section>
           {savedForLaterItems.length > 0 && (
-            <div className="mt-10">
+        <section className="flex-1 flex flex-col border border-gray-200 rounded-sm shadow-xs p-2 mb-2">
+            <div className="mt-1">
               <h2 className="text-xl font-bold mb-4 text-gray-800">Saved for Later</h2>
               <div className="flex flex-col gap-4">
                 {savedForLaterItems.map((item, idx) => (
@@ -343,8 +349,9 @@ export default function CartPage() {
                 ))}
               </div>
             </div>
-          )}
         </section>
+          )}
+        </div>
         {/* Summary Sidebar */}
         <aside className="w-full md:w-[340px] flex-shrink-0">
           <div className="bg-white border border-gray-200 rounded-sm shadow-xs p-6 sticky top-24">
@@ -369,7 +376,7 @@ export default function CartPage() {
               <span>{formatIndianPrice(cartSummary.finalAmount.toFixed(2))}</span>
             </div>
             <Link href={'checkout'}>
-            <button className="w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded-sm font-semibold text-base shadow transition mt-2">Place Order</button>
+            <button className={`w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded-sm font-semibold text-base shadow transition mt-2 ${cartSummary.totalItems === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={cartSummary.totalItems === 0}>Place Order</button>
             </Link>
           </div>
         </aside>
