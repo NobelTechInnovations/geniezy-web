@@ -5,15 +5,18 @@ import S3Image from '@/app/shared/utils/S3Image';
 import { FiShoppingBag } from 'react-icons/fi';
 import { cartService } from '@/app/services/cart/cartService';
 import { formatIndianPrice } from '../shared/utils/priceFormat';
+import api from '../redux/services/apiService';
 
 // Removed Dummy cart data
 // const DUMMY_CART = [...];
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState([]);
+  const [savedForLaterItems, setSavedForLaterItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cartSummary, setCartSummary] = useState({ totalItems: 0, totalQuantity: 0, subtotal: 0, totalDiscount: 0, finalAmount: 0 });
+  const isAuthenticated = typeof window !== 'undefined' && !!localStorage.getItem('geniezy_token');
 
   const fetchCartItems = async () => {
     try {
@@ -24,7 +27,8 @@ export default function CartPage() {
         // Assuming API response data for logged-in user has a 'cart' object and 'items' array
         // and IndexedDB response data is also an array of items
         const items = response.data?.items || response.data || [];
-        setCartItems(items);
+        setCartItems(items.filter(item => !item.saveForLater));
+        setSavedForLaterItems(items.filter(item => item.saveForLater));
 
         // Always calculate summary based on the fetched items array
         const calculatedSubtotal = items.reduce((sum, item) => sum + (item.price || item.productDetails?.price || item.productData?.price || 0) * (item.quantity || 1), 0);
@@ -52,12 +56,14 @@ export default function CartPage() {
       } else {
         setError(response.message || 'Failed to fetch cart items');
         setCartItems([]);
+        setSavedForLaterItems([]);
         setCartSummary({ totalItems: 0, totalQuantity: 0, subtotal: 0, totalDiscount: 0, finalAmount: 0 });
       }
     } catch (err) {
       console.error('Error fetching cart:', err);
       setError('An error occurred while fetching cart items');
       setCartItems([]);
+      setSavedForLaterItems([]);
       setCartSummary({ totalItems: 0, totalQuantity: 0, subtotal: 0, totalDiscount: 0, finalAmount: 0 });
     } finally {
       setLoading(false);
@@ -156,8 +162,10 @@ export default function CartPage() {
      });
 
     try {
-      // Remove item using cartService (handles API or IndexedDB) in the background
-      const response = await cartService.removeItem(id);
+      const token = localStorage.getItem('geniezy_token');
+      const response = await api.delete(`/v1/shop/cart/items/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (response.success) {
          console.log('Item removed successfully in background');
         // Optionally re-fetch cart after successful removal for perfect consistency
@@ -169,6 +177,36 @@ export default function CartPage() {
     } catch (error) {
       console.error('Error removing item:', error);
       // TODO: Handle error - maybe revert UI change or show a message
+    }
+  };
+
+  const handleSaveForLater = async (id) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('geniezy_token');
+      await api.post(`/v1/shop/cart/items/${id}/save`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchCartItems();
+    } catch (err) {
+      console.error('Error saving for later:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMoveToCart = async (id) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('geniezy_token');
+      await api.post(`/v1/shop/cart/items/${id}/move`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchCartItems();
+    } catch (err) {
+      console.error('Error moving to cart:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,8 +230,7 @@ export default function CartPage() {
     );
   }
 
-
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && savedForLaterItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gray-50 px-4">
         <div className="mb-6">
@@ -216,36 +253,25 @@ export default function CartPage() {
             {cartItems.map((item, idx) => (
               <div key={item.sku || item.id || item._id} className={`flex flex-col md:flex-row gap-4 md:gap-8 p-2 bg-white  border-t border-gray-200 ${idx !== cartItems.length - 1 ? '' : ''}`}>
                 <div className="w-full md:w-16 h-16 flex-shrink-0 rounded-sm border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden ">
-                  {/* Use productDetails for API response, productData for IndexedDB */}
                   <S3Image src={item.productDetails?.images?.[0] || item.productData?.image} alt={item.productDetails?.name || item.productData?.title} className="w-full h-full object-contain product-image" />
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                   <div>
-                    {/* Use productDetails.name for API response, productData.title for IndexedDB */}
                     <div className="font-semibold text-gray-900 text-base md:text-md mb-1 line-clamp-2">{item.productDetails?.name || item.productData?.title}</div>
-                    {/* Display additional details if available (from API or IndexedDB) */}
-                    {/* Check if item.additional exists and is an array before mapping */}
                     {Array.isArray(item.additional) && item.additional.length > 0 && (
                         <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-1">
-                            {/* Iterate through the array of additional properties */}
                             {item.additional.map((attributeObj, index) => {
-                                // Get the key (attribute name) and value from the single-property object
                                 const key = Object.keys(attributeObj)[0];
                                 const value = attributeObj[key];
                                 return (
                                     <span key={`${key}-${index}`}>
                                         <span className="font-medium">{key}:</span>{' '}
-                                        <span className="font-semibold text-gray-700">
-                                            {/* Display the extracted value */}
-                                            {value}
-                                        </span>
+                                        <span className="font-semibold text-gray-700">{value}</span>
                                     </span>
                                 );
                             })}
                         </div>
                     )}
-                    {/* TODO: Add delivery info if available in API/IndexedDB response */}
-                    {/* <div className="text-xs text-gray-700 mb-1">Delivery by {item.deliveryDate} | <span className="font-semibold">{item.delivery}</span></div> */}
                     <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold">g. assuerd</span></div>
                   </div>
                   <div className='flex items-center mt-2'>
@@ -253,12 +279,12 @@ export default function CartPage() {
                       <button onClick={() => handleQtyChange({item, quantity: item.quantity - 1})} className="border border-gray-300  w-5 h-5 flex items-center justify-center text-sm font-bold bg-white hover:bg-gray-100">-</button>
                       <span className="px-2 text-sm  font-medium border border-gray-200">{item.quantity}</span>
                       <button onClick={() => handleQtyChange({item, quantity: item.quantity + 1})} className="border border-gray-300  w-5 h-5 flex items-center justify-center text-sm font-bold bg-white hover:bg-gray-100">+</button>
-                      {/* TODO: Implement Save for later */}
-                      {/* <button className="ml-2 text-blue-600 hover:underline text-xs font-medium">Save for later</button> */}
                     </div>
                     <div className="flex">
                       <button onClick={() => handleRemove(item.id || item._id)} className="ml-4 text-red-500 hover:underline text-xs font-medium">Delete</button>
-                      <button onClick={() => handleRemove(item.id || item._id)} className="ml-4 text-gray-500 hover:underline text-xs font-medium">Save later</button>
+                      {isAuthenticated && (
+                        <button onClick={() => handleSaveForLater(item.id || item._id)} className="ml-4 text-gray-500 hover:underline text-xs font-medium">Save later</button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -270,6 +296,54 @@ export default function CartPage() {
               </div>
             ))}
           </div>
+          {/* Saved for Later Section */}
+          {savedForLaterItems.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">Saved for Later</h2>
+              <div className="flex flex-col gap-4">
+                {savedForLaterItems.map((item, idx) => (
+                  <div key={item.sku || item.id || item._id} className="flex flex-col md:flex-row gap-4 md:gap-8 p-2 bg-gray-50 border-t border-gray-200">
+                    <div className="w-full md:w-16 h-16 flex-shrink-0 rounded-sm border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden ">
+                      <S3Image src={item.productDetails?.images?.[0] || item.productData?.image} alt={item.productDetails?.name || item.productData?.title} className="w-full h-full object-contain product-image" />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        <div className="font-semibold text-gray-900 text-base md:text-md mb-1 line-clamp-2">{item.productDetails?.name || item.productData?.title}</div>
+                        {Array.isArray(item.additional) && item.additional.length > 0 && (
+                            <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-1">
+                                {item.additional.map((attributeObj, index) => {
+                                    const key = Object.keys(attributeObj)[0];
+                                    const value = attributeObj[key];
+                                    return (
+                                        <span key={`${key}-${index}`}>
+                                            <span className="font-medium">{key}:</span>{' '}
+                                            <span className="font-semibold text-gray-700">{value}</span>
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold">g. assuerd</span></div>
+                      </div>
+                      <div className='flex items-center mt-2'>
+                        <div className="flex">
+                          <button onClick={() => handleRemove(item.id || item._id)} className="text-red-500 hover:underline text-xs font-medium">Delete</button>
+                          {isAuthenticated && (
+                            <button onClick={() => handleMoveToCart(item.id || item._id)} className="ml-4 text-blue-500 hover:underline text-xs font-medium">Move to Cart</button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end min-w-[100px] justify-between">
+                      <div>
+                        <span className="text-md font-bold text-gray-900">{formatIndianPrice((item.price || item.productDetails?.price || item.productData?.price || 0) * (item.quantity || 1))}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
         {/* Summary Sidebar */}
         <aside className="w-full md:w-[340px] flex-shrink-0">
