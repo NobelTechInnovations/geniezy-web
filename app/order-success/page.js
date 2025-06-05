@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import RecentViewProducts from '../components/home/RecentViewProducts';
 
 export default function OrderSuccess() {
   // Mock data
@@ -25,82 +26,114 @@ export default function OrderSuccess() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
 
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto py-10 px-4 text-center">
-        <div className="flex flex-col items-center mb-6">
-          <div className="bg-green-100 rounded-full p-4 mb-2">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-          </div>
-          <div className="text-gray-500 text-lg">Order is confirmed</div>
-          <div className="text-3xl md:text-4xl font-extrabold mt-1 mb-2">Arriving in {eta}</div>
-          <div className="text-gray-500 mb-2">{address}</div>
-          <div className="text-lg font-semibold mb-2">Total Amount ₹{totalAmount}</div>
-          <Link href="/orders"><button className="px-4 py-2 border border-green-600 text-green-700 rounded hover:bg-green-50 font-semibold">View Order Details</button></Link>
-        </div>
-        {/* Live Map (Google Maps) */}
-        <div className="w-full mb-8">
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={deliveryLocation}
-              zoom={13}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                styles: [
-                  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-                  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-                ],
-              }}
-            >
-              {/* Delivery vehicle marker */}
-              <Marker position={deliveryLocation} icon={{ url: '/delivery-bike.png', scaledSize: { width: 48, height: 48 } }} />
-              {/* Destination marker */}
-              <Marker position={destination} icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />
-            </GoogleMap>
-          ) : (
-            <div className="w-full h-[260px] bg-green-50 rounded-xl flex items-center justify-center text-gray-400">Loading map...</div>
-          )}
-        </div>
-        {/* Order Status Tracker */}
-        <div className="flex justify-between items-center mb-8">
-          {orderStatus.map((step, idx) => (
-            <div key={step.label} className="flex-1 flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>{idx + 1}</div>
-              <div className={`text-xs font-semibold ${step.done ? 'text-green-700' : 'text-gray-400'}`}>{step.label}</div>
-              {idx < orderStatus.length - 1 && <div className={`h-1 w-full ${orderStatus[idx + 1].done ? 'bg-green-400' : 'bg-gray-200'}`}></div>}
+    <div className="min-h-screen bg-gray-50 pb-10 bg-white">
+      <div className="container mx-auto flex flex-col md:flex-row gap-8">
+        <div className="flex-1">
+          {/* Order Details Card */}
+          <div className="max-w-1xl mx-auto mt-8 mb-6 px-4">
+            <div className=" p-6 flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-1 flex flex-col items-center md:items-start">
+                <div className="bg-green-100 rounded-full p-3 mb-2">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div className="text-gray-500 text-base">Order is confirmed</div>
+                <div className="text-2xl md:text-3xl font-extrabold mt-1 mb-2 text-center md:text-left">Arriving in {eta}</div>
+                <div className="text-gray-500 mb-2 text-center md:text-left">{address}</div>
+                <div className="text-lg font-semibold mb-2 text-center md:text-left">Total Amount <span className="text-green-700">₹{totalAmount}</span></div>
+                <Link href="/orders"><button className="px-4 py-2 border border-green-600 text-green-700 rounded hover:bg-green-50 font-semibold mt-2">View Order Details</button></Link>
+              </div>
+              <div className="flex-1 w-full">
+                <div className="bg-gray-50 rounded-xl shadow p-4">
+                  <div className="font-bold mb-1 text-gray-800">Delivery Address</div>
+                  <div className="text-gray-700 mb-2 text-sm">{address}</div>
+                  <div className="font-bold mb-1 text-gray-800">Order Summary</div>
+                  <div className="flex justify-between text-gray-700 text-sm"><span>Order Amount</span><span>₹{totalAmount}</span></div>
+                  <div className="flex justify-between text-gray-700 text-sm"><span>Payment</span><span>Cash on Delivery</span></div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-        {/* Delivery Address & Summary Card */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6 text-left">
-          <div className="font-bold mb-1">Delivery Address</div>
-          <div className="text-gray-700 mb-2">{address}</div>
-          <div className="font-bold mb-1">Order Summary</div>
-          <div className="flex justify-between text-gray-700"><span>Order Amount</span><span>₹{totalAmount}</span></div>
-          <div className="flex justify-between text-gray-700"><span>Payment</span><span>Cash on Delivery</span></div>
-        </div>
-        {/* Seller Details Card */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6 text-left">
-          <div className="font-bold mb-1">Seller Details</div>
-          <div className="text-gray-700">{seller.name}</div>
-          <div className="text-gray-700">{seller.contact}</div>
-          <div className="text-gray-700">{seller.address}</div>
-        </div>
-        {/* Ads/Upsell Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex flex-col items-center">
-            <div className="font-bold mb-2">Add a Snack for the Road?</div>
-            <img src="/snack.png" alt="Snack" className="w-16 h-16 mb-2" />
-            <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1 rounded font-semibold">Add to Order</button>
+
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex flex-col items-center">
-            <div className="font-bold mb-2">Need a Drink?</div>
-            <img src="/drink.png" alt="Drink" className="w-16 h-16 mb-2" />
-            <button className="bg-blue-400 hover:bg-blue-500 text-white px-4 py-1 rounded font-semibold">Add to Order</button>
+
+           {/* Order Status Tracker */}
+           <div className="max-w-1xl mx-auto mb-8 px-4 border border-gray-200 rounded-sm">
+            <div className="p-6">
+              <div className="font-bold text-gray-800 mb-4">Order Status</div>
+              <div className="flex justify-between items-center">
+                {orderStatus.map((step, idx) => (
+                  <div key={step.label} className="flex-1 flex flex-col items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'} transition-all duration-300`}>{idx + 1}</div>
+                    <div className={`text-xs font-semibold ${step.done ? 'text-green-700' : 'text-gray-400'}`}>{step.label}</div>
+                    {idx < orderStatus.length - 1 && <div className={`h-1 w-full ${orderStatus[idx + 1].done ? 'bg-green-400' : 'bg-gray-200'} transition-all duration-300`}></div>}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+
+          {/* Live Map Card */}
+          <div className="max-w-1xl mx-auto mb-8 px-4 flex flex-col md:flex-row gap-4 items-center ">
+
+          <div className="w-1/2 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
+              <img src="https://www.sbicard.com/sbi-card-en/assets/media/images/personal/credit-cards/credit-home-banner-24/simplyclick-blue/m-simplyclick-blue.jpg" 
+              alt="Credit Card" 
+              className="w-full h-full object-contain rounded-lg shadow" />
+            </div>
+
+            <div className="w-1/2 p-4">
+              <div className="font-bold text-gray-800 mb-2">Live Order Tracking</div>
+              {isLoaded ? (
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={deliveryLocation}
+                  zoom={13}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                      { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+                      { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+                    ],
+                  }}
+                >
+                  <Marker position={deliveryLocation} icon={{ url: '/delivery-bike.png', scaledSize: { width: 48, height: 48 } }} />
+                  <Marker position={destination} icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />
+                </GoogleMap>
+              ) : (
+                <div className="w-full h-[260px] bg-green-50 rounded-xl flex items-center justify-center text-gray-400">Loading map...</div>
+              )}
+            </div>
+          </div>
+      
+          {/* Sponsored Ad Banner */}
+          <div className="max-w-5xl mx-auto mb-8 px-4">
+            <div className="bg-gradient-to-r from-blue-100 to-blue-50 flex flex-col md:flex-row items-center justify-between px-6 py-4 rounded-2xl shadow">
+              <div className="flex items-center gap-4">
+                <img src="/sponsor-logo.png" alt="Sponsor" className="w-14 h-14 rounded-lg shadow" />
+                <div>
+                  <div className="text-lg md:text-2xl font-bold text-blue-900">Get 10% Off with Geniezy Credit Card</div>
+                  <div className="text-blue-700 text-sm">Apply now and save on every order!</div>
+                </div>
+              </div>
+              <button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow">Apply Now</button>
+            </div>
+          </div>
+      
+          {/* Recently Viewed Products Section */}
+          <div className="max-w-1xl mx-auto px-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Sponsored</span>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="gray">i</text></svg>
+            </div>
+            
+          </div>
+            <RecentViewProducts />
+      
         </div>
+        {/* Small Sponsored Card Sidebar (sticky on desktop, full width on mobile) */}
+       
       </div>
     </div>
   );
