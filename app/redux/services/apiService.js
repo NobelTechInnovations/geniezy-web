@@ -212,4 +212,5 @@ export const productApi = {
   }
 };
 
+export { getVersionedEndpoint };
 export default api;

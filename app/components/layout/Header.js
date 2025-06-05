@@ -117,6 +117,7 @@ const Header = () => {
   
       // Clear cookie
       document.cookie = 'isLoggedIn=; path=/; max-age=0';
+      document.cookie = 'token=; path=/; max-age=0'; // Clear token cookie for SSR
   
       console.log('Cookies after clearing isLoggedIn:', document.cookie);
   

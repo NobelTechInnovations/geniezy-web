@@ -22,6 +22,8 @@ async function saveAuth(token, user) {
   localStorage.setItem(EXPIRY_KEY, Date.now() + 30 * 24 * 60 * 60 * 1000);
   // Set minimal cookie for SSR/middleware
   document.cookie = 'isLoggedIn=true; path=/; max-age=2592000';
+  // Set token as cookie for SSR
+  document.cookie = `token=${token}; path=/; max-age=2592000`;
 }
 
 async function saveAnonIdMap(anonId, userId) {

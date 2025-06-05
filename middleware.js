@@ -1,22 +1,28 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  const currentUser = request.cookies.get('token')?.value;
-  const checkoutPath = '/checkout';
-  const loginPath = '/login';
+  const isLoggedIn = request.cookies.get('isLoggedIn')?.value === 'true';
+  const { pathname } = request.nextUrl;
 
-  if (request.nextUrl.pathname === checkoutPath && !currentUser) {
-    const loginUrl = new URL(loginPath, request.url);
-    return NextResponse.redirect(loginUrl);
+  // Protect checkout and account pages
+  const protectedPaths = ['/checkout', '/account'];
+  const isProtected = protectedPaths.some((path) =>
+    pathname.startsWith(path)
+  );
+
+  // If not logged in and trying to access protected routes, redirect to login
+  if (!isLoggedIn && isProtected) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (request.nextUrl.pathname === loginPath && currentUser) {
-     return NextResponse.redirect(new URL('/checkout', request.url)); 
+  // If logged in and trying to access login page, redirect to home
+  if (isLoggedIn && pathname === '/login') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/checkout', '/login'], 
-}; 
+  matcher: ['/login', '/checkout', '/account/:path*'],
+};
