@@ -24,7 +24,7 @@ function CustomSearchBox({ onFocus, setInputValue }) {
   }, [input]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-3xl">
       <input
         type="text"
         placeholder="I'm shopping for..."
