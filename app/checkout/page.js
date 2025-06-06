@@ -60,6 +60,14 @@ export default function CheckoutPage() {
     };
 
     const handlePlaceOrder = async () => {
+        if (!selectedPaymentMethod) {
+            alert('Please select a payment method');
+            return;
+        }
+        if (!selectedAddress) {
+            alert('Please select a delivery address');
+            return;
+        }
         // For testing, skip API and redirect immediately
         router.push('/order-success');
     };
@@ -130,7 +138,7 @@ export default function CheckoutPage() {
                                         id={`card_${card._id}`}
                                         name="paymentMethod"
                                         checked={isSelected('card', card._id)}
-                                        onChange={() => {}}
+                                        onChange={() => handlePaymentMethodSelect({ type: 'card', id: card._id })}
                                         className="align-middle mr-2"
                                     />
                                     <label htmlFor={`card_${card._id}`} className="text-sm font-semibold align-middle flex-1">
@@ -145,7 +153,7 @@ export default function CheckoutPage() {
                                     id="newCard"
                                     name="paymentMethod"
                                     checked={isSelected('newCard')}
-                                    onChange={() => {}}
+                                    onChange={() => handlePaymentMethodSelect({ type: 'newCard' })}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="newCard" className="text-sm align-middle">Add a new card</label>
@@ -186,7 +194,7 @@ export default function CheckoutPage() {
                                     id="netBanking"
                                     name="paymentMethod"
                                     checked={isSelected('netBanking')}
-                                    onChange={() => {}}
+                                    onChange={() => handlePaymentMethodSelect({ type: 'netBanking' })}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="netBanking" className="text-sm align-middle flex-1">Net Banking</label>
@@ -218,7 +226,7 @@ export default function CheckoutPage() {
                                         id={`upi_${upi._id}`}
                                         name="paymentMethod"
                                         checked={isSelected('upi', upi._id)}
-                                        onChange={() => {}}
+                                        onChange={() => handlePaymentMethodSelect({ type: 'upi', id: upi._id })}
                                         className="align-middle mr-2"
                                     />
                                     <label htmlFor={`upi_${upi._id}`} className="text-xs align-middle">{upi.details?.upiId}</label>
@@ -231,7 +239,7 @@ export default function CheckoutPage() {
                                     id="addNewUpi"
                                     name="paymentMethod"
                                     checked={isSelected('upi', 'new')}
-                                    onChange={() => {}}
+                                    onChange={() => handlePaymentMethodSelect({ type: 'upi', id: 'new' })}
                                     className="align-middle mr-2"
                                 />
                                 <label htmlFor="addNewUpi" className="text-xs align-middle">Add new UPI ID</label>
@@ -263,7 +271,7 @@ export default function CheckoutPage() {
                         </div>
                         {/* Cash on Delivery */}
                         <div className="mb-3 flex items-center">
-                            <input type="radio" id="cod" name="paymentMethod" checked={isSelected('cod')} onChange={() => {}} className="align-middle mr-2" />
+                            <input type="radio" id="cod" name="paymentMethod" checked={isSelected('cod')} onChange={() => handlePaymentMethodSelect({ type: 'cod' })} className="align-middle mr-2" />
                             <label htmlFor="cod" className="text-sm align-middle flex-1">Cash on Delivery/Pay on Delivery <span className="text-xs text-gray-500">Cash, UPI and Cards accepted. <span className="text-blue-600 cursor-pointer">Know more.</span></span></label>
                         </div>
                     </div>
@@ -323,7 +331,7 @@ export default function CheckoutPage() {
                 <div className="mt-2 mb-6 p-4 bg-white border border-gray-200 flex items-center justify-between">
                     <button className="w-1/3 flex-grow mr-4 py-1 bg-red-600 border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 text-white"
                         onClick={handlePlaceOrder}
-                        disabled={!selectedPaymentMethod || selectedPaymentMethod.type !== 'cod'}>
+                        disabled={!selectedPaymentMethod}>
                         Place your order
                     </button>
                     <div className="w-2/3 text-xs text-gray-700">
@@ -341,7 +349,9 @@ export default function CheckoutPage() {
             </div>
 
             <div className="w-1/3 border border-gray-200 p-4 bg-gray-50 sticky top-4">
-                <button className="w-full py-1 bg-red-600 text-white border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 shadow">
+                <button className="w-full py-1 bg-red-600 text-white border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 shadow"
+                    onClick={handlePlaceOrder}
+                    disabled={!selectedPaymentMethod}>
                     Place Order
                 </button>
                 <p className="text-xs mt-2">By placing your order, you agree to Geniezy's privacy notice and conditions of use.</p>
