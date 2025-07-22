@@ -16,9 +16,14 @@ export const metadata = {
   description: "GenieZy | Fast Delivery eCommerce Experience",
 };
 
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+       <head>
+        {/* Custom meta tag here */}
+        <meta name="google-adsense-account" content="ca-pub-9809230558529342" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
