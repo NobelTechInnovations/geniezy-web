@@ -143,7 +143,7 @@ const LocationDropdown = () => {
         onClick={() => setOpen(!open)}
       >
         <span className="text-gray-500 mr-1">Delivering to</span>
-        <span className="text-gray-700 mr-1">{location.city}, {location.pincode}</span>
+        <span className="text-gray-700 mr-1">{location.city}</span>
         <ChevronDown className="w-4 h-4 text-gray-500" />
       </div>
 

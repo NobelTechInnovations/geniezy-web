@@ -23,16 +23,20 @@ function CustomSearchBox({ onFocus, setInputValue }) {
     setInputValue(input);
   }, [input]);
 
+
+
+
   return (
-    <div className="relative w-3xl">
+    <div className="relative ">
       <input
         type="text"
-        placeholder="I'm shopping for..."
+        placeholder="I'm shopping for... Tshirts, Washing Machines, or Daily Essentials"
         value={input}
         onFocus={onFocus}
         onChange={(e) => setInput(e.target.value)}
-        className="w-full h-10 px-4 pr-10 border rounded-md border-gray-300 text-black focus:outline-none"
+        className="w-full h-10 px-2 pr-10 border rounded-md border-gray-300 text-sm text-black focus:outline-none"
       />
+
       <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5 pointer-events-none" />
     </div>
   );
@@ -82,7 +86,7 @@ export default function Search() {
   const shouldShowDropdown = showDropdown && inputValue.trim() !== '';
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md mx-auto">
+    <div ref={containerRef} className="relative w-3xl mx-auto">
       <InstantSearch searchClient={searchClient} indexName="products">
         <Configure hitsPerPage={8} />
         <CustomSearchBox
@@ -94,3 +98,5 @@ export default function Search() {
     </div>
   );
 }
+
+
