@@ -111,7 +111,7 @@ export default function CategoryPage() {
           <CategoryAdBanner />
 
           <h2 className="text-xl font-semibold mb-4">{category?.name || "Loading..."}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 mb-10">
             {loading ? (
               // Show skeleton loading
               Array.from({ length: 12 }).map((_, index) => (

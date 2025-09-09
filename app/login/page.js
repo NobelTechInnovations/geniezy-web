@@ -174,20 +174,21 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex-1 flex flex-col items-center justify-center">
-      <Image
+      {/* <Image
         src="/4.png"
         alt="Logo"
         width={120}
         height={40}
         className="mb-2"
-      />
+      /> */}
+      <h1 className='text-xl font-semibold py-2'>Snapzo Deals</h1>
       <div className="w-full max-w-xs border border-gray-200 rounded-sm shadow-xs px-4 py-4 flex flex-col">
         {!showProfileForm ? (
           <>
             <h2 className="text-lg mb-2">Login or Create Account</h2>
             <p className="text-sm  mb-2">Enter your phone number</p>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-xs text-red-600 px-4 py-2 rounded w-full mb-2 text-center" role="alert">
+              <div className="bg-[#004bad] border border-red-200 text-xs text-red-600 px-4 py-2 rounded w-full mb-2 text-center" role="alert">
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
@@ -207,7 +208,7 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2 rounded-md bg-red-600 text-white font-bold text-xs hover:bg-red-700 transition disabled:opacity-50"
+                  className="w-full py-2 rounded-md bg-[#004bad] text-white font-bold text-xs hover:bg-[#004bad] transition disabled:opacity-50"
                 >
                   {loading ? 'Sending...' : 'Continue'}
                 </button>
@@ -229,7 +230,7 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2 rounded-md bg-red-600 text-white font-bold text-xs hover:bg-red-700 transition disabled:opacity-50"
+                  className="w-full py-2 rounded-md bg-[#004bad] text-white font-bold text-xs hover:bg-[#004bad] transition disabled:opacity-50"
                 >
                   {loading ? 'Verifying...' : 'Continue'}
                 </button>
@@ -282,7 +283,7 @@ const LoginPage = () => {
               {loading ? 'Saving...' : 'Save & Continue'}
             </button>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-xs text-red-600 px-4 py-2 rounded w-full mt-2 text-center" role="alert">
+              <div className="bg-[#004bad] border border-red-200 text-xs text-red-600 px-4 py-2 rounded w-full mt-2 text-center" role="alert">
                 <span className="block sm:inline">{error}</span>
               </div>
             )}

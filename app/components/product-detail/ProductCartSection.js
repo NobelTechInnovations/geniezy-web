@@ -46,14 +46,14 @@ const ProductCartSection = ({ productData, quantity, exchange, setQuantity, setE
               </select>
               <button 
                 onClick={onAddToCart}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 py-1 rounded-sm  flex items-center justify-center gap-2 text-sm mt-2"
+                className="w-full bg-gray-700 hover:bg-gray-900 text-white py-2 rounded-md  flex items-center justify-center gap-2 text-sm mt-2"
               >
                 <FiShoppingCart className="text-md" />
                 Add to Cart
               </button>
-              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-1 rounded-sm  flex items-center justify-center gap-2 text-sm">
+              {/* <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-1 rounded-sm  flex items-center justify-center gap-2 text-sm">
                 Buy Now
-              </button>
+              </button> */}
               <div className='flex gap-2'>  
               <button className="flex items-center gap-2 text-gray-600 hover:text-red-500 justify-center text-xs ">
                 <FiHeart className="text-sx" />

@@ -39,7 +39,7 @@ const dairyProducts = [
 
 export default function FoodDeliveryPage() {
   return (
-    <div className="container mx-auto px-8 py-8">
+    <div className="container mx-auto w-6xl py-4">
       <HorizontalCategoryList categories={foodCategories} />
       <HorizontalProductList title="Dairy, Bread & Eggs" products={dairyProducts} onSeeAll={() => {}} />
     </div>

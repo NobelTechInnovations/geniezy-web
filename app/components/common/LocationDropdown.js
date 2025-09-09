@@ -155,7 +155,7 @@ const LocationDropdown = () => {
           <button
             onClick={handleDetectLocation}
             disabled={loading}
-            className={`bg-red-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-[#004bad] text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {loading ? 'Detecting Location...' : 'Detect My Location'}
           </button>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const Topbar = ({ isScrolled }) => {
   return (
-    <div className={`w-full bg-[#0c2540] text-white py-2 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
+    <div className={`w-full bg-[#004bad] text-white py-2 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
     <div className="container mx-auto flex justify-between items-center px-4">
       <p className="text-sm">Welcome to GenieZy Online Shopping Store !</p>
       <div className="flex items-center space-x-6 text-sm">

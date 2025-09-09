@@ -158,7 +158,7 @@ const Header = () => {
 
       {/* Middle Bar - Always visible, sticky on scroll */}
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
-        <div className="container-fluid mx-auto flex items-center px-4 justify-between items-center ">
+        <div className="container-fluid mx-auto flex items-center px-4 justify-between">
           <Link href="/" className="mr-6">
 
             {/* <img src="/3.png" alt="Logo" width={100} height={100} /> */}
@@ -180,17 +180,17 @@ const Header = () => {
           </div>
 
           <div className="flex items-center space-x-6 ml-6">
-            <Link href="/wishlist" className="relative">
+            {/* <Link href="/wishlist" className="relative">
               <FiHeart className="w-6 h-6 text-black" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              <span className="absolute -top-2 -right-2 bg-[#004bad] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                 0
               </span>
-            </Link>
+            </Link> */}
             {/* Cart Icon */}
             <div className="relative cursor-pointer" onClick={handleCartClick}>
               <FiShoppingBag className="w-6 h-6 text-black" />
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-2 -right-2 bg-[#004bad] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                   {cartItems.length}
                 </span>
               )}
@@ -208,7 +208,9 @@ const Header = () => {
                     <svg className="inline ml-1 w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </span>
                   {showMenu && (
-                    <div className="absolute top-full right-0 mt-1 w-32 bg-white border rounded shadow-lg z-50">
+                    
+                    <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-100 rounded shadow-lg z-50">
+                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Orders</a>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
@@ -234,7 +236,7 @@ const Header = () => {
 
         <div className="container mx-auto max-w-7xl"> 
           <nav className="flex flex-wrap justify-center px-4 py-2 text-black">
-            <Link href="/" className="whitespace-nowrap flex items-center hover:text-red-500 mr-8">
+            <Link href="/" className="whitespace-nowrap flex items-center hover:text-blue-500 mr-8">
               <span className="text-sm font-semibold">Snapzo deals</span>
 
             </Link>
@@ -244,12 +246,12 @@ const Header = () => {
                 href={category.slug === 'food' || category.slug === 'grocery-fresh' 
                   ? `/delivery-now/${category.slug}?gc_id=${category._id}`
                   : `/gc/${category.slug}?gc_id=${category._id}`}
-                className="whitespace-nowrap flex items-center text-sm font-medium hover:text-red-500 mr-8"
+                className="whitespace-nowrap flex items-center text-sm font-medium hover:text-blue-500 mr-8"
               >
                 {category.name}
               </Link>
             ))}
-            <Link href="/" className="whitespace-nowrap flex items-center hover:text-red-500 mr-8">
+            <Link href="/" className="whitespace-nowrap flex items-center hover:text-blue-500 mr-8">
               <span className="text-sm font-semibold">Buy Again</span>
             </Link>
           </nav>

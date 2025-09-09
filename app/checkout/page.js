@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                                 <h4 className="text-sm font-semibold mb-1">{item.productDetails.title}</h4>
                                 <p className="text-sm mb-1">{formatIndianPrice(item.price)}</p>
                                 <p className="text-xs text-gray-600 mb-1">Ships from Geniezy 
-                                    <span className="bg-blue-700 text-white text-xs font-semibold px-1 py-0.5 rounded ml-2">G. assured</span>
+                                    <span className="bg-blue-700 text-white text-xs font-semibold px-1 py-0.5 rounded ml-2">Deals Assured</span>
                                 </p>
                                 <p className="text-xs text-gray-600 mb-3">Sold by <a href="#" className="text-blue-700 hover:underline">{item.productDetails.seller.business_name}</a></p>
                             </div>
@@ -329,7 +329,7 @@ export default function CheckoutPage() {
 
                 {/* Place your order button section at the bottom */}
                 <div className="mt-2 mb-6 p-4 bg-white border border-gray-200 flex items-center justify-between">
-                    <button className="w-1/3 flex-grow mr-4 py-1 bg-red-600 border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 text-white"
+                    <button className="w-1/3 flex-grow mr-4 py-1 bg-[#004bad] border rounded-full font-semibold text-base cursor-pointer hover:bg-[#004bad] text-white"
                         onClick={handlePlaceOrder}
                         disabled={!selectedPaymentMethod}>
                         Place your order
@@ -349,7 +349,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="w-1/3 border border-gray-200 p-4 bg-gray-50 sticky top-4">
-                <button className="w-full py-1 bg-red-600 text-white border border-red-700 rounded-full text-sm font-semibold cursor-pointer hover:bg-red-700 shadow"
+                <button className="w-full py-1 bg-[#004bad] text-white border rounded-full font-semibold text-base cursor-pointer hover:bg-[#004bad] shadow"
                     onClick={handlePlaceOrder}
                     disabled={!selectedPaymentMethod}>
                     Place Order

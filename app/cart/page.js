@@ -238,19 +238,19 @@ export default function CartPage() {
         </div>
         <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">Your Cart is empty</h2>
         <p className="text-gray-600 mb-6 text-center max-w-md">Looks like you haven&apos;t added anything to your cart yet. Start shopping and discover premium products at the best prices!</p>
-        <Link href="/" className="bg-red-500 hover:bg-red-700 text-white px-4 py-1 rounded-sm font-semibold shadow transition">Continue Shopping</Link>
+        <Link href="/" className="bg-[#004bad] hover:bg-[#004bad] text-white px-4 py-1 rounded-sm font-semibold shadow transition">Continue Shopping</Link>
       </div>
     );
   }
 
   return (
     <main className="flex container mx-auto flex-col bg-white">
-      <div className="flex flex-1 w-full px-2 md:px-6 gap-8 mt-6">
+      <div className="flex flex-1 w-6xl px-2 mx-auto gap-4 my-6">
         {/* Cart Items Section */}
         <div className="flex flex-col gap-4 w-full">
         <section className="flex-1 flex flex-col border border-gray-200 rounded-sm shadow-xs p-2 mb-2">
-          <h1 className="text-2xl md:text-2xl font-bold mb-2 text-gray-900">Shopping Cart</h1>
-          <div className="flex flex-col gap-4">
+          <h1 className="text-lg font-semibold">Shopping Cart</h1>
+          <div className="flex flex-col gap-2">
             {cartItems.length === 0 && (
               <div className=" text-gray-500 py-4">Check your Saved for later items below or continue shopping.</div>
             )}
@@ -261,7 +261,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                   <div>
-                    <div className="font-semibold text-gray-900 text-base md:text-md mb-1 line-clamp-2">{item.productDetails?.name || item.productData?.title}</div>
+                    <div className="font-semibold text-gray-900 text-md line-clamp-2">{item.productDetails?.name || item.productData?.title}</div>
                     {Array.isArray(item.additional) && item.additional.length > 0 && (
                         <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-1">
                             {item.additional.map((attributeObj, index) => {
@@ -276,7 +276,7 @@ export default function CartPage() {
                             })}
                         </div>
                     )}
-                    <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold">g. assuerd</span></div>
+                    <div className="text-xs  text-gray-700 mb-1">Shipping by <span className="font-semibold underline rounded-sm">Snapzo Partners</span></div>
                   </div>
                   <div className='flex items-center mt-2'>
                     <div className="flex items-center gap-1  flex-wrap">
@@ -376,7 +376,7 @@ export default function CartPage() {
               <span>{formatIndianPrice(cartSummary.finalAmount.toFixed(2))}</span>
             </div>
             <Link href={'checkout'}>
-            <button className={`w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded-sm font-semibold text-base shadow transition mt-2 ${cartSummary.totalItems === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={cartSummary.totalItems === 0}>Place Order</button>
+            <button className={`w-full bg-[#004bad] hover:bg-[#004bad] text-white py-1 rounded-full font-semibold text-base shadow transition mt-2 ${cartSummary.totalItems === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={cartSummary.totalItems === 0}>Place Order</button>
             </Link>
           </div>
         </aside>

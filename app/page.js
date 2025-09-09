@@ -18,21 +18,17 @@ export default function Home() {
       <div className="container mx-auto">
         <div className="max-w-6xl mx-auto">
           {/* Main Product Card Section */}
-          <MainSingleProductCard />
-          
+          <RecentViewProducts />
           {/* Festive Categories Section */}
           <FestiveCategory />
           
           {/* Categories Section */}
           <CategorySection />
 
-
-          {/* Main Product Card Section */}
-          <MainSingleProductCard />
+          <RecentViewProducts />
         </div>
       </div>  
 
-      <RecentViewProducts />
     </main>
   );
 }

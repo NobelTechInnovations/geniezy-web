@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { GoogleMap, Marker, useJsApiLoader, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import RecentViewProducts from '../components/home/RecentViewProducts';
+import { FiCheckCircle } from 'react-icons/fi';
 
 export default function OrderSuccess() {
   // Mock data
@@ -39,21 +40,20 @@ export default function OrderSuccess() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10 bg-white">
-      <div className="container mx-auto flex flex-col md:flex-row gap-8">
-        <div className="flex-1">
+    <div className="flex container mx-auto flex-col bg-gray-50">
+      <div className="w-6xl mx-auto gap-2 my-2">
           {/* Order Details Card */}
-          <div className="max-w-1xl mx-auto mt-8 mb-6 px-4">
+
             <div className=" p-6 flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1 flex flex-col items-center md:items-start">
-                <div className="bg-green-100 rounded-full p-3 mb-2">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                <div className='flex gap-2 items-center justify-center'>
+                  <FiCheckCircle className='text-green-700'/>
+                  <div className="text-gray-500 text-base">Order is confirmed</div> 
                 </div>
-                <div className="text-gray-500 text-base">Order is confirmed</div>
-                <div className="text-2xl md:text-3xl font-extrabold mt-1 mb-2 text-center md:text-left">Arriving in {eta}</div>
-                <div className="text-gray-500 mb-2 text-center md:text-left">{address}</div>
-                <div className="text-lg font-semibold mb-2 text-center md:text-left">Total Amount <span className="text-green-700">₹{totalAmount}</span></div>
-                <Link href="/orders"><button className="px-4 py-2 border border-gray-600 text-gray-700 rounded hover:bg-gray-50 font-semibold mt-2">View Order Details</button></Link>
+                <div className="text-md font-semibold ">Total Amount <span className="text-gray-700">₹{totalAmount}</span></div>
+                <div className="text-lg font-semibold">Arriving in {eta}</div>
+                <div className="text-gray-500 mb-2 ">{address}</div>
+                <Link href="/orders"><button className=" text-gray-700 underline font-semibold ">View Order Details</button></Link>
               </div>
               <div className="flex-1 w-full">
               <div className="w-full flex flex-col h-72">
@@ -103,65 +103,68 @@ export default function OrderSuccess() {
                   <div className="w-full h-full bg-green-50 rounded-xl flex items-center justify-center text-gray-400">Loading map...</div>
                 )}
               </div>
-            </div>
+              </div>
               </div>
             </div>
 
-          </div>
+          
 
            {/* Order Status Tracker */}
-           <div className="max-w-1xl mx-auto mb-8 px-4 border border-gray-200 rounded-sm">
-            <div className="p-6">
-              <div className="font-bold text-gray-800 mb-4">Order Status</div>
-              <div className="flex justify-between items-center">
-                {orderStatus.map((step, idx) => (
-                  <div key={step.label} className="flex-1 flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'} transition-all duration-300`}>{idx + 1}</div>
-                    <div className={`text-xs font-semibold ${step.done ? 'text-green-700' : 'text-gray-400'}`}>{step.label}</div>
-                    {idx < orderStatus.length - 1 && <div className={`h-1 w-full ${orderStatus[idx + 1].done ? 'bg-green-400' : 'bg-gray-200'} transition-all duration-300`}></div>}
-                  </div>
-                ))}
+           <div>
+            <div className="font-bold text-gray-800">Order Status</div>
+            <p>Track your all order status in just 1 step</p>
+            <div className=" mx-auto border border-gray-200 rounded-sm mb-2">
+              <div className="p-2">
+                <div className="flex justify-between items-center">
+                  {orderStatus.map((step, idx) => (
+                    <div key={step.label} className="flex-1 flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'} transition-all duration-300`}>{idx + 1}</div>
+                      <div className={`text-xs font-semibold ${step.done ? 'text-green-700' : 'text-gray-400'}`}>{step.label}</div>
+                      
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Live Map Card with Credit Card Ad */}
-          <div className="max-w-1xl mx-auto mb-8 px-4 flex flex-col md:flex-row gap-4 items-center ">
-            <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
-              <img src="https://www.sbicard.com/sbi-card-en/assets/media/images/personal/credit-cards/credit-home-banner-24/simplyclick-blue/m-simplyclick-blue.jpg" 
-                alt="Credit Card" 
-                className="w-full h-full object-cover rounded-lg shadow" />
-            </div>
-            <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
-              <img src="https://www.axisbank.com/images/default-source/revamp_new/progresswithus/axis-bank-unveils-its-credit-cards-campaign-open-experiences.jpg" 
-                alt="Credit Card" 
-                className="w-full h-full object-cover rounded-lg shadow" />
-            </div>
-            
-          </div>
+
       
           {/* Sponsored Ad Banner */}
-          <div className="max-w-3xl mx-auto mb-8 px-4">
-            <div className="bg-gradient-to-r from-gray-100 to-blue-50 flex flex-col md:flex-row items-center justify-between px-6 py-4 rounded-2xl shadow">
+          <div className=" mx-auto my-8 ">
+            <div className="bg-gray-100 flex flex-col md:flex-row items-center justify-between px-6 py-4 rounded-lg shadow">
               <div className="flex items-center gap-4">
-                <img src="https://m.media-amazon.com/images/W/MEDIAX_1215821-T1/images/I/41yb-Z4lB5L.jpg" alt="Sponsor" className="w-14 h-14 rounded-lg shadow" />
+                <img src="https://seller-app-product.s3.eu-north-1.amazonaws.com/variations/1748249725294-GalaxyS25-6.9inches.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2RFFCW7PDHGEA77S%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T192223Z&X-Amz-Expires=3600&X-Amz-Signature=936d887e2a3c6af9f4330fadee79d55eb503651221b30be2572b97bcd223a01e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject" alt="Sponsor" className="w-14 h-14 " />
                 <div>
-                  <div className="text-lg md:text-2xl font-bold text-blue-900">Get 10% Off with Geniezy Credit Card</div>
-                  <div className="text-blue-700 text-sm">Apply now and save on every order!</div>
+                  <div className="text-lg font-bold text-gray-900">Get 10% Off with Geniezy Credit Card</div>
+                  <div className="text-sm">Apply now and save on every order!</div>
                 </div>
               </div>
-              <button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow">Apply Now</button>
+              <button className="mt-4 md:mt-0 text-dark underline">Apply Now</button>
             </div>
           </div>
       
           {/* Recently Viewed Products Section */}
       
             <RecentViewProducts />
-      
-        </div>
-        {/* Small Sponsored Card Sidebar (sticky on desktop, full width on mobile) */}
+
+          <div className=" mx-auto flex flex-col md:flex-row gap-2 my-6">
+            <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
+            <img src="https://www.sbicard.com/sbi-card-en/assets/media/images/personal/credit-cards/credit-home-banner-24/simplyclick-blue/m-simplyclick-blue.jpg" 
+            alt="Credit Card" 
+            className="w-full h-full object-cover rounded-lg shadow" />
+            </div>
+            <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
+            <img src="https://www.axisbank.com/images/default-source/revamp_new/progresswithus/axis-bank-unveils-its-credit-cards-campaign-open-experiences.jpg" 
+            alt="Credit Card" 
+            className="w-full h-full object-cover rounded-lg shadow" />
+            </div>
+
+          </div>
+
+          <RecentViewProducts />
        
-      </div>
+          </div>
     </div>
   );
 }

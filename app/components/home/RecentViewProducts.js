@@ -63,9 +63,12 @@ const RecentViewProducts = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Recently Viewed Products</h2>
+    <div className="container mx-auto ">
+      <div className="flex justify-between items-center mb-2">
+        <div>
+          <h2 className="text-lg font-semibold">Pick up where you left off: Get extra 30% off on your first order</h2>
+          <span className='text-grey-500 text-sm'>Shop now your favorite products with extra 30% off</span>
+        </div>
         <div className="flex gap-2">
           <button 
             onClick={() => scroll('left')}
@@ -89,7 +92,7 @@ const RecentViewProducts = () => {
       </div>
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-4 scrollbar-hide -mx-4 px-4 pb-2"
+        className="flex overflow-x-auto gap-4 scrollbar-hide-mx-4"
         style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}
       >
         {recentProducts.map((product) => (

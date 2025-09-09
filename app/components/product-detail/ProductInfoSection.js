@@ -1,6 +1,6 @@
 'use client';
 
-import { FiShoppingCart, FiStar, FiTruck, FiRefreshCw, FiShield, FiCheck } from 'react-icons/fi';
+import { FiShoppingCart, FiStar, FiTruck, FiRefreshCw, FiShield, FiCheck, FiCheckCircle } from 'react-icons/fi';
 import Link from 'next/link';
 import {formatIndianPrice} from '../../shared/utils/priceFormat';
 import { useState } from 'react';
@@ -57,19 +57,19 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
     };
     
     return (
-        <div className="lg:col-span-5 flex flex-col gap-2">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{productData.title}</h1>
-            <div className="flex items-center gap-1 mb-2">
+        <div className="lg:col-span-5 flex flex-col gap-1">
+            <h1 className="text-2xl font-bold text-gray-900">{productData.title}</h1>
+            <div className="flex items-center gap-1 mb-1">
               <span className="text-blue-700 text-sm font-semibold cursor-pointer hover:underline">Visit the {productData.brand} Store</span>
-              <span className="flex items-center text-yellow-500 font-semibold ml-2">
+              <span className="flex items-center text-yellow-500 font-semibold ">
                 <FiStar className="mr-1" /> {productData.rating}
               </span>
               <span className="text-gray-600 text-sm">({productData.ratingCount})</span>
             </div>
             <div className="text-xs text-gray-700 mb-2">{productData.boughtCount}</div>
             
-            <div className="flex flex-col gap-1 mb-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1 ">
+              <div className="flex items-center gap-1">
                 {productData.discount && (
                   <span className="text-red-600 text-xl">-{productData.discount}</span>
                 )}
@@ -88,7 +88,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
             {/* Small icons row */}
             <div className="flex flex-wrap gap-4 text-xs text-gray-700 mb-4">
               <div className="flex items-center gap-1">
-                <FiCheck className="text-green-600" />
+                <FiCheckCircle className="text-blue-600" />
                 <span>Genuine Product</span>
               </div>
               <div className="flex items-center gap-1">
@@ -96,11 +96,11 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
                 <span>Free Delivery</span>
               </div>
               <div className="flex items-center gap-1">
-                <FiShield className="text-purple-600" />
+                <FiShield className="text-blue-600" />
                 <span>Same Days Replacement</span>
               </div>
               <div className="flex items-center gap-1">
-                <FiShoppingCart className="text-orange-600" />
+                <FiShoppingCart className="text-blue-600" />
                 <span>Cash on Delivery</span>
               </div>
             </div>
@@ -143,7 +143,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
             )}
 
             <div className="flex items-center gap-1 mb-2">
-              <span className="bg-gray-100 text-xs px-2 py-1 rounded font-semibold text-gray-700">g. Assuerd</span>
+              <span className="bg-gray-100 text-xs px-2 py-1 rounded font-semibold text-gray-700">Deals Assuerd</span>
               <span className="text-xs text-gray-700">Inclusive of all taxes</span>
             </div>
             <div className="text-xs text-gray-700 mb-2">EMI starts at ₹1,697. No Cost EMI available <span className="text-blue-700 cursor-pointer hover:underline">EMI options</span></div>

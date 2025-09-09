@@ -291,6 +291,7 @@ const ProductPage = ({ params }) => {
   return (
     <main className="flex flex-col min-h-screen bg-white">
       {/* Breadcrumb */}
+      <div className='w-full mx-auto'>
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm">
           <Link href="/" className="text-gray-600 hover:text-blue-600">Home</Link>
@@ -364,6 +365,7 @@ const ProductPage = ({ params }) => {
         />
       </div>
 
+      </div>
       <RecentViewProducts />
 
       <SideDrawer 
