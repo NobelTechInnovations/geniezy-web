@@ -7,9 +7,10 @@ import { FaFacebookF, FaTwitter, FaGooglePlusG, FaYoutube, FaInstagram, FaCcVisa
 const Footer = () => {
   return (
     <footer className="w-full bg-white">
-      {/* Benefits section */}
-      <div className="w-full border-t border-b border-gray-200 py-8">
-        <div className="container mx-auto px-4">
+
+{/* Benefits section */}
+<div className="w-full border-t border-b border-gray-200 py-8">
+        <div className="container mx-auto max-w-6xl ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex items-center">
               <div className="text-red-500 text-3xl mr-4">
@@ -53,11 +54,10 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      
-     
-      
+
+
       {/* Categories section */}
-      <div className="w-full border-t border-gray-200 py-8">
+      <div className="w-full border-t border-gray-200 py-8 text-center">
         <div className="container mx-auto px-4">
           <div className="mb-6">
             <div className="mb-2">
@@ -102,6 +102,99 @@ const Footer = () => {
           </div>
           
           {/* Copyright and Payment */}
+          
+        </div>
+      </div>
+
+      {/* Footer main content */}
+      <div className="container mx-auto py-2 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-8">
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><Link href="/terms" className="text-gray-600 hover:text-red-500">Term & Conditions</Link></li>
+              <li><Link href="/faqs" className="text-gray-600 hover:text-red-500">FAQs</Link></li>
+            </ul>
+          </div>
+          
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          
+          {/* Business */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Business</h3>
+            <ul className="space-y-2">
+              <li><Link href="/press" className="text-gray-600 hover:text-red-500">Our Press</Link></li>
+              <li><Link href="/shop" className="text-gray-600 hover:text-red-500">Shop</Link></li>
+            </ul>
+          </div>
+          
+          {/* Newsletter */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Newsletter</h3>
+            <div className="flex mb-4">
+              <input 
+                type="email" 
+                placeholder="Email Address" 
+                className="px-4 py-2 border border-gray-300 focus:outline-none flex-grow"
+              />
+              <button className="bg-red-500 text-white px-4 py-2">
+                Subscribe
+              </button>
+            </div>
+            
+            {/* Social icons */}
+            <div className="flex space-x-4 mt-6">
+              <Link href="#" className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white">
+                <FaFacebookF />
+              </Link>
+              <Link href="#" className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white">
+                <FaTwitter />
+              </Link>
+              <Link href="#" className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white">
+                <FaGooglePlusG />
+              </Link>
+              <Link href="#" className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white">
+                <FaYoutube />
+              </Link>
+              <Link href="#" className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white">
+                <FaInstagram />
+              </Link>
+            </div>
+          </div>
+
+          </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-gray-200">
             <p className="text-gray-600 text-sm mb-4 md:mb-0">© 2024 GenieZy. All Rights Reserved</p>
             
@@ -112,7 +205,8 @@ const Footer = () => {
               <FaCcAmex className="h-8 w-8" />
             </div>
           </div>
-        </div>
+        
+        
       </div>
       
       {/* Back to top button */}

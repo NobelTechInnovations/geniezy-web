@@ -7,25 +7,32 @@ import RecentViewProducts from './components/home/RecentViewProducts';
 
 export default function Home() {
   return (
+
     <main className="flex flex-col min-h-screen bg-white">
-      
+
       {/* Hero Section with slider and ads */}
       <div className="flex flex-col gap-4 mt-2">
         <HeroSection />
       </div>
       
-      {/* Festive Categories Section */}
-      <FestiveCategory />
-      
-      {/* Categories Section */}
-      <CategorySection />
+      <div className="container mx-auto">
+        <div className="max-w-6xl mx-auto">
+          {/* Main Product Card Section */}
+          <MainSingleProductCard />
+          
+          {/* Festive Categories Section */}
+          <FestiveCategory />
+          
+          {/* Categories Section */}
+          <CategorySection />
 
-      {/* Main Product Card Section */}
-      {/* <MainSingleProductCard /> */}
 
-    {/* create a new section for recent view products */}
-    <RecentViewProducts />
+          {/* Main Product Card Section */}
+          <MainSingleProductCard />
+        </div>
+      </div>  
 
+      <RecentViewProducts />
     </main>
   );
 }

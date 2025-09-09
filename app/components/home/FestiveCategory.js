@@ -57,13 +57,13 @@ const FestiveCategory = () => {
   };
 
   return (
-    <section className="py-10 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Browse By Categories</h2>
+    <section className="py-2 bg-white">
+      <div className="container mx-auto">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl md:text-xl font-bold text-gray-900">Browse By Categories: Free Delivery on all orders</h2>
           <div className="flex items-center">
             <Link href="/categories" className="hidden md:flex items-center text-gray-600 hover:text-red-500 text-sm font-medium">
-              SEE ALL CATEGORIES
+              See All Categories
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 ml-1">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
               </svg>
@@ -128,7 +128,7 @@ const FestiveCategory = () => {
         </div>
 
         {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
           {categoryData.map((category) => (
             <Link 
               key={category.id} 
