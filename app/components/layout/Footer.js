@@ -18,7 +18,7 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="font-bold text-gray-800">Free Delivery</h3>
-                <p className="text-sm text-gray-600">For all orders over $99</p>
+                <p className="text-sm text-gray-600">For all orders over ₹399</p>
               </div>
             </div>
             
@@ -27,7 +27,7 @@ const Footer = () => {
                 <FiRefreshCw />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">90 Days Return</h3>
+                <h3 className="font-bold text-gray-800">Same Days Return</h3>
                 <p className="text-sm text-gray-600">If goods have problems</p>
               </div>
             </div>
@@ -106,7 +106,6 @@ const Footer = () => {
         </div>
       </div>
 
-      
       {/* Footer main content */}
       <div className="container mx-auto py-2 px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-8">
@@ -194,6 +193,7 @@ const Footer = () => {
               </Link>
             </div>
           </div>
+
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-gray-200">
             <p className="text-gray-600 text-sm mb-4 md:mb-0">© 2024 GenieZy. All Rights Reserved</p>

@@ -101,7 +101,116 @@ export const categoryApi = {
     } catch (error) {
       throw error;
     }
+  },
+
+  /**
+   * Get products for a given category id
+   * @param {string} categoryId - The id of the category
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with category products data
+   */
+  getCategoryProducts: async (categoryId, version = 'v1') => {
+    try {
+      const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/items`);
+      const response = await api.get(endpoint);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
+export const productApi = {
+  /**
+   * Get product details by gspin
+   * @param {string} gspin - The product gspin
+   * @param {Object} params - Query parameters
+   * @param {string} params.pid - Product ID
+   * @param {string} params.type - Product type (simple/variable)
+   * @param {string} params.p_sku - Product SKU
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with product data
+   */
+  getProductInfo: async (gspin, queryParams = {}, version = 'v1') => {
+    try {
+      if (!gspin) {
+        throw new Error('GSPIN is required');
+      }
+
+      const { pid, type, p_sku } = queryParams;
+      if (!pid) {
+        throw new Error('Product ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint(version, 'catalog', `listing/${gspin}/info`);
+      
+      const response = await api.get(endpoint, {
+        params: {
+          pid,
+          type,
+          p_sku
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getProductImages: async (gspin, queryParams = {}) => {
+    try {
+      if (!gspin) {
+        throw new Error('GSPIN is required');
+      }
+
+      const { pid, type, p_sku } = queryParams;
+      if (!pid) {
+        throw new Error('Product ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint('v1', 'catalog', `listing/${gspin}/images`);
+      
+      const response = await api.get(endpoint, {
+        params: {
+          pid,
+          type,
+          p_sku
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /**
+   * Get product recommendations for a given category and item
+   * @param {string} categoryId - The category ID
+   * @param {string} itemId - The item ID
+   * @param {string} version - API version (default: 'v1')
+   * @returns {Promise} Promise object with recommended products data
+   */
+  getProductRecommendations: async (categoryId, itemId, version = 'v1') => {
+    try {
+      if (!categoryId) {
+        throw new Error('Category ID is required');
+      }
+
+      if (!itemId) {
+        throw new Error('Item ID is required');
+      }
+
+      const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/item/${itemId}/suggestions`);
+      
+      const response = await api.get(endpoint);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
+export { getVersionedEndpoint };
 export default api;

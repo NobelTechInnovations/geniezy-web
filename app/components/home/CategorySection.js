@@ -60,9 +60,10 @@ const CategorySection = () => {
                   </div>
                 </div>
                 
+
                 <div className="w-2/3 p-2">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                    {category.name}
+                    <Link href={`/gc/${category.slug}?gc_id=${category.id}`}>{category.name}</Link>
                   </h3>
                   <p className="text-gray-600 text-xs mb-2">
                     {category.description}
@@ -72,7 +73,7 @@ const CategorySection = () => {
                     {(subcategoriesMap[category.id] || []).map((subcat, index) => (
                       <li key={index}>
                         <Link 
-                          href={`/category/${category.id}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                          href={`/gc/${category.slug}?gc_id=${category.id}`}
                           className="text-gray-600 hover:text-red-500 text-sm"
                         >
                           {subcat}

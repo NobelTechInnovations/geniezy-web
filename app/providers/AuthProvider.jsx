@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginSuccess, logout } from '../redux/features/authSlice';
+import { getAuthFromDB } from '../services/authDB';
 
 const AuthContext = createContext();
 
@@ -15,19 +16,24 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        // Check if user is already logged in (e.g., from localStorage)
-        const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-        
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
+        // Try IndexedDB first
+        const { token, user } = await getAuthFromDB();
+        if (user && token) {
           dispatch(loginSuccess(user));
+        } else {
+          // Fallback to localStorage
+          const storedUser = typeof window !== 'undefined' ? localStorage.getItem('geniezy_user') : null;
+          const storedToken = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
+          if (storedUser && storedToken) {
+            const user = JSON.parse(storedUser);
+            dispatch(loginSuccess(user));
+          }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        // Clear any invalid data
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
+          localStorage.removeItem('geniezy_user');
+          localStorage.removeItem('geniezy_token');
         }
         dispatch(logout());
       } finally {

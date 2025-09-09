@@ -8,10 +8,14 @@ export const store = configureStore({
     // Add more reducers here
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat([
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat([
       // Add middleware here (like RTK Query APIs)
     ]),
 });
 
 // Enable listener behavior for RTK Query
-setupListeners(store.dispatch); 
+setupListeners(store.dispatch);
+
+export default store; 
