@@ -34,22 +34,22 @@ const CategorySection = () => {
   }, []);
 
   return (
-    <section className="py-12 px-4 bg-white">
+    <section className="py-4">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold mb-8 text-gray-900 text-center">
+        <h2 className="text-xl font-bold mb-2 text-gray-900 text-left">
           Top Categories Of The Month
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {MAIN_CATEGORIES.map((category) => (
             <div 
               key={category.id} 
-              className="border border-gray-200 rounded-md overflow-hidden transition-transform hover:shadow-md p-4"
+              className="border border-gray-200 rounded-md overflow-hidden"
             >
               <div className="flex items-start">
                 <div className="w-1/3 relative">
                   <div className="aspect-square relative">
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded">
+                    <div className="w-full h-full flex items-center justify-center rounded">
                       {/* Using a fallback symbol if image fails */}
                         <img 
                         src={category.image}
@@ -60,11 +60,15 @@ const CategorySection = () => {
                   </div>
                 </div>
                 
-                <div className="w-2/3 pl-4">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                <div className="w-2/3 p-2">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900">
                     {category.name}
                   </h3>
-                  <ul className="space-y-1.5">
+                  <p className="text-gray-600 text-xs mb-2">
+                    {category.description}
+                  </p>
+                  <a href={`/category/${category.id}`} className="text-gray-600 hover:text-red-500 text-sm text-decoration-underline">Shop Now</a>
+                  {/* <ul className="space-y-1.5">
                     {(subcategoriesMap[category.id] || []).map((subcat, index) => (
                       <li key={index}>
                         <Link 
@@ -75,7 +79,7 @@ const CategorySection = () => {
                         </Link>
                       </li>
                     ))}
-                  </ul>
+                  </ul> */}
                 </div>
               </div>
             </div>

@@ -7,9 +7,10 @@ import { FaFacebookF, FaTwitter, FaGooglePlusG, FaYoutube, FaInstagram, FaCcVisa
 const Footer = () => {
   return (
     <footer className="w-full bg-white">
-      {/* Benefits section */}
-      <div className="w-full border-t border-b border-gray-200 py-8">
-        <div className="container mx-auto px-4">
+
+{/* Benefits section */}
+<div className="w-full border-t border-b border-gray-200 py-8">
+        <div className="container mx-auto max-w-6xl ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex items-center">
               <div className="text-red-500 text-3xl mr-4">
@@ -53,10 +54,62 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+
+      {/* Categories section */}
+      <div className="w-full border-t border-gray-200 py-8 text-center">
+        <div className="container mx-auto px-4">
+          <div className="mb-6">
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Consumer Electric:</span>
+              <span className="text-sm text-gray-600 ml-2">
+                <Link href="#" className="hover:text-red-500">Air Conditioners</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Audios & Theaters</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Car Electronics</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Office Electronics</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">TV Televisions</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Washing Machines</Link>
+              </span>
+            </div>
+            
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">TV Televisions:</span>
+              <span className="text-sm text-gray-600 ml-2">
+                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
+              </span>
+            </div>
+            
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Computer & Technologies:</span>
+              <span className="text-sm text-gray-600 ml-2">
+                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
+                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
+              </span>
+            </div>
+          </div>
+          
+          {/* Copyright and Payment */}
+          
+        </div>
+      </div>
+
       
       {/* Footer main content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto py-2 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-8">
           {/* Quick Links */}
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
@@ -66,6 +119,30 @@ const Footer = () => {
             </ul>
           </div>
           
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
+          {/* Company */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
+              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
+            </ul>
+          </div>
           {/* Company */}
           <div>
             <h3 className="text-lg font-bold mb-4">Company</h3>
@@ -117,55 +194,7 @@ const Footer = () => {
               </Link>
             </div>
           </div>
-        </div>
-      </div>
-      
-      {/* Categories section */}
-      <div className="w-full border-t border-gray-200 py-8">
-        <div className="container mx-auto px-4">
-          <div className="mb-6">
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Consumer Electric:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Air Conditioners</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audios & Theaters</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Car Electronics</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Office Electronics</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">TV Televisions</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Washing Machines</Link>
-              </span>
-            </div>
-            
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">TV Televisions:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
-              </span>
-            </div>
-            
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Computer & Technologies:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
-              </span>
-            </div>
           </div>
-          
-          {/* Copyright and Payment */}
           <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-gray-200">
             <p className="text-gray-600 text-sm mb-4 md:mb-0">© 2024 GenieZy. All Rights Reserved</p>
             
@@ -176,7 +205,8 @@ const Footer = () => {
               <FaCcAmex className="h-8 w-8" />
             </div>
           </div>
-        </div>
+        
+        
       </div>
       
       {/* Back to top button */}
