@@ -79,7 +79,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
                 <>
                 <div className='flex gap-2'>
                 <span className="text-gray-500 text-xs">M.R.P</span>
-                <span className="text-base text-gray-500 line-through text-xs">{formatIndianPrice(productData.originalPrice)}</span>
+                <span className=" text-gray-500 line-through text-xs">{formatIndianPrice(productData.originalPrice)}</span>
                 </div>
                 </>
               )}
