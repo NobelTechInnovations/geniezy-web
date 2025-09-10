@@ -210,7 +210,12 @@ const Header = () => {
                   {showMenu && (
                     
                     <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-100 rounded shadow-lg z-50">
+
+                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Profile edits</a>
                       <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Orders</a>
+                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Adddress book</a>
+                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Payment methods</a>
+                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Saved payment details</a>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

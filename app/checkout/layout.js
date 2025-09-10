@@ -73,7 +73,8 @@ export default function CheckoutLayout({ children }) {
         <header className="bg-white py-2.5 border-b border-gray-200">
           <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between">
             <div className="mr-5 font-bold">
-              <img src='/4.png' width={120}/>
+              {/* <img src='/4.png' width={120}/> */}
+              <div className='text-xl'>snapzo</div>
             </div>
             <h2 className="text-xl font-semibold">Secure checkout</h2>
             <Link href={'/cart'}>
@@ -123,7 +124,8 @@ export default function CheckoutLayout({ children }) {
         <header className="bg-white py-2.5 border-b border-gray-200">
           <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between">
             <div className="mr-5 font-bold">
-              <img src='/4.png' width={120}/>
+              {/* <img src='/4.png' width={120}/> */}
+              <div className='text-xl'>snapzo</div>
             </div>
             <h2 className="text-xl font-semibold">Secure checkout</h2>
             <Link href={'/cart'}>

@@ -2,8 +2,9 @@ import Image from "next/image";
 import CategorySection from './components/home/CategorySection';
 import HeroSection from './components/home/HeroSection';
 import FestiveCategory from './components/home/FestiveCategory';
-import MainSingleProductCard from './components/common/products/mainSingleProductCard';
+
 import RecentViewProducts from './components/home/RecentViewProducts';
+import ProductSlider from "./components/home/ProductSlider";
 
 export default function Home() {
   return (
@@ -18,13 +19,16 @@ export default function Home() {
       <div className="container mx-auto">
         <div className="max-w-6xl mx-auto">
           {/* Main Product Card Section */}
-          <RecentViewProducts />
+          <ProductSlider categorySlug="mobiles-smartphones" gc_id="6824b40d4253af37c415fd9f" tagline="Shop now your favorite products with extra 60% off"title="Get special discounts on every newly launched smartphone." />
           {/* Festive Categories Section */}
           <FestiveCategory />
+          <ProductSlider categorySlug="grocery-fresh" gc_id="681cab9bd9abf241b6aa6d30" tagline="Shop now your favorite products with extra 60% off"title="Get fresh groceries delivered to your doorstep in under 15 minutes — completely free!" />
           
+          <ProductSlider categorySlug="mobiles-smartphones" gc_id="6824b40d4253af37c415fd9f" tagline="Shop now your favorite products with extra 60% off"title="Get special discounts on every newly launched smartphone." />
           {/* Categories Section */}
           <CategorySection />
 
+          <ProductSlider categorySlug="mobiles-smartphones" gc_id="6824b40d4253af37c415fd9f" tagline="Shop now your favorite products with extra 60% off"title="Get special discounts on every newly launched smartphone." />
           <RecentViewProducts />
         </div>
       </div>  

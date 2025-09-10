@@ -70,12 +70,6 @@ const ProductPage = ({ params }) => {
       return;
     }
 
-    // Only fetch if data is not already loaded for this product
-    // This check might need adjustment if we want to force re-fetch on variation change
-    // if (isDataLoaded) {
-    //   return; 
-    // }
-
     setLoading(true);
     setError(null);
 

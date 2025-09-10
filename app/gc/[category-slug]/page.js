@@ -80,14 +80,14 @@ export default function CategoryPage() {
       </nav>
 
       {/* Main Content: Sidebar + Product Grid Area */}
-      <div className="flex flex-1 px-2 gap-8 mt-4">
+      <div className="flex flex-1 px-2 gap-2 ">
         {/* Sidebar Filter */}
         <ProductFilter />
 
         {/* Product Grid Area */}
-        <section className="flex-1 flex flex-col">
+        <section className="flex-1 flex flex-col ">
 
-        <div className="flex items-center gap-2 text-sm mb-2">
+        <div className="flex items-center gap-2 text-sm mb-2 ">
           {category_tree?.map((cat, index) => (
             <div key={cat._id} className="flex items-center">
               <Link

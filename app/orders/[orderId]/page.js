@@ -1,83 +1,126 @@
 import RecentViewProducts from "@/app/components/home/RecentViewProducts";
 
 export default function OrdersDetail() {
-    return (
-        <main className="container mx-auto flex flex-col bg-white">
-        <div className="w-full md:w-2/3 mx-auto my-6">
-          {/* Order Card */}
-          <div className="border border-gray-200 rounded-xl shadow-sm p-6">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-xl">Order #12345</h2>
-              <span className="bg-yellow-100 text-yellow-700 px-3 text-xs py-1 rounded-full">
-                Pending
-              </span>
-            </div>
-  
-            <p className="text-gray-500 text-sm mb-4">
-              Placed on: <span className="font-medium">10 Sept 2025</span>
+  return (
+    <main className="container mx-auto flex flex-col bg-white">
+      <div className="w-full md:w-3/4 mx-auto my-6">
+        {/* Order Card */}
+        <div className="border border-gray-200 rounded-md shadow-sm">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-3 p-4 border-b border-gray-200">
+            <p className="text-sm text-gray-600">
+              Ordered on <span className="font-medium">09-09-2025</span>
             </p>
-  
-            {/* Items */}
-            <div className="space-y-4">
-              <div className="flex justify-between border-b pb-3">
-                <div>
-                  <p className="font-medium">Wireless Earbuds</p>
-                  <p className="text-sm text-gray-500">Qty: 1</p>
-                </div>
-                <p className="font-semibold">₹1,499</p>
-              </div>
-  
-              <div className="flex justify-between border-b pb-3">
-                <div>
-                  <p className="font-medium">Phone Case</p>
-                  <p className="text-sm text-gray-500">Qty: 2</p>
-                </div>
-                <p className="font-semibold">₹799</p>
-              </div>
-            </div>
-  
-            {/* Summary */}
-            <div className="mt-4 border-t pt-4">
-              <div className="flex justify-between text-sm mb-2">
-                <span>Subtotal</span>
-                <span>₹2,298</span>
-              </div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Shipping</span>
-                <span>₹50</span>
-              </div>
-              <div className="flex justify-between font-semibold text-lg">
-                <span>Total</span>
-                <span>₹2,348</span>
-              </div>
-            </div>
-  
-            {/* Customer Info */}
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2">Shipping Address</h3>
-              <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600">
+              Order number <span className="font-medium">#DE-20250909-1720008</span>
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3 px-4 py-3 border-b border-gray-200">
+            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+              Write a product review
+            </button>
+            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+              Get support
+            </button>
+            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+              Submit seller rating
+            </button>
+          </div>
+
+          {/* Info Grid */}
+          <div className="grid md:grid-cols-3 gap-6 px-4 py-6 border-b border-gray-200 text-sm">
+            {/* Address */}
+            <div>
+              <h3 className="font-semibold mb-2">Billing address</h3>
+              <p className="text-gray-600">
+                Kartik Maandothiya <br />
+                123 MG Road, Jaipur, Rajasthan <br />
+                +91 98280 51996
+              </p>
+              <h3 className="font-semibold mt-4 mb-2">Delivery address</h3>
+              <p className="text-gray-600">
                 Kartik Maandothiya <br />
                 123 MG Road, Jaipur, Rajasthan <br />
                 +91 98280 51996
               </p>
             </div>
-  
-            {/* CTA */}
-            <div className="mt-6 flex gap-3">
-              <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                Track Order
-              </button>
-              <button className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200">
-                Download Invoice
-              </button>
+
+            {/* Payment */}
+            <div>
+              <h3 className="font-semibold mb-2">Payment method</h3>
+              <p className="text-gray-600">Bank transfer</p>
+              <p className="font-semibold mt-3">Your estimated delivery date is:</p>
+              <p className="text-gray-600">September 23, 2025</p>
+            </div>
+
+            {/* Order Overview */}
+            <div>
+              <h3 className="font-semibold mb-2">Order overview</h3>
+              <div className="flex justify-between mb-1">
+                <span>Subtotal of items:</span>
+                <span>€9.08</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span>Shipment:</span>
+                <span>€0.00</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span>Tax fee:</span>
+                <span>€1.73</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span>Discount:</span>
+                <span>€0.00</span>
+              </div>
+              <div className="flex justify-between font-semibold mt-2">
+                <span>In total:</span>
+                <span>€10.81</span>
+              </div>
             </div>
           </div>
+
+          {/* Product Item */}
+          <div className="flex justify-between items-center px-4 py-4 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <img
+                src="https://via.placeholder.com/50"
+                alt="product"
+                className="w-12 h-12 object-contain"
+              />
+              <div>
+                <p className="font-medium">
+                  High-performance Motul C2 Chain Lube Road - 400 ml
+                </p>
+                <p className="text-sm text-gray-600">€9.08 x 1</p>
+              </div>
+            </div>
+            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+              Write a product review
+            </button>
+          </div>
+
+          {/* Bank Transfer Note */}
+          <div className="px-4 py-6 text-sm">
+            <p className="text-gray-700 mb-3">
+              Please send the payment confirmation after successful transfer.
+            </p>
+            <p>
+              <span className="font-semibold">Bank Name:</span> ABN Bank
+            </p>
+            <p>
+              <span className="font-semibold">Account number:</span> 64687438468686
+            </p>
+            <p>
+              <span className="font-semibold">Bank address:</span> Test address here
+            </p>
+          </div>
         </div>
+      </div>
 
-        <RecentViewProducts />
-
-      </main>
-    );
-  }
-  
+      {/* Recently Viewed Products */}
+      <RecentViewProducts />
+    </main>
+  );
+}

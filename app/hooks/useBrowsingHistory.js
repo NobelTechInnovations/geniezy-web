@@ -22,6 +22,7 @@ export const useBrowsingHistory = () => {
   }, [loadHistory]);
 
   const addToHistory = useCallback(async (item) => {
+    connsole.log(item,"=====");
     try {
       const anonId = getAnonymousId();
       const historyItem = {

@@ -26,7 +26,7 @@ const MainSingleProductCard = ({ product }) => {
                     alert(`Added "${product.title}" to cart!`);
                     }}
                 >
-                    <FiPlus className="w-4 h-4" />
+                    <FiPlus fill="currentColor" className="w-4 h-4" />
                 </button>
             </div>
             <div className="flex items-baseline gap-1">

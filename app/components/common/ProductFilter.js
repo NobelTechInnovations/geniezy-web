@@ -4,7 +4,7 @@ const  ProductFilter = () =>
 {
     return (
         <>
-        <aside className="w-72 bg-white border border-gray-100 rounded-lg p-4 h-[calc(100vh-64px-56px)] mt-0">
+        <aside className="w-60 bg-white border border-gray-100 rounded-lg p-4 h-[calc(100vh-64px-56px)] mt-0">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
           {/* Category Filter */}
           <div className="mb-6">

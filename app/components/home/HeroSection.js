@@ -54,7 +54,6 @@ const HeroSection = () => {
                 <img
                   src={banner.src}
                   alt={banner.alt}
-                  fill
                   className="w-full h-full object-cover "
                 />
                 
