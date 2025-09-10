@@ -37,7 +37,7 @@ const  ProductFilter = () =>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> MOTOROLA</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> vivo</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> OPPO</label>
-              <span className="text-blue-600 text-xs cursor-pointer text-sm">167 MORE</span>
+              <span className="text-blue-600 text-xs cursor-pointer ">167 MORE</span>
             </div>
           </div>
         </aside>
