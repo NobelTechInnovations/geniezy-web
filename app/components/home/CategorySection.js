@@ -68,7 +68,7 @@ const CategorySection = () => {
                   <p className="text-gray-600 text-xs mb-2">
                     {category.description}
                   </p>
-                  <a href={`/category/${category.id}`} className="text-gray-600 hover:text-red-500 text-sm text-decoration-underline">Shop Now</a>
+                  <a href={`/gc/${category.slug}?gc_id=${category.id}`} className="text-gray-600 hover:text-red-500 text-sm text-decoration-underline">Shop Now</a>
                   {/* <ul className="space-y-1.5">
                     {(subcategoriesMap[category.id] || []).map((subcat, index) => (
                       <li key={index}>

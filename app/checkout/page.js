@@ -5,6 +5,7 @@ import { useContext, useState } from "react";
 import S3Image from "../shared/utils/S3Image";
 import { CheckoutContext } from "./layout";
 import { useRouter } from 'next/navigation';
+import { OrderService } from "../services/cart/orderPlaceService";
 
 export default function CheckoutPage() {
     const { checkoutData, addressData } = useContext(CheckoutContext);
@@ -20,14 +21,50 @@ export default function CheckoutPage() {
         setShowAddressModal(false);
     };
 
+  // Step 1: Initiate PhonePe Payment
+    const initiatePayment = async () => {
+        try {
+        const payload = {
+            redirectUrl: `${window.location.origin}/checkout`, // Your callback URL
+        };
+        const paymentInitResponse = await OrderService.paymentInit(payload);
+
+        console.log(paymentInitResponse);
+
+            if (paymentInitResponse.success && paymentInitResponse.redirectUrl) {
+                window.location.href = paymentInitResponse.redirectUrl; // Redirect to PhonePe
+            } else {
+                alert(`Payment initiation failed: ${paymentInitResponse.error || "Unknown error"}`);
+            }
+        } catch (err) {
+            console.error("Payment initiation error:", err);
+        }
+    };
+
+
     const handlePlaceOrder = async () => {
         if (!selectedAddress) {
             alert('Please select a delivery address');
             return;
         }
-        // Here you’d normally call API for placing the order with PhonePe PG
-        router.push('/order-success');
+
+        initiatePayment();
+        return false;
+
+        try {
+            const response = await OrderService.orderPlace(selectedAddress);
+            if (response?.success) {
+                router.push('/order-success');
+            } else {
+                console.log(response?.message || 'Order placement failed');
+                alert("Something went wrong while placing the order");
+            }
+        } catch (error) {
+            console.error("Order error:", error);
+            alert("Something went wrong while placing the order");
+        }
     };
+
 
     return (
         <>
