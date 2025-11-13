@@ -25,26 +25,34 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link href={`/gspin/${product.product_id}/${slugify(product.title)}?pid=${product._id}&p_sku=${product.sku || product.unified_sku}&type=${product.type}`} 
-          className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          className="block bg-white rounded-md border border-gray-100 shadow-xs hover:shadow-xs transition-shadow duration-200">
       <div className="relative aspect-square w-full overflow-hidden rounded-t-lg">
         <S3Image
           src={imageUrl}
           alt={product.title}
           fill
-          className="object-contain p-4"
+          className="object-contain p-2"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
-      <div className="p-4">
-        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+      <div className="p-2">
+        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
           {product.title}
+          
         </h3>
+        {product.type === 'variable_combination' && product.selected_variation && (
+          <span className="text-xs text-gray-500">
+            {Object.values(product.selected_variation).map(v => v.value).join(', ')}
+          </span>
+        )}
+        
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className=" items-center gap-2">
             <span className="text-lg font-semibold text-gray-900">
               {formatIndianPrice(price)}
             </span>
-            {originalPrice && (
+            <div className='flex gap-2'>
+              {originalPrice && (
               <span className="text-sm text-gray-500 line-through">
                 {formatIndianPrice(originalPrice)}
               </span>
@@ -54,18 +62,16 @@ const ProductCard = ({ product }) => {
                 {discount}% off
               </span>
             )}
+            </div>
           </div>
           <div className="flex items-center justify-between">
+
             {product.stock > 0 ? (
               <span className="text-xs text-green-600">In Stock</span>
             ) : (
               <span className="text-xs text-red-600">Out of Stock</span>
             )}
-            {product.type === 'variable_combination' && product.selected_variation && (
-              <span className="text-xs text-gray-500">
-                {Object.values(product.selected_variation).map(v => v.value).join(', ')}
-              </span>
-            )}
+            
           </div>
         </div>
       </div>

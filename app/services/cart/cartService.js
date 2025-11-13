@@ -10,7 +10,11 @@ const dispatchCartUpdateEvent = () => {
   }
 };
 
+
+
 export const cartService = {
+
+
   addToCart: async (productData) => {
     const { gspin, pid, p_sku, type, quantity } = productData;
     
@@ -260,5 +264,37 @@ export const cartService = {
         message: error.response?.data?.message || 'Failed to sync cart'
       };
     }
-  }
+  },
+
+  
+  adddToBulkCart: async (localCartItems) => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
+      if (localCartItems && localCartItems.length > 0) {
+
+        const cartPayload = localCartItems.map(item => ({
+          gspin: item.gspin,
+          pid: item.pid,
+          p_sku: item.p_sku,
+          type: item.type,
+          quantity: item.quantity,
+          ...(item.type === 'variable' && item.productData?.additional && {
+            selected_combination: item.productData.additional
+          })
+        }));
+
+        // Send cart to API with Bearer token
+        const syncResponse = await api.post('/v1/shop/cart/items-bulk', cartPayload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (syncResponse.data.success) {
+          await clearCart();
+          console.log('Local cart cleared after successful sync');
+        } else {
+          console.error('Cart sync failed:', syncResponse.data.message);
+        }
+      }
+  },
+
 }; 

@@ -14,6 +14,8 @@ import { cartService } from '@/app/services/cart/cartService';
 import SideDrawer from '../common/SideDrawer';
 import { usePathname } from 'next/navigation';
 import { clearCart } from '../../services/indexedDB';
+import { getCategoryRoute } from '@/app/shared/utils/getCategoryRoute';
+import MenuSkeleton from '../skeletons/MenuSkeleton';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -245,17 +247,19 @@ const Header = () => {
               <span className="text-sm font-semibold">Snapzo deals</span>
 
             </Link>
-            {!loading && categories.slice(0, 7).map((category) => (
-              <Link
-                key={category._id}
-                href={category.slug === 'food' || category.slug === 'grocery-fresh' 
-                  ? `/delivery-now/${category.slug}?gc_id=${category._id}`
-                  : `/gc/${category.slug}?gc_id=${category._id}`}
-                className="whitespace-nowrap flex items-center text-sm font-medium hover:text-blue-500 mr-8"
-              >
-                {category.name}
-              </Link>
-            ))}
+            {loading ? (
+              <MenuSkeleton />
+            ) : (
+              categories.slice(0, 7).map((category) => (
+                <Link
+                  key={category._id}
+                  href={getCategoryRoute(category)}
+                  className="whitespace-nowrap flex items-center text-sm font-medium hover:text-blue-500 mr-8"
+                >
+                  {category.name}
+                </Link>
+              ))
+            )}
             <Link href="/" className="whitespace-nowrap flex items-center hover:text-blue-500 mr-8">
               <span className="text-sm font-semibold">Buy Again</span>
             </Link>

@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { formatIndianPrice } from '@/app/shared/utils/priceFormat';
 import S3Image from '@/app/shared/utils/S3Image';
-import { slugify } from '@/app/shared/utils/titleFormat';
+
 import { FiPlus } from 'react-icons/fi';
+import { getProductRoute } from '@/app/shared/utils/getProductRoute';
 const ProductCard = ({ product }) => {
   const {
     _id,
@@ -35,7 +36,14 @@ const ProductCard = ({ product }) => {
   }
 
   return (
-    <Link href={`/gspin/${product_id}/${slugify(title)}?pid=${_id}&p_sku=${sku}&type=${type}`}>
+    <Link href={getProductRoute({
+        product_id,
+        title,
+        _id,
+        sku,
+        type,
+    })}
+    >
         <div className=" bg-white flex flex-col relative">
             <div className=' border border-gray-100 rounded-lg p-2'>
                 <S3Image 

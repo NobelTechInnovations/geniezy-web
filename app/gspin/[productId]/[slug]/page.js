@@ -14,6 +14,7 @@ import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
 import RecentViewProducts from '@/app/components/home/RecentViewProducts';
 import SideDrawer from '@/app/components/common/SideDrawer';
 import { cartService } from '@/app/services/cart/cartService';
+import ProductSkeleton from '@/app/components/product-detail/ProductSkeleton';
 
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -248,11 +249,7 @@ const ProductPage = ({ params }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <ProductSkeleton />;
   }
 
   if (error) {
