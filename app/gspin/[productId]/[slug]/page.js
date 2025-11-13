@@ -286,7 +286,7 @@ const ProductPage = ({ params }) => {
     <main className="flex flex-col min-h-screen bg-white">
       {/* Breadcrumb */}
       <div className='w-full mx-auto'>
-      <div className="container mx-auto px-4 py-4">
+      <div className="max-w-6xl mx-auto  py-2">
         <div className="flex items-center gap-2 text-sm">
           <Link href="/" className="text-gray-600 hover:text-blue-600">Home</Link>
           <span className="text-gray-400">/</span>
@@ -297,7 +297,7 @@ const ProductPage = ({ params }) => {
       </div>
 
       {/* 3-Column Product Details Section */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Column 1: Gallery */}
           <ProductGallerySection
@@ -328,7 +328,7 @@ const ProductPage = ({ params }) => {
       </div>
 
       {/* Product Details Section */}
-      <div className="container mx-auto px-4 pb-2">
+      <div className="max-w-6xl mx-auto px-4 pb-2">
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Specifications</h2>
           {/* Specifications in a minimal table format */}
@@ -352,7 +352,7 @@ const ProductPage = ({ params }) => {
       </div>
 
       {/* Recommended Products Section */}
-      <div className="container mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4">
         <RecommendedProducts 
           categoryId={productData.category?._id} 
           itemId={productData.id} 
