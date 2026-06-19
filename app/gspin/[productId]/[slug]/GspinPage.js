@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ProductGallerySection from '@/app/components/product-detail/ProductGallerySection';
@@ -35,8 +35,9 @@ const ProductPage = ({ params }) => {
   const searchParams = useSearchParams();
 
   // Unwrap params using React.use()
-  const unwrappedParams = use(params);
-  const { productId, slug } = unwrappedParams;
+  // const unwrappedParams = use(params);
+  // const { productId, slug } = unwrappedParams;
+  const { productId, slug } = params;
   const gspin = productId;
 
   // Get search params
