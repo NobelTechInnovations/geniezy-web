@@ -16,6 +16,8 @@ import SideDrawer from '@/app/components/common/SideDrawer';
 import { cartService } from '@/app/services/cart/cartService';
 import ProductSkeleton from '@/app/components/product-detail/ProductSkeleton';
 
+
+
 const ProductPage = ({ params }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);

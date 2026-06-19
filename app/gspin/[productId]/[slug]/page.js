@@ -1,14 +1,10 @@
 import { Suspense } from "react";
 import GspinPage from "./GspinPage";
 
-export const dynamic = "force-dynamic";
-
-export default function Page() {
+export default function Page({ params }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <GspinPage />
+      <GspinPage params={params} />
     </Suspense>
   );
 }
-
-
