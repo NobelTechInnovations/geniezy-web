@@ -28,7 +28,7 @@ const S3Image = ({
   });
   
   // Function to get pre-signed URL
-  const getPresignedUrl = async (key) => {
+  const getPresignedUrl = useCallback(async (key) => {
     try {
       const command = new GetObjectCommand({
         Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
@@ -39,7 +39,7 @@ const S3Image = ({
       console.error('Error generating pre-signed URL:', error);
       return null;
     }
-  };
+  });
 
   // Function to extract key from S3 URL
   const getKeyFromUrl = (url) => {

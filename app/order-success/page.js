@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { GoogleMap, Marker, useJsApiLoader, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import RecentViewProducts from '../components/home/RecentViewProducts';
 import { FiCheckCircle } from 'react-icons/fi';
+import Image from "next/image";
 
 export default function OrderSuccess() {
   // Mock data
@@ -134,7 +135,7 @@ export default function OrderSuccess() {
           <div className=" mx-auto my-8 ">
             <div className="bg-gray-100 flex flex-col md:flex-row items-center justify-between px-6 py-4 rounded-lg shadow">
               <div className="flex items-center gap-4">
-                <img src="https://seller-app-product.s3.eu-north-1.amazonaws.com/variations/1748249725294-GalaxyS25-6.9inches.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2RFFCW7PDHGEA77S%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T192223Z&X-Amz-Expires=3600&X-Amz-Signature=936d887e2a3c6af9f4330fadee79d55eb503651221b30be2572b97bcd223a01e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject" alt="Sponsor" className="w-14 h-14 " />
+                <Image src="https://seller-app-product.s3.eu-north-1.amazonaws.com/variations/1748249725294-GalaxyS25-6.9inches.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2RFFCW7PDHGEA77S%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T192223Z&X-Amz-Expires=3600&X-Amz-Signature=936d887e2a3c6af9f4330fadee79d55eb503651221b30be2572b97bcd223a01e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject" alt="Sponsor" className="w-14 h-14 " />
                 <div>
                   <div className="text-lg font-bold text-gray-900">Get 10% Off with Geniezy Credit Card</div>
                   <div className="text-sm">Apply now and save on every order!</div>
@@ -150,12 +151,12 @@ export default function OrderSuccess() {
 
           <div className=" mx-auto flex flex-col md:flex-row gap-2 my-6">
             <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
-            <img src="https://www.sbicard.com/sbi-card-en/assets/media/images/personal/credit-cards/credit-home-banner-24/simplyclick-blue/m-simplyclick-blue.jpg" 
+            <Image src="https://www.sbicard.com/sbi-card-en/assets/media/images/personal/credit-cards/credit-home-banner-24/simplyclick-blue/m-simplyclick-blue.jpg" 
             alt="Credit Card" 
             className="w-full h-full object-cover rounded-lg shadow" />
             </div>
             <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">
-            <img src="https://www.axisbank.com/images/default-source/revamp_new/progresswithus/axis-bank-unveils-its-credit-cards-campaign-open-experiences.jpg" 
+            <Image src="https://www.axisbank.com/images/default-source/revamp_new/progresswithus/axis-bank-unveils-its-credit-cards-campaign-open-experiences.jpg" 
             alt="Credit Card" 
             className="w-full h-full object-cover rounded-lg shadow" />
             </div>

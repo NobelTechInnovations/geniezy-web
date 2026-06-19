@@ -1,4 +1,5 @@
 import RecentViewProducts from "@/app/components/home/RecentViewProducts";
+import Image from "next/image";
 
 export default function OrdersDetail() {
   return (
@@ -84,7 +85,7 @@ export default function OrdersDetail() {
           {/* Product Item */}
           <div className="flex justify-between items-center px-4 py-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="https://via.placeholder.com/50"
                 alt="product"
                 className="w-12 h-12 object-contain"

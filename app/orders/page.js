@@ -1,4 +1,6 @@
 import RecentViewProducts from "../components/home/RecentViewProducts";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function OrdersPage() {
   return (
@@ -18,12 +20,12 @@ export default function OrdersPage() {
                 <p>Item: Wireless Earbuds</p>
                 <p>Price: ₹1,499</p>
               </div>
-              <a
+              <Link
                 href="/orders/43435t453e4"
                 className="text-sm underline mt-2 inline-block"
               >
                 View full details
-              </a>
+              </Link>
             </div>
 
             {/* Right: Action Buttons */}
@@ -55,7 +57,7 @@ export default function OrdersPage() {
         <div className="w-1/3">
           <div className="p-3 bg-gray-50 rounded-xl shadow-sm">
             <h3 className="font-semibold text-lg mb-3">Samsung</h3>
-            <img
+            <Image
               src="https://via.placeholder.com/300x200"
               alt="Sponsored Product"
               className="rounded-lg mb-3"
