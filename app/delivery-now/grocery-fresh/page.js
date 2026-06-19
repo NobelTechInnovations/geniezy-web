@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from 'react';
 import HorizontalCategoryList from '../../components/delivery/HorizontalCategoryList';
 import HorizontalProductList from '../../components/delivery/HorizontalProductList';
