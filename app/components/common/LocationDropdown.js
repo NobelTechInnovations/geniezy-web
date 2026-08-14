@@ -38,7 +38,7 @@ const getLocationFromLocalStorage = () => {
   return null;
 };
 
-export { getLocationFromLocalStorage };
+export { getLocationFromLocalStorage, saveLocationToLocalStorage };
 
 const LocationDropdown = () => {
   const [open, setOpen] = useState(false);
@@ -86,35 +86,42 @@ const LocationDropdown = () => {
 
       const { latitude, longitude } = position.coords;
 
-      const geocoder = new window.google.maps.Geocoder();
-      const response = await new Promise((resolve, reject) => {
-        geocoder.geocode(
-          { location: { lat: latitude, lng: longitude } },
-          (results, status) => {
-            if (status === 'OK') {
-              resolve(results);
-            } else {
-              reject(new Error('Geocoding failed'));
-            }
-          }
-        );
-      });
-
-      const addressComponents = response[0].address_components;
+      // Reverse-geocoding to a human-readable city/pincode is a display
+      // nicety, not required for the coordinates themselves to be valid —
+      // if it fails (e.g. a Maps API key/billing issue), still save the
+      // working lat/lng rather than losing the whole location capture.
       let city = '';
       let pincode = '';
+      try {
+        const geocoder = new window.google.maps.Geocoder();
+        const response = await new Promise((resolve, reject) => {
+          geocoder.geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => {
+              if (status === 'OK') {
+                resolve(results);
+              } else {
+                reject(new Error('Geocoding failed'));
+              }
+            }
+          );
+        });
 
-      addressComponents.forEach((component) => {
-        if (component.types.includes('locality')) {
-          city = component.long_name;
-        }
-        if (component.types.includes('postal_code')) {
-          pincode = component.long_name;
-        }
-      });
+        const addressComponents = response[0].address_components;
+        addressComponents.forEach((component) => {
+          if (component.types.includes('locality')) {
+            city = component.long_name;
+          }
+          if (component.types.includes('postal_code')) {
+            pincode = component.long_name;
+          }
+        });
+      } catch (geocodeError) {
+        console.warn('Reverse geocoding failed, keeping coordinates:', geocodeError);
+      }
 
       const newLocation = {
-        city: city || 'Unknown',
+        city: city || 'Current Location',
         pincode: pincode || 'Unknown',
         latitude: latitude,
         longitude: longitude

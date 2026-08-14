@@ -5,6 +5,7 @@ import MainSingleProductCard from '../common/products/mainSingleProductCard';
 import { categoryApi } from "../../redux/services/apiService";
 import ProductCardSkeleton from '../common/products/ProductCardSkeleton';
 import ProductCard from '../common/products/ProductCard';
+import { getLocationFromLocalStorage } from '../common/LocationDropdown';
 
 export default function ProductSlider({ gc_id, title, tagline }) {
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,11 @@ export default function ProductSlider({ gc_id, title, tagline }) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await categoryApi.getCategoryProducts(gc_id);
+        const location = getLocationFromLocalStorage();
+        const response = await categoryApi.getCategoryProducts(gc_id, {
+          lat: location?.latitude,
+          lng: location?.longitude,
+        });
 
         if (response.success) {
           setProducts(response.data.products || []);
@@ -32,7 +37,14 @@ export default function ProductSlider({ gc_id, title, tagline }) {
     }
   }, [gc_id]);
 
-console.log(products);
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = direction === 'left' ? -container.offsetWidth / 2 : container.offsetWidth / 2;
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
    <>
         <div className="container mx-auto ">

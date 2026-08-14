@@ -19,7 +19,7 @@ const ProductCard = ({ product }) => {
     stock = 0,
   } = product;
 
-  const image = images[0]?.thumbnail_image || "https://via.placeholder.com/300";
+  const image = images[0]?.thumbnail_image || "https://placehold.co/300";
   
   // Handle different price structures based on product type
   let priceValue, originalPrice, discount;
@@ -81,15 +81,17 @@ const ProductCard = ({ product }) => {
                 
             </div>
 
-            <a
-                className=" text-black text-left mt-2 text-sm font-semibold underline"
+            <button
+                type="button"
+                className="text-black text-left mt-2 text-sm font-semibold underline"
                 onClick={(e) => {
-                e.preventDefault(); // prevent link navigation
+                e.preventDefault();
+                e.stopPropagation(); // prevent nested navigation via parent Link
                 alert(`Added "${product.title}" to cart!`);
                 }}
             >
                 Add to cart
-            </a>
+            </button>
         </div>
     </Link>
   );

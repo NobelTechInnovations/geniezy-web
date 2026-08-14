@@ -106,13 +106,25 @@ export const categoryApi = {
   /**
    * Get products for a given category id
    * @param {string} categoryId - The id of the category
+   * @param {Object} filters - Optional filters/location
+   * @param {number} filters.lat - Buyer latitude (from getLocationFromLocalStorage)
+   * @param {number} filters.lng - Buyer longitude
+   * @param {number} filters.minPrice - Minimum price filter
+   * @param {number} filters.maxPrice - Maximum price filter
+   * @param {string} filters.brand - Comma-separated brand names
+   * @param {string} filters.subcategory - Comma-separated subcategory ids
+   * @param {number} filters.page - Page number
+   * @param {number} filters.limit - Page size
    * @param {string} version - API version (default: 'v1')
    * @returns {Promise} Promise object with category products data
    */
-  getCategoryProducts: async (categoryId, version = 'v1') => {
+  getCategoryProducts: async (categoryId, filters = {}, version = 'v1') => {
     try {
       const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/items`);
-      const response = await api.get(endpoint);
+      const { lat, lng, minPrice, maxPrice, brand, subcategory, page, limit } = filters;
+      const response = await api.get(endpoint, {
+        params: { lat, lng, minPrice, maxPrice, brand, subcategory, page, limit }
+      });
       return response.data;
     } catch (error) {
       throw error;
@@ -203,8 +215,27 @@ export const productApi = {
       }
 
       const endpoint = getVersionedEndpoint(version, 'catalog', `${categoryId}/item/${itemId}/suggestions`);
-      
+
       const response = await api.get(endpoint);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /**
+   * Unscoped, location/price/brand-filterable product listing — groundwork
+   * for a future "products near you" home-page section.
+   * @param {Object} filters - lat, lng, minPrice, maxPrice, brand, category, page, limit
+   * @param {string} version - API version (default: 'v1')
+   */
+  getNearbyProducts: async (filters = {}, version = 'v1') => {
+    try {
+      const endpoint = getVersionedEndpoint(version, 'catalog', 'nearby');
+      const { lat, lng, minPrice, maxPrice, brand, category, page, limit } = filters;
+      const response = await api.get(endpoint, {
+        params: { lat, lng, minPrice, maxPrice, brand, category, page, limit }
+      });
       return response.data;
     } catch (error) {
       throw error;

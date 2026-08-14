@@ -210,7 +210,7 @@ const LoginPage = () => {
               </form>
             )}
             <p className="text-xs text-center text-gray-600 mt-4 mb-2">
-              By continuing, you agree to Geniezy's{' '}
+              By continuing, you agree to Geniezy&apos;s{' '}
               <a href="#" className="text-indigo-600 underline">Terms of Use</a> and{' '}
               <a href="#" className="text-indigo-600 underline">Privacy Policy</a>.
             </p>

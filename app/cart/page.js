@@ -51,11 +51,40 @@ export default function CartPage() {
     };
   };
 
+  // Local (IndexedDB, guest) cart items are stored in the shape written by
+  // services/indexedDB.js — { id, gspin, pid, p_sku, type, quantity, productData }
+  // — distinct from the API's snake_case shape, so it needs its own mapper.
+  const mapLocalItemToUi = (raw) => {
+    const price = Number(raw.productData?.price ?? 0);
+    const quantity = Number(raw.quantity ?? 1);
+    return {
+      id: raw.id,
+      _id: raw.id,
+      cartId: raw.id,
+      productId: raw.gspin,
+      quantity,
+      sku: raw.p_sku,
+      type: raw.type,
+      price,
+      basePrice: price,
+      taxAmount: 0,
+      discountAmount: 0,
+      total: price * quantity,
+      additional: raw.productData?.additional ? Object.entries(raw.productData.additional).map(([k, v]) => ({ key: k, value: v?.value ?? v })) : [],
+      saveForLater: !!raw.saveForLater,
+      productDetails: {
+        name: raw.productData?.title || '',
+        images: raw.productData?.image ? [raw.productData.image] : [],
+        price,
+      },
+      _raw: raw,
+    };
+  };
+
   const fetchCartItems = async () => {
     try {
       setLoading(true);
       const response = await cartService.getCartItems();
-      console.log('cart response', response);
 
       if (!response.success) {
         setError(response.message || 'Failed to fetch cart items');
@@ -72,12 +101,23 @@ export default function CartPage() {
         return;
       }
 
-      // API returns snake_case structure as you provided
-      const apiCart = response.data?.cart ?? null;
-      const apiItems = Array.isArray(response.data?.items) ? response.data.items : [];
+      // Guest/anonymous carts (cartService reads from IndexedDB when there's
+      // no auth token) return `data` as a flat array of local cart items,
+      // shaped differently from the logged-in API's `{ cart, items }`.
+      // Previously this branch was missing, so `response.data?.items` was
+      // always undefined for guests and the cart appeared empty even with
+      // items actually stored in IndexedDB.
+      const apiCart = Array.isArray(response.data) ? null : (response.data?.cart ?? null);
+      const apiItems = Array.isArray(response.data)
+        ? []
+        : (Array.isArray(response.data?.items) ? response.data.items : []);
+      const localItems = Array.isArray(response.data) ? response.data : [];
 
       // Map each item to UI-friendly structure (no extra normalizer file)
-      const mappedItems = apiItems.map(mapApiItemToUi);
+      const mappedItems = [
+        ...apiItems.map(mapApiItemToUi),
+        ...localItems.map(mapLocalItemToUi),
+      ];
 
       // Partition into active cart & saved for later
       const inCartItems = mappedItems.filter(i => !i.saveForLater);

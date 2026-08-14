@@ -52,6 +52,25 @@ const S3Image = ({
     }
   };
 
+  // Only URLs hosted on our own S3 bucket need a pre-signed URL. Any other
+  // image source (external CDNs, placeholders, third-party product photos)
+  // should be rendered as-is — signing their path as if it were an S3 key
+  // produces a bogus URL that always 403s.
+  const isOwnBucketUrl = (url) => {
+    try {
+      const bucket = process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+      const region = process.env.NEXT_PUBLIC_AWS_REGION;
+      const { hostname } = new URL(url);
+      return (
+        hostname === `${bucket}.s3.${region}.amazonaws.com` ||
+        hostname === `${bucket}.s3.amazonaws.com` ||
+        hostname === 's3.amazonaws.com'
+      );
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -61,6 +80,13 @@ const S3Image = ({
       try {
         if (!src) {
           setError(true);
+          setLoading(false);
+          return;
+        }
+
+        // Non-S3 URLs (placeholders, external CDNs) — use directly, no signing needed.
+        if (!isOwnBucketUrl(src)) {
+          setSignedUrl(src);
           setLoading(false);
           return;
         }

@@ -160,28 +160,35 @@ const Header = () => {
 
       {/* Middle Bar - Always visible, sticky on scroll */}
       <div className={`w-full bg-white py-2 transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 shadow-md z-50' : ''}`}>
-        <div className="container-fluid mx-auto flex items-center px-4 justify-between">
-          <Link href="/" className="mr-6">
+        {/*
+          Mobile (<md): wraps to two rows via flex-wrap — logo + icons on
+          row 1, full-width search on row 2 — using `order-*` so nothing
+          about the md+ (tablet/desktop) single-row layout/order changes.
+          This only fixes overflow (Search previously had a fixed w-3xl
+          that never fit a phone screen); it doesn't restyle anything.
+        */}
+        <div className="container-fluid mx-auto flex flex-wrap md:flex-nowrap items-center gap-y-2 px-4 justify-between">
+          <Link href="/" className="mr-6 order-1">
 
             {/* <img src="/3.png" alt="Logo" width={100} height={100} /> */}
             <h1 className="text-xl font-bold">Snapzo</h1>
 
           </Link>
 
-          <div className="flex-1 max-w-1xl mx-8">
+          <div className="w-full order-3 md:order-2 md:flex-1 md:max-w-1xl md:w-auto md:mx-8">
             <div className="flex items-center">
-              
+
               <Search />
-              
+
 
             </div>
           </div>
 
-          <div className="ml-auto">
+          <div className="ml-auto order-2 md:order-3 hidden md:block">
             <LocationDropdown />
           </div>
 
-          <div className="flex items-center space-x-6 ml-6">
+          <div className="flex items-center space-x-6 ml-6 order-2 md:order-4">
             {/* <Link href="/wishlist" className="relative">
               <FiHeart className="w-6 h-6 text-black" />
               <span className="absolute -top-2 -right-2 bg-[#004bad] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
@@ -213,11 +220,11 @@ const Header = () => {
                     
                     <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-100 rounded shadow-lg z-50">
 
-                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Profile edits</a>
-                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Orders</a>
-                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Adddress book</a>
-                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Payment methods</a>
-                      <a href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Saved payment details</a>
+                      <Link href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Profile edits</Link>
+                      <Link href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Orders</Link>
+                      <Link href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Address book</Link>
+                      <Link href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Payment methods</Link>
+                      <Link href="/orders" className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-100'>Saved payment details</Link>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

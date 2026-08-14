@@ -2,8 +2,11 @@ import Link from 'next/link';
 
 const Topbar = ({ isScrolled }) => {
   return (
-    <div className={`w-full bg-[#004bad] text-white py-2 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
-    <div className="container mx-auto flex justify-between items-center px-4">
+    <div className={`w-full bg-[#004bad] text-white py-0 sm:py-2 transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
+    {/* This bar is secondary/promotional content that doesn't fit a small
+        viewport without wrapping or overflowing; hide it below sm and keep
+        it exactly as-is from sm upward (unchanged desktop/tablet look). */}
+    <div className="container mx-auto hidden sm:flex justify-between items-center px-4">
       <p className="text-sm">Welcome to GenieZy Online Shopping Store !</p>
       <div className="flex items-center space-x-6 text-sm">
         <div className="flex items-center cursor-pointer">

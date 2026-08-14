@@ -12,13 +12,39 @@ import { FiSearch } from 'react-icons/fi';
 import Link from 'next/link';
 import { slugify } from '@/app/shared/utils/titleFormat';
 
-const searchClient = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALGOLIA_API_KEY);
+const baseSearchClient = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALGOLIA_API_KEY);
+
+// Wrap the client so an unreachable/misconfigured Algolia index degrades to
+// "no results" instead of an uncaught promise rejection crashing the page.
+const searchClient = {
+  ...baseSearchClient,
+  search(requests) {
+    return baseSearchClient.search(requests).catch(() => ({
+      results: requests.map(() => ({
+        hits: [],
+        nbHits: 0,
+        page: 0,
+        nbPages: 0,
+        hitsPerPage: 0,
+        exhaustiveNbHits: true,
+        query: '',
+        params: '',
+      })),
+    }));
+  },
+};
 
 function CustomSearchBox({ onFocus, setInputValue }) {
   const { query, refine } = useSearchBox();
   const [input, setInput] = useState(query);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    // Skip the initial mount so we don't fire an empty search on every page load.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     refine(input);
     setInputValue(input);
   }, [input]);
@@ -86,7 +112,7 @@ export default function Search() {
   const shouldShowDropdown = showDropdown && inputValue.trim() !== '';
 
   return (
-    <div ref={containerRef} className="relative w-3xl mx-auto">
+    <div ref={containerRef} className="relative w-full md:w-3xl mx-auto">
       <InstantSearch searchClient={searchClient} indexName="products">
         <Configure hitsPerPage={8} />
         <CustomSearchBox

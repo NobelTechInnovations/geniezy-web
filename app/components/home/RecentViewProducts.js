@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import MainSingleProductCard from '../common/products/mainSingleProductCard';
+import { getBrowsingHistory } from '../../services/browsingHistory/indexedDB';
 
 const RecentViewProducts = () => {
   const [recentProducts, setRecentProducts] = useState([]);
@@ -10,38 +11,16 @@ const RecentViewProducts = () => {
   useEffect(() => {
     const fetchRecentProducts = async () => {
       try {
-        // Open IndexedDB with correct DB and store
-        const request = indexedDB.open('browsingHistoryDB', 1);
-        
-        request.onerror = (event) => {
-          console.error('Error opening IndexedDB:', event.target.error);
-        };
+        // Use the shared browsing-history service so we open the same
+        // IndexedDB database/version as the rest of the app (a duplicate,
+        // hardcoded-version `indexedDB.open` call here previously caused a
+        // VersionError against the shared DB).
+        const history = await getBrowsingHistory(100);
+        const products = history
+          .filter((item) => item.type === 'product')
+          .slice(0, 12); // Max 12 products (already sorted by timestamp desc)
 
-        request.onsuccess = (event) => {
-          const db = event.target.result;
-          const transaction = db.transaction(['browsingHistory'], 'readonly');
-          const store = transaction.objectStore('browsingHistory');
-          
-          // Get all records
-          const getAllRequest = store.getAll();
-          
-          getAllRequest.onsuccess = () => {
-            // Filter only product type records and sort by timestamp
-            const products = getAllRequest.result
-              .filter(item => item.type === 'product')
-              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-              .slice(0, 12); // Max 12 products
-            
-            setRecentProducts(products);
-          };
-        };
-
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains('browsingHistory')) {
-            db.createObjectStore('browsingHistory', { keyPath: 'id', autoIncrement: true });
-          }
-        };
+        setRecentProducts(products);
       } catch (error) {
         console.error('Error fetching recent products:', error);
       }

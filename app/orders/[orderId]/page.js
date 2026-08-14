@@ -1,31 +1,74 @@
+import Link from "next/link";
+import { FiChevronLeft, FiCheckCircle, FiPackage, FiMapPin, FiCreditCard } from "react-icons/fi";
 import RecentViewProducts from "@/app/components/home/RecentViewProducts";
 import Image from "next/image";
 
-export default function OrdersDetail() {
+// Placeholder — replace with real API fetch using params.orderId
+const MOCK_ORDER = {
+  id: "DE-20250910-1720008",
+  date: "10 September 2025",
+  estimatedDelivery: "15 September 2025",
+  status: "Packed",
+  statusSteps: [
+    { label: "Order Placed", done: true },
+    { label: "Confirmed", done: true },
+    { label: "Packed", done: true },
+    { label: "Out for Delivery", done: false },
+    { label: "Delivered", done: false },
+  ],
+  items: [
+    { name: "Wireless Earbuds — Black", sku: "WE-BLK-001", price: 1499, qty: 1 },
+  ],
+  address: {
+    name: "Kartik Maandothiya",
+    line1: "123 MG Road, Vaishali Nagar",
+    city: "Jaipur, Rajasthan — 302021",
+    phone: "+91 98280 51996",
+  },
+  payment: "PhonePe UPI",
+  subtotal: 1499,
+  shipping: 0,
+  tax: 74,
+  discount: 0,
+};
+
+export default function OrderDetailPage({ params }) {
+  const order = MOCK_ORDER; // swap for real fetch when API ready
+
   return (
-    <main className="container mx-auto flex flex-col bg-white">
-      <div className="w-full md:w-3/4 mx-auto my-6">
-        {/* Order Card */}
-        <div className="border border-gray-200 rounded-md shadow-sm">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-3 p-4 border-b border-gray-200">
-            <p className="text-sm text-gray-600">
-              Ordered on <span className="font-medium">09-09-2025</span>
-            </p>
-            <p className="text-sm text-gray-600">
-              Order number <span className="font-medium">#DE-20250909-1720008</span>
-            </p>
+    <main className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto max-w-5xl px-4 py-6">
+        {/* Back link */}
+        <Link
+          href="/orders"
+          className="inline-flex items-center gap-1 text-sm text-[#004bad] mb-5 hover:underline"
+        >
+          <FiChevronLeft /> Back to Orders
+        </Link>
+
+        {/* Header card */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-5">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-4 border-b border-gray-100">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-0.5">
+                Order number
+              </p>
+              <p className="font-bold text-gray-900">#{order.id}</p>
+            </div>
+            <div className="text-sm text-gray-500">
+              Placed on <span className="font-medium text-gray-700">{order.date}</span>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 px-4 py-3 border-b border-gray-200">
-            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 px-6 py-3 border-b border-gray-100">
+            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
               Write a product review
             </button>
-            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
               Get support
             </button>
-            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
+            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
               Submit seller rating
             </button>
           </div>
@@ -90,38 +133,124 @@ export default function OrdersDetail() {
                 alt="product"
                 className="w-12 h-12 object-contain"
               />
-              <div>
-                <p className="font-medium">
-                  High-performance Motul C2 Chain Lube Road - 400 ml
-                </p>
-                <p className="text-sm text-gray-600">€9.08 x 1</p>
-              </div>
+              {order.statusSteps.map((step, idx) => (
+                <div key={step.label} className="flex flex-col items-center z-10">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                      step.done
+                        ? "bg-[#004bad] border-[#004bad] text-white"
+                        : "bg-white border-gray-200 text-gray-400"
+                    }`}
+                  >
+                    {step.done ? <FiCheckCircle className="text-sm" /> : <span className="text-xs">{idx + 1}</span>}
+                  </div>
+                  <p
+                    className={`text-xs mt-2 font-medium text-center max-w-16 ${
+                      step.done ? "text-[#004bad]" : "text-gray-400"
+                    }`}
+                  >
+                    {step.label}
+                  </p>
+                </div>
+              ))}
             </div>
-            <button className="border px-4 py-1 rounded-full text-sm hover:bg-gray-100">
-              Write a product review
-            </button>
-          </div>
-
-          {/* Bank Transfer Note */}
-          <div className="px-4 py-6 text-sm">
-            <p className="text-gray-700 mb-3">
-              Please send the payment confirmation after successful transfer.
-            </p>
-            <p>
-              <span className="font-semibold">Bank Name:</span> ABN Bank
-            </p>
-            <p>
-              <span className="font-semibold">Account number:</span> 64687438468686
-            </p>
-            <p>
-              <span className="font-semibold">Bank address:</span> Test address here
-            </p>
           </div>
         </div>
-      </div>
 
-      {/* Recently Viewed Products */}
-      <RecentViewProducts />
+        {/* Info grid */}
+        <div className="grid md:grid-cols-3 gap-4 mb-5">
+          {/* Delivery address */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <FiMapPin className="text-[#004bad]" />
+              <p className="font-semibold text-sm text-gray-900">Delivery Address</p>
+            </div>
+            <p className="text-sm font-medium text-gray-800">{order.address.name}</p>
+            <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+              {order.address.line1}
+              <br />
+              {order.address.city}
+              <br />
+              {order.address.phone}
+            </p>
+          </div>
+
+          {/* Payment */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <FiCreditCard className="text-[#004bad]" />
+              <p className="font-semibold text-sm text-gray-900">Payment</p>
+            </div>
+            <p className="text-sm text-gray-700">{order.payment}</p>
+            <p className="text-sm text-gray-400 mt-3">Estimated delivery</p>
+            <p className="text-sm font-medium text-gray-800">{order.estimatedDelivery}</p>
+          </div>
+
+          {/* Order overview */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <FiPackage className="text-[#004bad]" />
+              <p className="font-semibold text-sm text-gray-900">Order Overview</p>
+            </div>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Items</span>
+                <span>₹{order.subtotal.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Shipping</span>
+                <span className="text-green-600">{order.shipping === 0 ? "Free" : `₹${order.shipping}`}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">GST</span>
+                <span>₹{order.tax}</span>
+              </div>
+              {order.discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>−₹{order.discount}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-100 mt-2">
+                <span>Total</span>
+                <span>₹{(order.subtotal + order.tax - order.discount).toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Product items */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <p className="font-semibold text-gray-900">Items in this order</p>
+          </div>
+          {order.items.map((item, idx) => (
+            <div
+              key={idx}
+              className="flex items-center justify-between px-5 py-4 border-b border-gray-50 last:border-b-0"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100">
+                  <FiPackage className="text-2xl text-gray-300" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">SKU: {item.sku}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    ₹{item.price.toLocaleString("en-IN")} × {item.qty}
+                  </p>
+                </div>
+              </div>
+              <button className="border border-gray-200 text-sm px-4 py-1.5 rounded-full text-gray-600 hover:bg-gray-50 transition">
+                Write a review
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Recently viewed */}
+        <RecentViewProducts />
+      </div>
     </main>
   );
 }

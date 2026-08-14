@@ -244,7 +244,7 @@ export default function CheckoutPage() {
             "Place Order"
           )}
         </button>
-        <p className="text-xs mt-2">By placing your order, you agree to Geniezy's privacy notice and conditions of use.</p>
+        <p className="text-xs mt-2">By placing your order, you agree to Geniezy&apos;s privacy notice and conditions of use.</p>
 
         <h3 className="text-lg font-bold mb-3 mt-3">Order Summary</h3>
         <div className="text-sm text-gray-700 mb-4">

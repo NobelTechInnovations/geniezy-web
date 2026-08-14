@@ -74,7 +74,7 @@ export default function CheckoutLayout({ children }) {
           <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between">
             <div className="mr-5 font-bold">
               {/* <img src='/4.png' width={120}/> */}
-              <div className='text-xl'>snapzo</div>
+              <div className='text-xl font-bold'>Snapzo</div>
             </div>
             <h2 className="text-xl font-semibold">Secure checkout</h2>
             <Link href={'/cart'}>
@@ -125,7 +125,7 @@ export default function CheckoutLayout({ children }) {
           <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between">
             <div className="mr-5 font-bold">
               {/* <img src='/4.png' width={120}/> */}
-              <div className='text-xl'>snapzo</div>
+              <div className='text-xl font-bold'>Snapzo</div>
             </div>
             <h2 className="text-xl font-semibold">Secure checkout</h2>
             <Link href={'/cart'}>

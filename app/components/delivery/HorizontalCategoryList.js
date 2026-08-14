@@ -23,8 +23,8 @@ export default function HorizontalCategoryList({ categories, loading }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4 py-4">
       {categories.map((cat) => (
-        <Link href={`/delivery-now/grocery-fresh?gc_id=${cat.id}`}>
-            <div key={cat.id} className="flex flex-col items-center">
+        <Link key={cat.id} href={`/delivery-now/grocery-fresh?gc_id=${cat.id}`}>
+            <div className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-2 overflow-hidden">
                     <S3Image
                         src={cat.image} alt={cat.name} className="w-14 h-14 object-contain" />

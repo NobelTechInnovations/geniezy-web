@@ -8,9 +8,8 @@ import { FiCheckCircle } from 'react-icons/fi';
 import Image from "next/image";
 
 export default function OrderSuccess() {
-  // Mock data
   const mockEta = '11 minutes';
-  const address = 'B 601 shree shyam Residency, jivan vihar, gajsinghpura ajmer road, 6th floor Gajsinghpur, Jaipur';
+  const address = 'B 601 Shree Shyam Residency, Jivan Vihar, Ajmer Road, Jaipur — 302021';
   const totalAmount = 129;
   const seller = { name: 'Geniezy Seller', contact: '+91-9876543210', address: 'Jaipur, Rajasthan' };
   const orderStatus = [
@@ -20,18 +19,18 @@ export default function OrderSuccess() {
     { label: 'Arriving Soon', done: false },
     { label: 'Delivered', done: false },
   ];
+
   const [directions, setDirections] = useState(null);
   const [eta, setEta] = useState('');
-  // Delivery and seller coordinates
 
   const deliveryLocation = { lat: 26.874000, lng: 75.726966 };
-  const sellerLocation = { lat: 26.888090, lng: 75.745260 };
+  const sellerLocation   = { lat: 26.888090, lng: 75.745260 };
   const mapContainerStyle = { width: '100%', height: '100%', borderRadius: '0.75rem' };
+
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
 
-  // Directions callback
   const directionsCallback = useCallback((result, status) => {
     if (status === 'OK') {
       setDirections(result);
@@ -40,94 +39,132 @@ export default function OrderSuccess() {
     }
   }, []);
 
+  const doneCount = orderStatus.filter((s) => s.done).length;
+
   return (
-    <div className="flex container mx-auto flex-col bg-gray-50">
-      <div className="w-6xl mx-auto gap-2 my-2">
-          {/* Order Details Card */}
+    <main className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto max-w-5xl px-4 py-6">
 
-            <div className=" p-6 flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1 flex flex-col items-center md:items-start">
-                <div className='flex gap-2 items-center justify-center'>
-                  <FiCheckCircle className='text-green-700'/>
-                  <div className="text-gray-500 text-base">Order is confirmed</div> 
-                </div>
-                <div className="text-md font-semibold ">Total Amount <span className="text-gray-700">₹{totalAmount}</span></div>
-                <div className="text-lg font-semibold">Arriving in {eta}</div>
-                <div className="text-gray-500 mb-2 ">{address}</div>
-                <Link href="/orders"><button className=" text-gray-700 underline font-semibold ">View Order Details</button></Link>
-              </div>
-              <div className="flex-1 w-full">
-              <div className="w-full flex flex-col h-72">
-              <div className="font-bold text-gray-800 mb-2">Live Order Tracking</div>
-              {eta && <div className="text-green-700 font-semibold mb-2">Estimated travel time: {eta}</div>}
-              <div className="flex-1">
-                {isLoaded ? (
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    center={deliveryLocation}
-                    zoom={13}
-                    options={{
-                      disableDefaultUI: true,
-                      zoomControl: true,
-                      styles: [
-                        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-                        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-                      ],
-                    }}
-                  >
-                    {/* Seller marker */}
-                    <Marker position={sellerLocation} label={{ text: 'Seller', color: 'black', fontWeight: 'bold', fontSize: '14px' }} icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }} />
-                    {/* Delivery marker */}
-                    <Marker position={deliveryLocation} label={{ text: 'Delivery', color: 'black', fontWeight: 'bold', fontSize: '14px' }} icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />
-                    {/* Only call DirectionsService if directions is null */}
-                    {!directions && (
-                      <DirectionsService
-                        options={{
-                          origin: sellerLocation,
-                          destination: deliveryLocation,
-                          travelMode: 'DRIVING',
-                        }}
-                        callback={directionsCallback}
-                      />
-                    )}
-                    {directions && (
-                      <DirectionsRenderer
-                        options={{
-                          directions,
-                          suppressMarkers: true,
-                          polylineOptions: { strokeColor: '#34d399', strokeWeight: 5, strokeOpacity: 0.9 },
-                        }}
-                      />
-                    )}
-                  </GoogleMap>
-                ) : (
-                  <div className="w-full h-full bg-green-50 rounded-xl flex items-center justify-center text-gray-400">Loading map...</div>
-                )}
-              </div>
-              </div>
-              </div>
+        {/* Confirmation banner */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col md:flex-row gap-6 mb-5">
+          {/* Left: info */}
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-2">
+              <FiCheckCircle className="text-green-600 text-2xl" />
+              <span className="text-green-700 font-semibold">Order is confirmed!</span>
             </div>
+            <p className="text-sm text-gray-500 mb-1">{address}</p>
+            <p className="text-gray-900 font-bold text-lg mb-1">
+              Total ₹{totalAmount}
+            </p>
+            {(eta || mockEta) && (
+              <p className="text-[#004bad] font-semibold mb-4">
+                Arriving in {eta || mockEta}
+              </p>
+            )}
+            <Link href="/orders">
+              <button className="text-sm text-[#004bad] underline font-semibold">
+                View Order Details
+              </button>
+            </Link>
+          </div>
 
-          
-
-           {/* Order Status Tracker */}
-           <div>
-            <div className="font-bold text-gray-800">Order Status</div>
-            <p>Track your all order status in just 1 step</p>
-            <div className=" mx-auto border border-gray-200 rounded-sm mb-2">
-              <div className="p-2">
-                <div className="flex justify-between items-center">
-                  {orderStatus.map((step, idx) => (
-                    <div key={step.label} className="flex-1 flex flex-col items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'} transition-all duration-300`}>{idx + 1}</div>
-                      <div className={`text-xs font-semibold ${step.done ? 'text-green-700' : 'text-gray-400'}`}>{step.label}</div>
-                      
-                    </div>
-                  ))}
+          {/* Right: map */}
+          <div className="flex-1 h-64 rounded-xl overflow-hidden bg-gray-100">
+            <div className="font-semibold text-gray-800 text-sm px-3 pt-3 mb-1">Live Tracking</div>
+            {eta && (
+              <p className="text-green-700 text-xs font-semibold px-3 mb-1">
+                ETA: {eta}
+              </p>
+            )}
+            <div className="h-52">
+              {isLoaded ? (
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={deliveryLocation}
+                  zoom={13}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                      { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+                      { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+                    ],
+                  }}
+                >
+                  <Marker
+                    position={sellerLocation}
+                    label={{ text: 'Seller', color: 'black', fontWeight: 'bold', fontSize: '13px' }}
+                    icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }}
+                  />
+                  <Marker
+                    position={deliveryLocation}
+                    label={{ text: 'You', color: 'black', fontWeight: 'bold', fontSize: '13px' }}
+                    icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' }}
+                  />
+                  {!directions && (
+                    <DirectionsService
+                      options={{ origin: sellerLocation, destination: deliveryLocation, travelMode: 'DRIVING' }}
+                      callback={directionsCallback}
+                    />
+                  )}
+                  {directions && (
+                    <DirectionsRenderer
+                      options={{
+                        directions,
+                        suppressMarkers: true,
+                        polylineOptions: { strokeColor: '#004bad', strokeWeight: 4, strokeOpacity: 0.85 },
+                      }}
+                    />
+                  )}
+                </GoogleMap>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                  Loading map…
                 </div>
-              </div>
+              )}
             </div>
           </div>
+        </div>
+
+        {/* Order status tracker */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-5">
+          <p className="font-semibold text-gray-900 mb-1">Order Status</p>
+          <p className="text-xs text-gray-400 mb-5">Track your order in real time</p>
+
+          <div className="flex items-start justify-between relative">
+            {/* Progress line bg */}
+            <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200" />
+            {/* Progress line fill */}
+            <div
+              className="absolute top-4 left-0 h-0.5 bg-[#004bad] transition-all"
+              style={{ width: `${(doneCount / (orderStatus.length - 1)) * 100}%` }}
+            />
+
+            {orderStatus.map((step, idx) => (
+              <div key={step.label} className="flex flex-col items-center z-10 flex-1">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                    step.done
+                      ? 'bg-[#004bad] border-[#004bad] text-white'
+                      : 'bg-white border-gray-200 text-gray-400'
+                  }`}
+                >
+                  {step.done
+                    ? <FiCheckCircle className="text-sm" />
+                    : <span className="text-xs">{idx + 1}</span>}
+                </div>
+                <p
+                  className={`text-xs mt-2 text-center font-medium leading-tight ${
+                    step.done ? 'text-[#004bad]' : 'text-gray-400'
+                  }`}
+                >
+                  {step.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
 
 
       
@@ -144,10 +181,10 @@ export default function OrderSuccess() {
               <button className="mt-4 md:mt-0 text-dark underline">Apply Now</button>
             </div>
           </div>
-      
-          {/* Recently Viewed Products Section */}
-      
-            <RecentViewProducts />
+          <button className="bg-white text-[#004bad] font-semibold px-5 py-2 rounded-full text-sm hover:bg-blue-50 transition shrink-0">
+            Apply Now
+          </button>
+        </div>
 
           <div className=" mx-auto flex flex-col md:flex-row gap-2 my-6">
             <div className="w-1/2 h-72 bg-gradient-to-br flex flex-col items-center gap-4 mb-4 md:mb-0">

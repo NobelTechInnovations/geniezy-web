@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers/Providers";
 import LayoutWrapper from "./LayoutWrapper";
+import LocationGateProvider from "./components/common/LocationGateProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +26,10 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <LayoutWrapper>
-            {children}</LayoutWrapper>
+          <LocationGateProvider>
+            <LayoutWrapper>
+              {children}</LayoutWrapper>
+          </LocationGateProvider>
         </Providers>
       </body>
     </html>

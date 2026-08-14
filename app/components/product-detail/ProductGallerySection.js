@@ -34,7 +34,7 @@ const ProductGallerySection = ({
 
           {thumbsToShow.map((image, index) => (
             <button
-              key={image}
+              key={`${image}-${index}`}
               onClick={() => setSelectedImage(index)}
               className={`border rounded-md overflow-hidden w-14 h-14 flex items-center justify-center bg-white transition-all 
                 ${selectedImage === index ? "border-blue-600 ring-2 ring-blue-200" : "border-gray-200"}`}
