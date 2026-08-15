@@ -10,7 +10,10 @@ import {
 } from 'react-instantsearch-hooks-web';
 import { FiSearch } from 'react-icons/fi';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { slugify } from '@/app/shared/utils/titleFormat';
+import { eventApi } from '../redux/services/apiService';
+import { getAnonymousId } from '../services/browsingHistory/anonymousId';
 
 const baseSearchClient = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALGOLIA_API_KEY);
 
@@ -34,10 +37,11 @@ const searchClient = {
   },
 };
 
-function CustomSearchBox({ onFocus, setInputValue }) {
+function CustomSearchBox({ onFocus, setInputValue, onSubmitSearch }) {
   const { query, refine } = useSearchBox();
   const [input, setInput] = useState(query);
   const isFirstRender = useRef(true);
+  const trackTimeoutRef = useRef(null);
 
   useEffect(() => {
     // Skip the initial mount so we don't fire an empty search on every page load.
@@ -47,6 +51,25 @@ function CustomSearchBox({ onFocus, setInputValue }) {
     }
     refine(input);
     setInputValue(input);
+
+    // Debounced server-side tracking — fires once the user pauses typing
+    // (not per keystroke) so the home feed's personalization signal isn't
+    // flooded with partial queries like "s", "sh", "sho".
+    if (trackTimeoutRef.current) clearTimeout(trackTimeoutRef.current);
+    const trimmed = input.trim();
+    if (trimmed.length >= 2) {
+      trackTimeoutRef.current = setTimeout(() => {
+        eventApi.track({
+          eventType: 'search',
+          searchQuery: trimmed,
+          anonId: getAnonymousId(),
+        });
+      }, 600);
+    }
+
+    return () => {
+      if (trackTimeoutRef.current) clearTimeout(trackTimeoutRef.current);
+    };
   }, [input]);
 
 
@@ -60,10 +83,25 @@ function CustomSearchBox({ onFocus, setInputValue }) {
         value={input}
         onFocus={onFocus}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          // Enter submits a full, tracked search (backend-owned results
+          // page) — distinct from the live Algolia dropdown above, which
+          // stays exactly as-is for as-you-type suggestions.
+          if (e.key === 'Enter' && input.trim().length > 0) {
+            onSubmitSearch?.(input.trim());
+          }
+        }}
         className="w-full h-10 px-2 pr-10 border rounded-md border-gray-300 text-sm text-black focus:outline-none"
       />
 
-      <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5 pointer-events-none" />
+      <button
+        type="button"
+        aria-label="Search"
+        onClick={() => input.trim().length > 0 && onSubmitSearch?.(input.trim())}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+      >
+        <FiSearch className="text-gray-500 w-5 h-5" />
+      </button>
     </div>
   );
 }
@@ -96,6 +134,7 @@ export default function Search() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const containerRef = useRef(null);
+  const router = useRouter();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -118,6 +157,10 @@ export default function Search() {
         <CustomSearchBox
           onFocus={() => setShowDropdown(true)}
           setInputValue={setInputValue}
+          onSubmitSearch={(q) => {
+            setShowDropdown(false);
+            router.push(`/search?q=${encodeURIComponent(q)}`);
+          }}
         />
         {shouldShowDropdown && <CustomHits onSelect={() => setShowDropdown(false)} />}
       </InstantSearch>

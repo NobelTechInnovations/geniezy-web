@@ -39,7 +39,7 @@ const S3Image = ({
       console.error('Error generating pre-signed URL:', error);
       return null;
     }
-  });
+  }, [s3Client]);
 
   // Function to extract key from S3 URL
   const getKeyFromUrl = (url) => {

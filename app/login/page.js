@@ -47,6 +47,11 @@ const LoginPage = () => {
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [profile, setProfile] = useState({ name: '', email: '' });
   const [token, setToken] = useState('');
+  // Dev-only convenience: no SMS provider is wired up yet, so the backend
+  // returns the OTP directly in the request-otp response. Surface it here
+  // instead of making testers dig through the network tab. Safe to delete
+  // once real SMS delivery exists.
+  const [devOtpHint, setDevOtpHint] = useState('');
   const dispatch = useDispatch();
   const router = useRouter();
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -67,6 +72,7 @@ const LoginPage = () => {
       const response = await api.post('/v1/shop/auth/request-otp', { phone: phoneNumber });
       if (response.data.success) {
         setShowOtpInput(true);
+        setDevOtpHint(response.data.data?.otp || '');
       } else {
         setError(response.data.message || 'Failed to send OTP');
         dispatch(loginFailure(response.data.message || 'Failed to send OTP'));
@@ -188,6 +194,11 @@ const LoginPage = () => {
               </form>
             ) : (
               <form onSubmit={handleOtpSubmit} className="w-full flex flex-col gap-2">
+                {devOtpHint && (
+                  <p className="text-xs text-center bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-sm px-2 py-1">
+                    Dev mode (no SMS configured) — your OTP is <strong>{devOtpHint}</strong>
+                  </p>
+                )}
                 <input
                   type="text"
                   id="otp"

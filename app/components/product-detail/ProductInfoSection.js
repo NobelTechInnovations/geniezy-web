@@ -1,8 +1,7 @@
 'use client';
 
-import { FiShoppingCart, FiStar, FiTruck, FiRefreshCw, FiShield, FiCheck, FiCheckCircle } from 'react-icons/fi';
-import Link from 'next/link';
-import {formatIndianPrice} from '../../shared/utils/priceFormat';
+import { FiShoppingCart, FiTruck, FiShield, FiCheckCircle } from 'react-icons/fi';
+import { formatIndianPrice } from '../../shared/utils/priceFormat';
 import { useState } from 'react';
 import S3Image from "@/app/shared/utils/S3Image";
 
@@ -36,7 +35,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
     // Function to handle variation selection
     const handleVariationSelect = (variation) => {
         setSelectedVariation(variation);
-        
+
         // Call the prop function to handle URL update and re-fetch in the parent component
         if (onVariationSelect) {
             onVariationSelect(variation);
@@ -47,46 +46,42 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
     const renderVariantValue = (key, value) => {
         if (key.toLowerCase() === 'color') {
             return (
-                <div 
-                    className="w-3 h-3 rounded-full border border-gray-200" 
+                <div
+                    className="w-3 h-3 rounded-full border border-gray-200"
                     style={{ backgroundColor: value.value }}
                 />
             );
         }
         return <span>{value.value}</span>;
     };
-    
+
     return (
-        <div className="lg:col-span-5 flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold text-gray-900">{productData.title}</h1>
-            <div className="flex items-center gap-1 mb-1">
-              <span className="text-blue-700 text-sm font-semibold cursor-pointer hover:underline">Visit the {productData.brand} Store</span>
-              <span className="flex items-center text-yellow-500 font-semibold ">
-                <FiStar className="mr-1" /> {productData.rating}
-              </span>
-              <span className="text-gray-600 text-sm">({productData.ratingCount})</span>
-            </div>
-            <div className="text-xs text-gray-700 mb-2">{productData.boughtCount}</div>
-            
-            <div className="flex flex-col gap-1 ">
-              <div className="flex items-center gap-1">
-                {productData.discount && (
-                  <span className="text-red-600 text-xl">-{productData.discount}</span>
-                )}
+            {productData.brand && (
+              <span className="text-sm text-gray-600 mb-1">by <span className="font-semibold text-gray-800">{productData.brand}</span></span>
+            )}
+
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-2xl font-bold text-gray-900">{formatIndianPrice(productData.price)}</span>
+                {productData.originalPrice && parseFloat(productData.originalPrice) > parseFloat(productData.price) && (
+                  <span className="text-sm text-gray-400 line-through">{formatIndianPrice(productData.originalPrice)}</span>
+                )}
+                {productData.discount && (
+                  <span className="text-sm font-semibold text-green-600">{productData.discount} off</span>
+                )}
               </div>
-              {productData.originalPrice && (
-                <>
-                <div className='flex gap-2'>
-                <span className="text-gray-500 text-xs">M.R.P</span>
-                <span className=" text-gray-500 line-through text-xs">{formatIndianPrice(productData.originalPrice)}</span>
-                </div>
-                </>
-              )}
+              <span className="text-xs text-gray-500">M.R.P incl. of all taxes</span>
             </div>
 
-            {/* Small icons row */}
-            <div className="flex flex-wrap gap-4 text-xs text-gray-700 mb-4">
+            {/* Separator */}
+            <div className="border-t border-gray-100 my-2" />
+
+            {/* Trust row — real, generic policy claims only (no fabricated
+                counts/stats). A single row instead of the two overlapping
+                rows this used to have. */}
+            <div className="flex flex-wrap gap-4 text-xs text-gray-700 my-4">
               <div className="flex items-center gap-1">
                 <FiCheckCircle className="text-blue-600" />
                 <span>Genuine Product</span>
@@ -97,7 +92,7 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
               </div>
               <div className="flex items-center gap-1">
                 <FiShield className="text-blue-600" />
-                <span>Same Days Replacement</span>
+                <span>Easy Returns</span>
               </div>
               <div className="flex items-center gap-1">
                 <FiShoppingCart className="text-blue-600" />
@@ -142,28 +137,16 @@ const ProductInfoSection = ({productData, onVariationSelect}) => {
               </div>
             )}
 
-            <div className="flex items-center gap-1 mb-2">
-              <span className="bg-gray-100 text-xs px-2 py-1 rounded font-semibold text-gray-700">Deals Assuerd</span>
-              <span className="text-xs text-gray-700">Inclusive of all taxes</span>
-            </div>
-            <div className="text-xs text-gray-700 mb-2">EMI starts at ₹1,697. No Cost EMI available <span className="text-blue-700 cursor-pointer hover:underline">EMI options</span></div>
-            {/* Offers as horizontal cards */}
-            <div className="flex flex-wrap gap-1 mb-2">
-              {productData.offers.map((offer, idx) => (
-                <div key={idx} className="bg-gray-50 border border-gray-200 rounded px-3 py-2 text-xs min-w-[140px] flex-1">
-                  <div className="font-semibold text-gray-800 mb-1">{offer.title}</div>
-                  <div className="text-gray-700 mb-1">{offer.desc}</div>
-                  <Link href={offer.link} className="text-blue-700 hover:underline">{offer.title === 'Cashback' ? '2 offers' : offer.title === 'No Cost EMI' ? '1 offer' : '23 offers'}</Link>
-                </div>
-              ))}
-            </div>
-            {/* Icons row */}
-            <div className="flex flex-wrap gap-2 text-xs text-gray-700 mb-2 items-center">
-              <div className="flex flex-col items-center font-semibold text-center flex-1"><FiRefreshCw className="font-semibold text-lg mb-1" />7 days Service Centre Replacement</div>
-              <div className="flex flex-col items-center font-semibold text-center flex-1"><FiShield className="font-semibold text-lg mb-1" />1 Year Warranty</div>
-              <div className="flex flex-col items-center font-semibold text-center flex-1"><FiShield className="font-semibold text-lg mb-1" />Top Brand</div>
-              <div className="flex flex-col items-center font-semibold text-center flex-1"><FiShield className="font-semibold text-lg mb-1" />Genie Assuerd</div>
-            </div>
+            {productData.features?.length > 0 && (
+              <div className="mb-2">
+                <h3 className="text-sm font-semibold mb-2 text-gray-800">Highlights</h3>
+                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                  {productData.features.slice(0, 6).map((feature, idx) => (
+                    <li key={idx}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
     );
 }

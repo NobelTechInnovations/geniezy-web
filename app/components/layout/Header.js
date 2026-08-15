@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import { FiSearch, FiHeart, FiShoppingBag, FiUser } from 'react-icons/fi';
+import { FiSearch, FiHeart, FiShoppingBag, FiUser, FiMenu } from 'react-icons/fi';
 import TopBar from './Topbar';
 import LocationDropdown from '../common/LocationDropdown';
 import { useCategories } from '../../hooks/useCategories';
@@ -12,6 +12,7 @@ import { logout } from '@/app/redux/features/authSlice';
 import { clearAuthDB } from '../../services/authDB';
 import { cartService } from '@/app/services/cart/cartService';
 import SideDrawer from '../common/SideDrawer';
+import MobileMenuDrawer from './MobileMenuDrawer';
 import { usePathname } from 'next/navigation';
 import { clearCart } from '../../services/indexedDB';
 import { getCategoryRoute } from '@/app/shared/utils/getCategoryRoute';
@@ -27,6 +28,7 @@ const Header = () => {
   const menuRef = useRef(null); // Ref for the menu container
   const [cartItems, setCartItems] = useState([]);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const pathname = usePathname();
 
@@ -168,12 +170,21 @@ const Header = () => {
           that never fit a phone screen); it doesn't restyle anything.
         */}
         <div className="container-fluid mx-auto flex flex-wrap md:flex-nowrap items-center gap-y-2 px-4 justify-between">
-          <Link href="/" className="mr-6 order-1">
-
-            {/* <img src="/3.png" alt="Logo" width={100} height={100} /> */}
-            <h1 className="text-xl font-bold">Snapzo</h1>
-
-          </Link>
+          <div className="flex items-center gap-2 order-1">
+            {/* Mobile hamburger — opens MobileMenuDrawer (categories grid +
+                the LocationDropdown, which is otherwise hidden below md). */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open menu"
+              className="md:hidden text-gray-700 -ml-1 p-1"
+            >
+              <FiMenu className="w-6 h-6" />
+            </button>
+            <Link href="/">
+              {/* <img src="/3.png" alt="Logo" width={100} height={100} /> */}
+              <h1 className="text-xl font-bold">Snapzo</h1>
+            </Link>
+          </div>
 
           <div className="w-full order-3 md:order-2 md:flex-1 md:max-w-1xl md:w-auto md:mx-8">
             <div className="flex items-center">
@@ -189,12 +200,11 @@ const Header = () => {
           </div>
 
           <div className="flex items-center space-x-6 ml-6 order-2 md:order-4">
-            {/* <Link href="/wishlist" className="relative">
+            {/* Wishlist — real page now (Phase 4, M9), previously a
+                permanently-commented-out dead link with a hardcoded "0". */}
+            <Link href="/wishlist" className="relative">
               <FiHeart className="w-6 h-6 text-black" />
-              <span className="absolute -top-2 -right-2 bg-[#004bad] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                0
-              </span>
-            </Link> */}
+            </Link>
             {/* Cart Icon */}
             <div className="relative cursor-pointer" onClick={handleCartClick}>
               <FiShoppingBag className="w-6 h-6 text-black" />
@@ -277,6 +287,13 @@ const Header = () => {
       {/* Cart Side Drawer */}
       <SideDrawer isOpen={isCartDrawerOpen} onClose={handleCloseCartDrawer} cartItems={cartItems} />
 
+      {/* Mobile hamburger menu drawer */}
+      <MobileMenuDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        categories={categories}
+        loading={loading}
+      />
 
     </header>
   );

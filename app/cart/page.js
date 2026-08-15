@@ -6,6 +6,10 @@ import { FiShoppingBag } from 'react-icons/fi';
 import { cartService } from '@/app/services/cart/cartService';
 import { formatIndianPrice } from '../shared/utils/priceFormat';
 import api from '../redux/services/apiService';
+import RecommendationRail from '../components/common/RecommendationRail';
+import Skeleton from '../components/ui/Skeleton';
+import LoadingButton from '../components/ui/LoadingButton';
+import { useToast } from '../components/ui/Toast';
 
 // Note: this component now expects API to return snake_case keys
 export default function CartPage() {
@@ -22,6 +26,10 @@ export default function CartPage() {
     fees: { platform: 0, handling: 0, delivery: 0 }
   });
   const isAuthenticated = typeof window !== 'undefined' && !!localStorage.getItem('geniezy_token');
+  // useToast() returns the showToast function directly — not { showToast }
+  const showToast = useToast();
+  // Per-item operation loading state — avoids blocking the whole page
+  const [itemActionLoading, setItemActionLoading] = useState({});
 
   const mapApiItemToUi = (raw) => {
     // raw is expected in snake_case shape from your API
@@ -258,41 +266,67 @@ export default function CartPage() {
   };
 
   const handleSaveForLater = async (id) => {
+    if (!id) return;
+    setItemActionLoading((prev) => ({ ...prev, [`save_${id}`]: true }));
     try {
-      setLoading(true);
-      const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
-      await api.post(`/v1/shop/cart/items/${id}/save`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // api interceptor already adds Bearer token; don't pass a manual header
+      // that would override it with a potentially null value.
+      const res = await api.post(`/v1/shop/cart/items/${id}/save`, {});
+      if (res?.data?.success === false) throw new Error(res.data.message || 'Failed');
+      showToast('Item saved for later', 'success');
       await fetchCartItems();
     } catch (err) {
       console.error('Error saving for later:', err);
+      const msg = err?.response?.data?.message || err?.message || 'Could not save for later';
+      showToast(msg, 'error');
     } finally {
-      setLoading(false);
+      setItemActionLoading((prev) => ({ ...prev, [`save_${id}`]: false }));
     }
   };
 
   const handleMoveToCart = async (id) => {
+    if (!id) return;
+    setItemActionLoading((prev) => ({ ...prev, [`move_${id}`]: true }));
     try {
-      setLoading(true);
-      const token = typeof window !== 'undefined' ? localStorage.getItem('geniezy_token') : null;
-      await api.post(`/v1/shop/cart/items/${id}/move`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.post(`/v1/shop/cart/items/${id}/move`, {});
+      if (res?.data?.success === false) throw new Error(res.data.message || 'Failed');
+      showToast('Item moved to cart', 'success');
       await fetchCartItems();
     } catch (err) {
       console.error('Error moving to cart:', err);
+      const msg = err?.response?.data?.message || err?.message || 'Could not move to cart';
+      showToast(msg, 'error');
     } finally {
-      setLoading(false);
+      setItemActionLoading((prev) => ({ ...prev, [`move_${id}`]: false }));
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-90">
-        loading...
-        {/* <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div> */}
-      </div>
+      <main className="flex flex-col md:flex-row w-full max-w-6xl px-4 md:px-2 mx-auto gap-4 my-4 md:my-6">
+        <div className="flex flex-col gap-4 w-full">
+          <div className="border border-gray-200 rounded-sm shadow-xs p-4 flex flex-col gap-4">
+            <Skeleton className="h-5 w-32" />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-4 pt-4 border-t border-gray-100 first:border-t-0 first:pt-0">
+                <Skeleton className="w-16 h-16 shrink-0" />
+                <div className="flex-1 flex flex-col gap-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <aside className="w-full md:w-[340px] shrink-0">
+          <div className="border border-gray-200 rounded-sm shadow-xs p-6 flex flex-col gap-3">
+            <Skeleton className="h-5 w-28 mb-2" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-10 w-full mt-2" />
+          </div>
+        </aside>
+      </main>
     );
   }
 
@@ -322,8 +356,14 @@ export default function CartPage() {
   }
 
   return (
-    <main className="flex container mx-auto flex-col bg-white">
-      <div className="flex flex-1 w-6xl px-2 mx-auto gap-4 my-6">
+    <main className="flex container mx-auto flex-col bg-white pb-20 md:pb-0">
+      {/* This replaced `w-6xl`, which on Tailwind v4 resolves to a hard
+          width:72rem (1152px) — so this row was 1152px wide on a 375px
+          phone and the page scrolled sideways. max-w-6xl caps desktop
+          without pinning a width. Plus: single column below md, and
+          explicit edge padding rather than relying on the container's
+          default gutters alone. */}
+      <div className="flex flex-col md:flex-row w-full max-w-6xl px-3 md:px-2 mx-auto gap-4 my-4 md:my-6">
         {/* Cart Items Section */}
         <div className="flex flex-col gap-4 w-full">
           <section className="flex-1 flex flex-col border border-gray-200 rounded-sm shadow-xs p-2 mb-2">
@@ -365,7 +405,13 @@ export default function CartPage() {
                       <div className="flex">
                         <button onClick={() => handleRemove(item.id || item._id)} className="ml-4 text-red-500 hover:underline text-xs font-medium">Delete</button>
                         {isAuthenticated && (
-                          <button onClick={() => handleSaveForLater(item.id || item._id)} className="ml-4 text-gray-500 hover:underline text-xs font-medium">Save later</button>
+                          <button
+                            onClick={() => handleSaveForLater(item.id || item._id)}
+                            disabled={itemActionLoading[`save_${item.id || item._id}`]}
+                            className="ml-4 text-gray-500 hover:underline text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {itemActionLoading[`save_${item.id || item._id}`] ? 'Saving…' : 'Save later'}
+                          </button>
                         )}
                       </div>
                     </div>
@@ -407,13 +453,19 @@ export default function CartPage() {
                               })}
                             </div>
                           )}
-                          <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold">g. assuerd</span></div>
+                          <div className="text-xs text-gray-700 mb-1">Shipping by <span className="font-semibold underline rounded-sm">Snapzo Partners</span></div>
                         </div>
                         <div className='flex items-center mt-2'>
                           <div className="flex">
                             <button onClick={() => handleRemove(item.id || item._id)} className="text-red-500 hover:underline text-xs font-medium">Delete</button>
                             {isAuthenticated && (
-                              <button onClick={() => handleMoveToCart(item.id || item._id)} className="ml-4 text-blue-500 hover:underline text-xs font-medium">Move to Cart</button>
+                              <button
+                                onClick={() => handleMoveToCart(item.id || item._id)}
+                                disabled={itemActionLoading[`move_${item.id || item._id}`]}
+                                className="ml-4 text-blue-500 hover:underline text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {itemActionLoading[`move_${item.id || item._id}`] ? 'Moving…' : 'Move to Cart'}
+                              </button>
                             )}
                           </div>
                         </div>
@@ -431,9 +483,13 @@ export default function CartPage() {
           )}
         </div>
 
-        {/* Summary Sidebar */}
+        {/* Summary Sidebar — sticky only on desktop (md:sticky); on mobile
+            it sits in-flow and a separate fixed bottom bar (below) gives
+            quick access to the total + checkout button while scrolling
+            the item list, instead of a desktop-only sticky-top box that
+            behaves oddly on a small viewport. */}
         <aside className="w-full md:w-[340px] flex-shrink-0">
-          <div className="bg-white border border-gray-200 rounded-sm shadow-xs p-6 sticky top-24">
+          <div className="bg-white border border-gray-200 rounded-sm shadow-xs p-6 md:sticky md:top-24">
             <h2 className="text-lg md:text-xl font-bold mb-4 text-gray-900">Price Details</h2>
 
             <div className="flex justify-between mb-2 text-sm">
@@ -480,8 +536,8 @@ export default function CartPage() {
             </div>
 
             <Link href={'checkout'}>
-              <button 
-              className={`w-full bg-[#004bad] hover:bg-[#004bad] text-white py-1 rounded-full font-semibold text-base shadow transition mt-2 ${cartSummary.totalItems === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              <button
+              className={`w-full bg-brand hover:bg-brand-dark text-white py-1 rounded-full font-semibold text-base shadow transition mt-2 ${cartSummary.totalItems === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={cartSummary.totalItems === 0}
               >
                 Place Order
@@ -490,6 +546,32 @@ export default function CartPage() {
           </div>
         </aside>
       </div>
+
+      {/* Mobile-only sticky checkout bar — sits just above MobileBottomNav
+          (bottom-14 matches its height) so the total + Place Order stays
+          reachable while scrolling a long cart, without duplicating the
+          full price breakdown already shown above. */}
+      {cartSummary.totalItems > 0 && (
+        <div className="md:hidden fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+          <div>
+            <p className="text-xs text-gray-500">Total ({cartSummary.totalItems} item{cartSummary.totalItems > 1 ? 's' : ''})</p>
+            <p className="text-base font-bold text-gray-900">{formatIndianPrice(cartSummary.finalAmount)}</p>
+          </div>
+          <Link href="checkout" className="shrink-0">
+            <button className="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full font-semibold text-sm shadow transition">
+              Place Order
+            </button>
+          </Link>
+        </div>
+      )}
+
+      {cartItems.length > 0 && (
+        <RecommendationRail
+          context="cart"
+          cartProductIds={cartItems.map((item) => item.productId).filter(Boolean)}
+          className="px-2 mb-10"
+        />
+      )}
     </main>
   );
 }

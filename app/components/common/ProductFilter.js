@@ -46,7 +46,13 @@ const ProductFilter = ({ subcategories = [], brands = [], onFilterChange, catego
 
   return (
     <>
-    <aside className="w-60 bg-white border border-gray-100 rounded-lg p-4 h-[calc(100vh-64px-56px)] mt-0 overflow-y-auto">
+    {/* hidden below md: this sidebar is a fixed 240px and always rendered,
+        so on a 375px phone it plus the product grid forced the page to
+        ~1700px wide — every category/search page scrolled sideways and the
+        grid ran off-screen. Desktop layout is unchanged. Mobile filtering
+        needs its own bottom-sheet/drawer UI; that's a follow-up, and until
+        then no filters is strictly better than a broken page. */}
+    <aside className="hidden md:block w-60 shrink-0 bg-white border border-gray-100 rounded-lg p-4 h-[calc(100vh-64px-56px)] mt-0 overflow-y-auto">
       <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
       {/* Subcategory Filter */}

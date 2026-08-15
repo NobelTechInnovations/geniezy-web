@@ -33,9 +33,15 @@ const ProductCard = ({ product }) => {
         <div className="w-full h-28 flex border border-gray-200 items-center justify-center mb-2 overflow-hidden">
           <S3Image src={product.image} alt={product.name} className="h-24 object-contain " />
         </div>
-        <div className="flex items-center text-xs bg-grey-700 text-gray-500 mb-1">
-          <span className="mr-1">🕒</span> 9 MINS
-        </div>
+        {product.delivery_type === 'standard' ? (
+          <div className="flex items-center text-xs mb-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">
+            Standard delivery
+          </div>
+        ) : (
+          <div className="flex items-center text-xs bg-grey-700 text-gray-500 mb-1">
+            <span className="mr-1">🕒</span> 9 MINS
+          </div>
+        )}
         <div className="font-medium text-sm mb-1 line-clamp-2 w-full">{product.name}</div>
         <div className="text-xs text-gray-500 mb-1 line-clamp-2 w-full">{product.details}</div>
         <div className="flex items-center justify-between w-full mt-2">

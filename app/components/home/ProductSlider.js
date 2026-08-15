@@ -7,12 +7,20 @@ import ProductCardSkeleton from '../common/products/ProductCardSkeleton';
 import ProductCard from '../common/products/ProductCard';
 import { getLocationFromLocalStorage } from '../common/LocationDropdown';
 
-export default function ProductSlider({ gc_id, title, tagline }) {
+// Two modes: pass `gc_id` and it fetches that category's products itself
+// (original behavior); or pass pre-fetched `products`/`externalLoading`
+// (used by the dynamic home feed, which already fetched everything in one
+// call) and the internal fetch is skipped entirely. Same visual output
+// either way — only the data source changes.
+export default function ProductSlider({ gc_id, title, tagline, products: externalProducts, externalLoading }) {
+  const usesExternalData = externalProducts !== undefined;
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
+    if (usesExternalData) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -35,7 +43,10 @@ export default function ProductSlider({ gc_id, title, tagline }) {
     if (gc_id) {
       fetchData();
     }
-  }, [gc_id]);
+  }, [gc_id, usesExternalData]);
+
+  const displayProducts = usesExternalData ? externalProducts : products;
+  const displayLoading = usesExternalData ? externalLoading : loading;
 
   const scroll = (direction) => {
     const container = scrollContainerRef.current;
@@ -74,25 +85,24 @@ export default function ProductSlider({ gc_id, title, tagline }) {
                   </button>
                 </div>
             </div>
-            <div 
+            <div
                 ref={scrollContainerRef}
-                className="flex overflow-x-auto gap-4 scrollbar-hide-mx-4"
+                className="flex gap-3 overflow-x-auto pb-2"
                 style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}
             >
-                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 mb-10">
-                    {loading ? (
-                      // Show skeleton loading
-                      Array.from({ length: 12 }).map((_, index) => (
-                        <ProductCardSkeleton key={index} />
+                    {displayLoading ? (
+                      Array.from({ length: 8 }).map((_, index) => (
+                        <div key={index} className="flex-none w-48 sm:w-48">
+                          <ProductCardSkeleton />
+                        </div>
                       ))
                     ) : (
-                      // Show actual products
-                      products.map((product) => (
-                        <ProductCard key={product._id} product={product} />
+                      displayProducts.map((product) => (
+                        <div key={product._id} className="flex-none w-48 sm:w-48">
+                          <ProductCard product={product} />
+                        </div>
                       ))
                     )}
-                  </div>
-
             </div>
             
         </div>

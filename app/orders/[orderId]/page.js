@@ -1,44 +1,101 @@
-import Link from "next/link";
-import { FiChevronLeft, FiCheckCircle, FiPackage, FiMapPin, FiCreditCard } from "react-icons/fi";
-import RecentViewProducts from "@/app/components/home/RecentViewProducts";
-import Image from "next/image";
+'use client';
 
-// Placeholder — replace with real API fetch using params.orderId
-const MOCK_ORDER = {
-  id: "DE-20250910-1720008",
-  date: "10 September 2025",
-  estimatedDelivery: "15 September 2025",
-  status: "Packed",
-  statusSteps: [
-    { label: "Order Placed", done: true },
-    { label: "Confirmed", done: true },
-    { label: "Packed", done: true },
-    { label: "Out for Delivery", done: false },
-    { label: "Delivered", done: false },
-  ],
-  items: [
-    { name: "Wireless Earbuds — Black", sku: "WE-BLK-001", price: 1499, qty: 1 },
-  ],
-  address: {
-    name: "Kartik Maandothiya",
-    line1: "123 MG Road, Vaishali Nagar",
-    city: "Jaipur, Rajasthan — 302021",
-    phone: "+91 98280 51996",
-  },
-  payment: "PhonePe UPI",
-  subtotal: 1499,
-  shipping: 0,
-  tax: 74,
-  discount: 0,
-};
+import { useEffect, useState, use } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FiChevronLeft, FiPackage, FiMapPin, FiCreditCard } from "react-icons/fi";
+import { orderApi } from "@/app/redux/services/apiService";
+
+const STATUS_STEPS = [
+  { key: "pending", label: "Order Placed" },
+  { key: "processing", label: "Confirmed" },
+  { key: "ready_to_ship", label: "Packed" },
+  { key: "shipped", label: "Out for Delivery" },
+  { key: "delivered", label: "Delivered" },
+];
+
+function currentStepIndex(status) {
+  if (status === "cancelled" || status === "rejected") return -1;
+  const idx = STATUS_STEPS.findIndex((s) => s.key === status);
+  return idx === -1 ? 0 : idx;
+}
+
+const statusLabel = (status) =>
+  (status || "pending").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function OrderDetailPage({ params }) {
-  const order = MOCK_ORDER; // swap for real fetch when API ready
+  const { orderId } = use(params);
+  const router = useRouter();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("geniezy_token") : null;
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchOrder = async () => {
+      try {
+        setLoading(true);
+        const response = await orderApi.getOrderDetail(orderId);
+        if (response.success) {
+          setOrder(response.data);
+        } else {
+          setError(response.message || "Order not found");
+        }
+      } catch (err) {
+        if (err.response?.status === 401) {
+          router.push("/login");
+          return;
+        }
+        setError(err.response?.data?.message || "Order not found");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (orderId) fetchOrder();
+  }, [orderId, router]);
+
+  if (loading) {
+    return (
+      <main className="bg-gray-50 min-h-screen">
+        <div className="container mx-auto max-w-5xl px-4 py-6 animate-pulse">
+          <div className="h-4 w-32 bg-gray-200 rounded mb-5" />
+          <div className="h-40 bg-gray-200 rounded-xl mb-5" />
+          <div className="h-32 bg-gray-200 rounded-xl" />
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <main className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 text-sm mb-4">{error || "Order not found"}</p>
+          <Link href="/orders" className="text-[#004bad] text-sm hover:underline">
+            Back to Orders
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  const stepIdx = currentStepIndex(order.status);
+  const delivery = order.delivery; // populated OrderCustomer snapshot
+  const subtotal = Number(order.sub_total_amount || 0);
+  const shipping = Number(order.shipping || 0);
+  const tax = Number(order.tax || 0);
+  const discount = Number(order.discount || 0);
+  const total = Number(order.final_amount || 0);
 
   return (
     <main className="bg-gray-50 min-h-screen">
       <div className="container mx-auto max-w-5xl px-4 py-6">
-        {/* Back link */}
         <Link
           href="/orders"
           className="inline-flex items-center gap-1 text-sm text-[#004bad] mb-5 hover:underline"
@@ -53,107 +110,53 @@ export default function OrderDetailPage({ params }) {
               <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-0.5">
                 Order number
               </p>
-              <p className="font-bold text-gray-900">#{order.id}</p>
+              <p className="font-bold text-gray-900">#{order.order_number}</p>
             </div>
             <div className="text-sm text-gray-500">
-              Placed on <span className="font-medium text-gray-700">{order.date}</span>
+              Placed on{" "}
+              <span className="font-medium text-gray-700">
+                {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                  day: "numeric", month: "long", year: "numeric",
+                })}
+              </span>
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-wrap gap-2 px-6 py-3 border-b border-gray-100">
-            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
-              Write a product review
-            </button>
-            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
-              Get support
-            </button>
-            <button className="border border-gray-200 px-4 py-1.5 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">
-              Submit seller rating
-            </button>
-          </div>
-
-          {/* Info Grid */}
-          <div className="grid md:grid-cols-3 gap-6 px-4 py-6 border-b border-gray-200 text-sm">
-            {/* Address */}
-            <div>
-              <h3 className="font-semibold mb-2">Billing address</h3>
-              <p className="text-gray-600">
-                Kartik Maandothiya <br />
-                123 MG Road, Jaipur, Rajasthan <br />
-                +91 98280 51996
-              </p>
-              <h3 className="font-semibold mt-4 mb-2">Delivery address</h3>
-              <p className="text-gray-600">
-                Kartik Maandothiya <br />
-                123 MG Road, Jaipur, Rajasthan <br />
-                +91 98280 51996
-              </p>
-            </div>
-
-            {/* Payment */}
-            <div>
-              <h3 className="font-semibold mb-2">Payment method</h3>
-              <p className="text-gray-600">Bank transfer</p>
-              <p className="font-semibold mt-3">Your estimated delivery date is:</p>
-              <p className="text-gray-600">September 23, 2025</p>
-            </div>
-
-            {/* Order Overview */}
-            <div>
-              <h3 className="font-semibold mb-2">Order overview</h3>
-              <div className="flex justify-between mb-1">
-                <span>Subtotal of items:</span>
-                <span>€9.08</span>
-              </div>
-              <div className="flex justify-between mb-1">
-                <span>Shipment:</span>
-                <span>€0.00</span>
-              </div>
-              <div className="flex justify-between mb-1">
-                <span>Tax fee:</span>
-                <span>€1.73</span>
-              </div>
-              <div className="flex justify-between mb-1">
-                <span>Discount:</span>
-                <span>€0.00</span>
-              </div>
-              <div className="flex justify-between font-semibold mt-2">
-                <span>In total:</span>
-                <span>€10.81</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Item */}
-          <div className="flex justify-between items-center px-4 py-4 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <Image
-                src="https://via.placeholder.com/50"
-                alt="product"
-                className="w-12 h-12 object-contain"
-              />
-              {order.statusSteps.map((step, idx) => (
-                <div key={step.label} className="flex flex-col items-center z-10">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                      step.done
-                        ? "bg-[#004bad] border-[#004bad] text-white"
-                        : "bg-white border-gray-200 text-gray-400"
-                    }`}
-                  >
-                    {step.done ? <FiCheckCircle className="text-sm" /> : <span className="text-xs">{idx + 1}</span>}
+          {/* Status stepper */}
+          <div className="px-6 py-6 border-b border-gray-100">
+            {order.status === "cancelled" || order.status === "rejected" ? (
+              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-full bg-red-100 text-red-700">
+                {statusLabel(order.status)}
+              </span>
+            ) : (
+              <div className="flex items-center">
+                {STATUS_STEPS.map((step, idx) => (
+                  <div key={step.key} className="flex items-center flex-1 last:flex-none">
+                    <div className="flex flex-col items-center z-10">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                          idx <= stepIdx
+                            ? "bg-[#004bad] border-[#004bad] text-white"
+                            : "bg-white border-gray-200 text-gray-400"
+                        }`}
+                      >
+                        <span className="text-xs">{idx + 1}</span>
+                      </div>
+                      <p
+                        className={`text-xs mt-2 font-medium text-center max-w-16 ${
+                          idx <= stepIdx ? "text-[#004bad]" : "text-gray-400"
+                        }`}
+                      >
+                        {step.label}
+                      </p>
+                    </div>
+                    {idx < STATUS_STEPS.length - 1 && (
+                      <div className={`flex-1 h-0.5 mb-5 ${idx < stepIdx ? "bg-[#004bad]" : "bg-gray-200"}`} />
+                    )}
                   </div>
-                  <p
-                    className={`text-xs mt-2 font-medium text-center max-w-16 ${
-                      step.done ? "text-[#004bad]" : "text-gray-400"
-                    }`}
-                  >
-                    {step.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -165,14 +168,18 @@ export default function OrderDetailPage({ params }) {
               <FiMapPin className="text-[#004bad]" />
               <p className="font-semibold text-sm text-gray-900">Delivery Address</p>
             </div>
-            <p className="text-sm font-medium text-gray-800">{order.address.name}</p>
-            <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-              {order.address.line1}
-              <br />
-              {order.address.city}
-              <br />
-              {order.address.phone}
-            </p>
+            {delivery ? (
+              <>
+                <p className="text-sm font-medium text-gray-800">{delivery.name}</p>
+                <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                  {delivery.address}
+                  {delivery.pincode && <><br />{delivery.pincode}</>}
+                  {delivery.phone && <><br />{delivery.phone}</>}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-400">Address not available</p>
+            )}
           </div>
 
           {/* Payment */}
@@ -181,9 +188,9 @@ export default function OrderDetailPage({ params }) {
               <FiCreditCard className="text-[#004bad]" />
               <p className="font-semibold text-sm text-gray-900">Payment</p>
             </div>
-            <p className="text-sm text-gray-700">{order.payment}</p>
-            <p className="text-sm text-gray-400 mt-3">Estimated delivery</p>
-            <p className="text-sm font-medium text-gray-800">{order.estimatedDelivery}</p>
+            <p className="text-sm text-gray-700">Cash / Online payment</p>
+            <p className="text-sm text-gray-400 mt-3">Status</p>
+            <p className="text-sm font-medium text-gray-800">{statusLabel(order.status)}</p>
           </div>
 
           {/* Order overview */}
@@ -195,25 +202,27 @@ export default function OrderDetailPage({ params }) {
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Items</span>
-                <span>₹{order.subtotal.toLocaleString("en-IN")}</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Shipping</span>
-                <span className="text-green-600">{order.shipping === 0 ? "Free" : `₹${order.shipping}`}</span>
+                <span className={shipping === 0 ? "text-green-600" : ""}>
+                  {shipping === 0 ? "Free" : `₹${shipping.toLocaleString("en-IN")}`}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">GST</span>
-                <span>₹{order.tax}</span>
+                <span className="text-gray-500">Tax</span>
+                <span>₹{tax.toLocaleString("en-IN")}</span>
               </div>
-              {order.discount > 0 && (
+              {discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span>−₹{order.discount}</span>
+                  <span>−₹{discount.toLocaleString("en-IN")}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-100 mt-2">
                 <span>Total</span>
-                <span>₹{(order.subtotal + order.tax - order.discount).toLocaleString("en-IN")}</span>
+                <span>₹{total.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>
@@ -224,32 +233,31 @@ export default function OrderDetailPage({ params }) {
           <div className="px-5 py-4 border-b border-gray-100">
             <p className="font-semibold text-gray-900">Items in this order</p>
           </div>
-          {order.items.map((item, idx) => (
+          {(order.items || []).map((item, idx) => (
             <div
-              key={idx}
+              key={item._id || idx}
               className="flex items-center justify-between px-5 py-4 border-b border-gray-50 last:border-b-0"
             >
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100">
-                  <FiPackage className="text-2xl text-gray-300" />
+                <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100 overflow-hidden">
+                  {item.product_instance?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.product_instance.image} alt={item.product_instance?.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <FiPackage className="text-2xl text-gray-300" />
+                  )}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                  <p className="font-medium text-gray-900 text-sm">{item.product_instance?.name || "Product"}</p>
                   <p className="text-xs text-gray-400 mt-0.5">SKU: {item.sku}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    ₹{item.price.toLocaleString("en-IN")} × {item.qty}
+                    ₹{Number(item.product_instance?.order_price || 0).toLocaleString("en-IN")} × {item.qty}
                   </p>
                 </div>
               </div>
-              <button className="border border-gray-200 text-sm px-4 py-1.5 rounded-full text-gray-600 hover:bg-gray-50 transition">
-                Write a review
-              </button>
             </div>
           ))}
         </div>
-
-        {/* Recently viewed */}
-        <RecentViewProducts />
       </div>
     </main>
   );

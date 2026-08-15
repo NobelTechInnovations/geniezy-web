@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "./providers/Providers";
 import LayoutWrapper from "./LayoutWrapper";
 import LocationGateProvider from "./components/common/LocationGateProvider";
+import { ToastProvider } from "./components/ui/Toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,10 +27,12 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <LocationGateProvider>
-            <LayoutWrapper>
-              {children}</LayoutWrapper>
-          </LocationGateProvider>
+          <ToastProvider>
+            <LocationGateProvider>
+              <LayoutWrapper>
+                {children}</LayoutWrapper>
+            </LocationGateProvider>
+          </ToastProvider>
         </Providers>
       </body>
     </html>

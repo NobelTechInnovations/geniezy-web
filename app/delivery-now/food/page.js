@@ -38,8 +38,11 @@ const dairyProducts = [
 ];
 
 export default function FoodDeliveryPage() {
+  // max-w-6xl, not w-6xl: on Tailwind v4 `w-6xl` resolves to a hard
+  // width:72rem (1152px), so this page was 1152px wide on a 375px phone
+  // and scrolled sideways. Same bug the cart page had.
   return (
-    <div className="container mx-auto w-6xl py-4">
+    <div className="container mx-auto max-w-6xl w-full px-4 py-4">
       <HorizontalCategoryList categories={foodCategories} />
       <HorizontalProductList title="Dairy, Bread & Eggs" products={dairyProducts} onSeeAll={() => {}} />
     </div>

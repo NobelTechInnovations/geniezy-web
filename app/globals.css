@@ -3,11 +3,23 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Phase 4 (M8): centralized brand tokens. The brand blue was previously
+     hardcoded as the arbitrary-value class bg-[#004bad]/text-[#004bad] in
+     10+ files — new/touched code should use bg-brand/text-brand/border-brand
+     instead so the color lives in exactly one place. Existing untouched
+     files keep their arbitrary-value classes rather than an unbounded
+     rewrite of the whole app. */
+  --color-brand: #004bad;
+  --color-brand-dark: #003a8c;
+  --radius-card: 0.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--color-brand);
+  --color-brand-dark: var(--color-brand-dark);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

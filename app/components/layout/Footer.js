@@ -56,53 +56,26 @@ const Footer = () => {
       </div>
 
 
-      {/* Categories section */}
-      <div className="w-full border-t border-gray-200 py-4 text-center">
-        <div className="container mx-auto px-4">
-          <div className="mb-2">
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Consumer Electric:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Air Conditioners</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audios & Theaters</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Car Electronics</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Office Electronics</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">TV Televisions</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Washing Machines</Link>
-              </span>
+      {/* Categories section — flex-wrap instead of inline pipe-separated
+          text, so this doesn't overflow horizontally on mobile the way a
+          long unbroken inline span does. */}
+      <div className="w-full border-t border-gray-200 py-4">
+        <div className="container mx-auto px-4 max-w-6xl flex flex-col gap-3">
+          {[
+            { label: 'Consumer Electric', items: ['Air Conditioners', 'Audios & Theaters', 'Car Electronics', 'Office Electronics', 'TV Televisions', 'Washing Machines'] },
+            { label: 'TV Televisions', items: ['Desktop PC', 'Laptop', 'Smartphones', 'Tablet', 'Game Controller', 'Audio & Video', 'Wireless Speaker', 'Drone'] },
+            { label: 'Computer & Technologies', items: ['Desktop PC', 'Laptop', 'Smartphones', 'Tablet', 'Game Controller', 'Audio & Video', 'Wireless Speaker', 'Drone'] },
+          ].map((group) => (
+            <div key={group.label} className="flex flex-wrap items-baseline gap-x-1 gap-y-1 text-sm">
+              <span className="font-semibold text-gray-700 mr-1">{group.label}:</span>
+              {group.items.map((item, i) => (
+                <span key={item} className="flex items-center">
+                  <Link href="#" className="text-gray-600 hover:text-red-500">{item}</Link>
+                  {i < group.items.length - 1 && <span className="text-gray-300 ml-1">|</span>}
+                </span>
+              ))}
             </div>
-            
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">TV Televisions:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
-              </span>
-            </div>
-            
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Computer & Technologies:</span>
-              <span className="text-sm text-gray-600 ml-2">
-                <Link href="#" className="hover:text-red-500">Desktop PC</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Laptop</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Smartphones</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Tablet</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Game Controller</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Audio & Video</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Wireless Speaker</Link> | 
-                <Link href="#" className="hover:text-red-500 ml-1">Drone</Link>
-              </span>
-            </div>
-          </div>
-          
-          {/* Copyright and Payment */}
-          
+          ))}
         </div>
       </div>
 
@@ -118,23 +91,8 @@ const Footer = () => {
             </ul>
           </div>
           
-          {/* Company */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
-              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
-            </ul>
-          </div>
-          {/* Company */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li><Link href="/about" className="text-gray-600 hover:text-red-500">About Us</Link></li>
-              <li><Link href="/contact" className="text-gray-600 hover:text-red-500">Contact</Link></li>
-            </ul>
-          </div>
-          {/* Company */}
+          {/* Company (was previously duplicated 3x in this grid — a
+              copy-paste bug, not intentional repeated content) */}
           <div>
             <h3 className="text-lg font-bold mb-4">Company</h3>
             <ul className="space-y-2">
@@ -143,7 +101,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          
+
           {/* Business */}
           <div>
             <h3 className="text-lg font-bold mb-4">Business</h3>
@@ -192,11 +150,13 @@ const Footer = () => {
         
       </div>
       
-      {/* Back to top button */}
-      <div className="fixed bottom-8 right-8">
-        <button 
+      {/* Back to top button — bottom-20 on mobile so it clears
+          MobileBottomNav (fixed bottom-0, ~56px tall) instead of
+          overlapping it; bottom-8 once md: the bottom nav is hidden. */}
+      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8">
+        <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="bg-[#004bad] text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-[#004bad]"
+          className="bg-brand text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-brand-dark"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />

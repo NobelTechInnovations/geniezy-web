@@ -1,20 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ProductGallerySection from '@/app/components/product-detail/ProductGallerySection';
 import ProductInfoSection from '@/app/components/product-detail/ProductInfoSection';
 import ProductCartSection from '@/app/components/product-detail/ProductCartSection';
-import { productApi } from '@/app/redux/services/apiService';
+import { productApi, eventApi } from '@/app/redux/services/apiService';
 import { getLocationFromLocalStorage } from '@/app/components/common/LocationDropdown';
+import { getAnonymousId } from '@/app/services/browsingHistory/anonymousId';
 import useDistanceMatrix from '@/app/hooks/useDistanceMatrix';
-import RecommendedProducts from '@/app/components/product-detail/RecommendedProducts';
+import RecommendationRail from '@/app/components/common/RecommendationRail';
 import { useBrowsingHistory } from '@/app/hooks/useBrowsingHistory';
 import RecentViewProducts from '@/app/components/home/RecentViewProducts';
 import SideDrawer from '@/app/components/common/SideDrawer';
 import { cartService } from '@/app/services/cart/cartService';
 import ProductSkeleton from '@/app/components/product-detail/ProductSkeleton';
+import { wishlistApi } from '@/app/redux/services/apiService';
+import { useToast } from '@/app/components/ui/Toast';
 
 
 
@@ -32,14 +35,17 @@ const ProductPage = ({ params }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [cartMessage, setCartMessage] = useState({ show: false, type: '', message: '' });
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const showToast = useToast();
 
-  // Unwrap params using React.use()
-  // const unwrappedParams = use(params);
-  // const { productId, slug } = unwrappedParams;
-  const { productId, slug } = params;
+  // params is a Promise in Next.js 15 client components — must be unwrapped
+  // with React.use(), otherwise productId/slug are undefined and every
+  // product page fails with "Missing required parameters".
+  const unwrappedParams = use(params);
+  const { productId, slug } = unwrappedParams;
   const gspin = productId;
 
   // Get search params
@@ -143,9 +149,11 @@ const ProductPage = ({ params }) => {
           (data.type === 'variable' && (data.selected_combination?.price?.mrp?.$numberDecimal || data.selected_combination?.price?.mrp) && (data.selected_combination?.price?.selling_price?.$numberDecimal || data.selected_combination?.price?.selling_price) ?
             Math.round((((data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp) - (data.selected_combination.price.selling_price?.$numberDecimal || data.selected_combination.price.selling_price)) / (data.selected_combination.price.mrp?.$numberDecimal || data.selected_combination.price.mrp)) * 100) + '%' :
             null),
-        rating: 4.5, // These would come from a ratings API
-        ratingCount: 83,
-        boughtCount: "1K+ bought in past month",
+        // Ratings/reviews, "bought in past month" counters, card-issuer
+        // cashback/EMI offers and third-party protection plans were all
+        // hardcoded placeholder numbers (see git history) with no backing
+        // data source — removed rather than kept as invented figures. They
+        // return once a real ratings/reviews/promotions system exists.
         inStock: data.meta?.stock > 0, // Use meta.stock for simple products, selected_combination.stock for variable
         images: images,
         description: data.description?.description || '',
@@ -155,20 +163,18 @@ const ProductPage = ({ params }) => {
         ),
         variations: data.variations || [],
         selected_combination: data.selected_combination || null,
-        offers: [
-          { title: "Cashback", desc: "Upto ₹1,049.00 cashback as Amazon Pay Balance when you use select cards.", link: "#" },
-          { title: "No Cost EMI", desc: "Upto ₹1,575.94 EMI interest savings on select cards.", link: "#" },
-          { title: "Bank Offer", desc: "Upto ₹2,000.00 discount on select Credit Cards, HDFC, etc.", link: "#" }
-        ],
-        protectionPlans: [
-          { name: "Total Protection Plan for 1 Year", price: "2,349.00" },
-          { name: "Extended warranty for 1 Year", price: "1,549.00" },
-          { name: "Screen Damage Protection for 1 year", price: "1,999.00" }
-        ],
         seller: {
-            businessName: data.seller?.business?.business_name || 'N/A',
+            // Phone-only/business-incomplete sellers legitimately have no
+            // business_name/business_address — null (not the truthy string
+            // 'N/A') lets ProductCartSection's `||` chain correctly fall
+            // through to seller.name / fully hide the address line. See
+            // marketplace-project-setup memory for the original bug.
+            name: data.seller?.name || null,
+            businessName: data.seller?.business?.business_name || null,
             location: data.seller?.business?.location?.coordinates || null,
-            businessAddress: data.seller?.business?.pincode +' '+ data.seller?.business?.business_address || 'N/A'
+            businessAddress: data.seller?.business?.business_address
+              ? [data.seller.business.pincode, data.seller.business.business_address].filter(Boolean).join(' ')
+              : null
         }
       };
 
@@ -190,6 +196,16 @@ const ProductPage = ({ params }) => {
         product_type: data.type === 'simple' ? 'simple' : 'variable_combination',
       });
 
+      // Server-side tracking (separate from the local IndexedDB history
+      // above) — feeds the home feed's category-affinity personalization.
+      // Fire-and-forget: never blocks or errors this page.
+      eventApi.track({
+        eventType: 'view_product',
+        productId: data.product_id,
+        categoryId: data.category_id?._id,
+        anonId: getAnonymousId(),
+      });
+
       // Set the flag to true after successful data load
       setIsDataLoaded(true);
 
@@ -209,6 +225,46 @@ const ProductPage = ({ params }) => {
     fetchProductDetailsAndImages(gspin, pid, type, p_sku);
   }, [gspin, pid, type, p_sku]); // Dependencies: re-run when product params change
 
+  // Check wishlist status once we know the product and the viewer is
+  // logged in. Guests simply never see the heart as filled — the toggle
+  // endpoint itself requires auth, so there's nothing to check for them.
+  useEffect(() => {
+    if (!isMounted || !gspin) return;
+    const token = localStorage.getItem('geniezy_token');
+    if (!token) {
+      setIsWishlisted(false);
+      return;
+    }
+    wishlistApi.check(gspin)
+      .then((res) => setIsWishlisted(!!res?.data?.wishlisted))
+      .catch(() => setIsWishlisted(false));
+  }, [isMounted, gspin]);
+
+  const handleToggleWishlist = async () => {
+    const token = localStorage.getItem('geniezy_token');
+    if (!token) {
+      showToast('Please log in to use your wishlist', 'error');
+      router.push('/login');
+      return;
+    }
+    try {
+      const res = await wishlistApi.toggle({
+        productId: gspin,
+        sku: p_sku,
+        type,
+        title: productData?.title,
+        images: productData?.images,
+        price: productData?.price,
+        sellerName: productData?.seller?.businessName || productData?.seller?.name,
+      });
+      const wishlisted = !!res?.data?.wishlisted;
+      setIsWishlisted(wishlisted);
+      showToast(wishlisted ? 'Added to wishlist' : 'Removed from wishlist');
+    } catch (err) {
+      showToast('Could not update wishlist', 'error');
+    }
+  };
+
   // Handle variation selection and update URL and re-fetch data
   const handleVariationSelectInPage = (variation) => {
     const currentSearchParams = new URLSearchParams(searchParams);
@@ -221,26 +277,55 @@ const ProductPage = ({ params }) => {
     fetchProductDetailsAndImages(gspin, pid, type, variation.sku); // Pass the new sku
   };
 
+  // Shared by both "Add to Cart" and "Buy Now" — the two buttons only
+  // differ in where they send the user afterwards.
+  const addProductToCartAndTrack = async () => {
+    const cartData = {
+      gspin,
+      pid,
+      p_sku,
+      type,
+      quantity,
+      ...productData
+    };
+
+    const response = await cartService.addToCart(cartData);
+
+    if (response.success) {
+      // Server-side tracking — completes the view -> cart -> purchase
+      // funnel the seller analytics endpoints report on.
+      const unitPrice = productData.price?.selling_price?.$numberDecimal
+        ?? productData.price?.selling_price
+        ?? productData.price?.$numberDecimal
+        ?? productData.price
+        ?? null;
+      eventApi.track({
+        eventType: 'add_to_cart',
+        // gspin is the route param and equals the API's product_id
+        // business key (productData is a transformed view-model that
+        // doesn't carry it through under that name).
+        productId: gspin,
+        categoryId: productData.category?._id,
+        anonId: getAnonymousId(),
+        price: unitPrice != null ? Number(unitPrice) : null,
+        quantity,
+        value: unitPrice != null ? Number(unitPrice) * quantity : null,
+      });
+    }
+
+    return response;
+  };
+
   const handleAddToCart = async () => {
     try {
-      const cartData = {
-        gspin,
-        pid,
-        p_sku,
-        type,
-        quantity,
-        ...productData
-      };
-      
-      const response = await cartService.addToCart(cartData);
-      
+      const response = await addProductToCartAndTrack();
+
       if (response.success) {
         // Redirect to thank you page with item details
         const itemName = productData.title;
         const itemImage = productData.images?.[0];
         router.push(`/gp/cart?itemName=${encodeURIComponent(itemName)}&itemImage=${encodeURIComponent(itemImage)}`);
       } else {
-        // Handle error, maybe redirect to cart page with an error flag
         console.error('Failed to add to cart:', response.message);
         router.push('/gp/cart?error=add_failed');
       }
@@ -248,6 +333,28 @@ const ProductPage = ({ params }) => {
     } catch (error) {
       console.error('Error adding to cart:', error);
        router.push('/gp/cart?error=add_failed'); // Redirect even on error, maybe with a query param
+    }
+  };
+
+  // Buy Now — adds the item to the real cart (there's no separate
+  // single-item checkout model) then goes straight to /checkout, skipping
+  // the "added to cart" confirmation step Add to Cart shows.
+  const handleBuyNow = async () => {
+    const token = localStorage.getItem('geniezy_token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    try {
+      const response = await addProductToCartAndTrack();
+      if (response.success) {
+        router.push('/checkout');
+      } else {
+        showToast(response.message || 'Could not proceed to checkout', 'error');
+      }
+    } catch (error) {
+      console.error('Error on Buy Now:', error);
+      showToast('Could not proceed to checkout', 'error');
     }
   };
 
@@ -298,7 +405,8 @@ const ProductPage = ({ params }) => {
 
       {/* 3-Column Product Details Section */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* lg: Gallery(5) | Info(4) | BuyBox(3) — padded left on lg for thumbnail strip */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:pl-16">
           {/* Column 1: Gallery */}
           <ProductGallerySection
             thumbsToShow={thumbsToShow}
@@ -308,11 +416,13 @@ const ProductPage = ({ params }) => {
             productData={productData}
           />
 
-          {/* Column 2: Product Info */}
+          {/* Column 2: Product Info — 4 cols */}
+          <div className="lg:col-span-4">
           <ProductInfoSection
             productData={productData}
             onVariationSelect={handleVariationSelectInPage}
           />
+          </div>
 
           {/* Column 3: Buy Box */}
           <ProductCartSection
@@ -323,6 +433,9 @@ const ProductPage = ({ params }) => {
             setExchange={setExchange}
             estimatedDelivery={isMounted ? (duration?.text || 'Delivery time N/A') : 'Loading...'}
             onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
+            isWishlisted={isWishlisted}
+            onToggleWishlist={handleToggleWishlist}
           />
         </div>
       </div>
@@ -351,12 +464,10 @@ const ProductPage = ({ params }) => {
         </div>
       </div>
 
-      {/* Recommended Products Section */}
+      {/* Recommended Products Section — Similar / Frequently Bought
+          Together / Customers Also Explored (Phase 4, M3) */}
       <div className="max-w-6xl mx-auto px-4">
-        <RecommendedProducts 
-          categoryId={productData.category?._id} 
-          itemId={productData.id} 
-        />
+        <RecommendationRail context="pdp" productId={gspin} />
       </div>
 
       </div>
